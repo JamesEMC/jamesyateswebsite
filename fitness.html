@@ -1,52 +1,57 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="James Yates fitness progress page tracking strength, conditioning and Spartan race preparation.">
-  <title>James Yates | Fitness Journey</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>James Yates | EUT Antenna Position Calculator</title>
   <style>
     :root {
       color-scheme: light;
       --bg: #f5fbff;
       --bg-2: #eaf5fb;
-      --panel: rgba(255, 255, 255, .88);
+      --panel: rgba(255, 255, 255, .9);
       --panel-solid: #ffffff;
-      --text: #071522;
+      --ink: #071522;
       --muted: #526678;
       --faint: #7890a3;
       --line: #c8dce8;
       --line-strong: #8fb7c9;
-      --cyan: #007fa3;
-      --cyan-bright: #00a9d2;
-      --navy: #071522;
-      --green: #1f8f62;
-      --shadow: 0 24px 70px rgba(20, 55, 80, .16);
+      --accent: #007fa3;
+      --accent-bright: #00a9d2;
+      --accent-soft: rgba(0, 169, 210, .12);
+      --good: #0c7c59;
+      --warn: #8a6200;
+      --bad: #a22;
+      --shadow: 0 24px 70px rgba(20, 55, 80, .14);
     }
+
     [data-theme="dark"] {
       color-scheme: dark;
       --bg: #07111d;
       --bg-2: #0b1d2f;
-      --panel: rgba(10, 28, 45, .82);
+      --panel: rgba(10, 28, 45, .84);
       --panel-solid: #0a1a2a;
-      --text: #f4f8fd;
+      --ink: #f4f8fd;
       --muted: #a9bccf;
       --faint: #7890a3;
       --line: rgba(139, 239, 255, .22);
       --line-strong: rgba(139, 239, 255, .46);
-      --cyan: #54dff4;
-      --cyan-bright: #8befff;
-      --navy: #f4f8fd;
-      --green: #7ee3ad;
+      --accent: #54dff4;
+      --accent-bright: #8befff;
+      --accent-soft: rgba(84, 223, 244, .12);
+      --good: #7ee3ad;
+      --warn: #ffd27d;
+      --bad: #fb7185;
       --shadow: 0 24px 70px rgba(0, 0, 0, .28);
     }
+
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
       min-height: 100vh;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
+      color: var(--ink);
       background:
         linear-gradient(rgba(0, 127, 163, .055) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 127, 163, .055) 1px, transparent 1px),
@@ -55,21 +60,22 @@
         linear-gradient(145deg, var(--bg), var(--bg-2));
       background-size: 34px 34px, 34px 34px, auto, auto, auto;
     }
-    a { color: inherit; }
+
     .brand {
       position: fixed;
-      top: 22px;
-      right: 28px;
+      top: 14px;
+      right: 18px;
       z-index: 30;
       letter-spacing: .28em;
       text-transform: uppercase;
-      font-size: .82rem;
+      font-size: .72rem;
       color: var(--muted);
     }
+
     .theme-toggle {
       position: fixed;
-      left: 24px;
-      bottom: 24px;
+      left: 16px;
+      bottom: 16px;
       z-index: 40;
       display: inline-flex;
       align-items: center;
@@ -77,236 +83,196 @@
       border: 1px solid var(--line);
       border-radius: 999px;
       background: var(--panel);
-      color: var(--text);
-      padding: 9px 13px;
+      color: var(--ink);
+      padding: 7px 11px;
+      font-size: .86rem;
       box-shadow: var(--shadow);
       cursor: pointer;
       font: inherit;
     }
+
     .toggle-dot {
-      width: 22px;
-      height: 22px;
+      width: 18px;
+      height: 18px;
       border-radius: 999px;
-      background: linear-gradient(135deg, var(--cyan), var(--cyan-bright));
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
       box-shadow: 0 0 0 4px rgba(0, 169, 210, .13);
     }
+
     .shell {
-      width: min(1180px, calc(100% - 36px));
+      width: min(1440px, calc(100% - 20px));
       margin: 0 auto;
-      padding: 92px 0 72px;
+      padding: 34px 0 42px;
     }
+
     .breadcrumb {
       color: var(--muted);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: .86rem;
+      font-size: .78rem;
       letter-spacing: .12em;
       text-transform: uppercase;
-      margin-bottom: 34px;
+      margin-bottom: 22px;
     }
-    .breadcrumb a {
-      color: var(--cyan);
-      text-decoration: none;
-    }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; text-underline-offset: 4px; }
     .breadcrumb span { margin: 0 10px; color: var(--faint); }
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(290px, .58fr);
-      gap: 34px;
-      align-items: end;
-      margin-bottom: 36px;
-    }
+
     .eyebrow {
-      color: var(--cyan);
+      color: var(--accent);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       letter-spacing: .16em;
       text-transform: uppercase;
-      font-size: .86rem;
-      margin-bottom: 18px;
+      font-size: .82rem;
+      margin-bottom: 8px;
+      font-weight: 800;
     }
+
     h1 {
       margin: 0;
-      max-width: 850px;
-      font-size: clamp(2.55rem, 6vw, 5.8rem);
-      line-height: .92;
-      letter-spacing: -.045em;
+      font-size: clamp(1.65rem, 3.6vw, 3.1rem);
+      line-height: 1;
+      letter-spacing: -.035em;
     }
-    .hero-copy {
-      margin: 22px 0 0;
-      max-width: 850px;
+
+    .page-header {
+      margin-bottom: 18px;
+      max-width: 1080px;
+    }
+    .page-header p {
+      margin: 12px 0 0;
       color: var(--muted);
-      line-height: 1.75;
-      font-size: 1.08rem;
+      max-width: 900px;
+      line-height: 1.55;
+      font-size: .98rem;
     }
-    .summary-panel {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      padding: 22px;
-    }
-    .summary-panel h2 {
-      margin: 0 0 12px;
-      font-size: 1rem;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--cyan);
-    }
-    .summary-panel p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-    .signal {
-      height: 86px;
-      margin: 18px 0 0;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      background:
-        linear-gradient(90deg, transparent, rgba(0, 169, 210, .08), transparent),
-        repeating-linear-gradient(90deg, transparent 0 46px, rgba(0, 127, 163, .08) 47px, transparent 48px);
-      overflow: hidden;
-      position: relative;
-    }
-    .signal svg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-    .signal path {
-      fill: none;
-      stroke: var(--cyan);
-      stroke-width: 2;
-      stroke-linecap: round;
-      opacity: .78;
-      stroke-dasharray: 8 12;
-      animation: drift 12s linear infinite;
-    }
-    @keyframes drift { to { stroke-dashoffset: -240; } }
-    .section-head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 18px;
-      margin: 46px 0 18px;
-    }
-    .section-head h2 {
-      margin: 0;
-      font-size: clamp(1.5rem, 3vw, 2.25rem);
-      letter-spacing: -.025em;
-    }
-    .section-head p {
-      max-width: 540px;
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .metrics-grid {
+
+    .tool-layout {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
+      grid-template-columns: minmax(310px, 390px) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
     }
-    .metric-card {
+
+    .card {
+      background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 10px;
-      background: var(--panel);
       box-shadow: var(--shadow);
-      padding: 20px;
-      min-height: 365px;
+      backdrop-filter: blur(10px);
     }
-    .metric-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      align-items: start;
+    .controls { padding: 16px; position: sticky; top: 12px; }
+    .results { padding: 16px; min-width: 0; }
+    .controls h2, .results h2 {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: .9rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 750;
+      font-size: .9rem;
+      color: var(--ink);
+    }
+    .hint { color: var(--muted); font-size: .8rem; margin-top: 4px; line-height: 1.35; }
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      background: var(--panel-solid);
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-size: .95rem;
+      color: var(--ink);
+    }
+    input:focus, select:focus { outline: 3px solid var(--accent-soft); border-color: var(--accent); }
+    .check-row { display: flex; align-items: center; gap: 9px; margin-top: 14px; cursor: pointer; }
+    .check-row input { width: auto; min-width: 18px; height: 18px; accent-color: var(--accent); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 11px 14px;
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      color: white;
+      font-weight: 800;
+      font-size: .98rem;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(.98); }
+    details { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
+    summary { cursor: pointer; font-weight: 800; color: var(--accent); }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 10px;
       margin-bottom: 14px;
     }
-    .metric-title h3 {
-      margin: 0 0 7px;
-      font-size: 1.28rem;
-    }
-    .metric-title p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-    .current {
-      min-width: 112px;
-      text-align: right;
-    }
-    .current strong {
-      display: block;
-      font-size: 1.7rem;
-      line-height: 1;
-      color: var(--cyan);
-    }
-    .current span {
-      display: block;
-      margin-top: 6px;
-      color: var(--faint);
-      font-size: .86rem;
-    }
-    .chart {
-      width: 100%;
-      height: 208px;
-      margin-top: 18px;
-    }
-    .chart text {
-      fill: var(--faint);
-      font-size: 11px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-    .chart .grid { stroke: var(--line); stroke-width: 1; }
-    .chart .goal { stroke: var(--green); stroke-width: 1.5; stroke-dasharray: 5 6; }
-    .chart .line { fill: none; stroke: var(--cyan); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-    .chart .area { fill: rgba(0, 169, 210, .12); }
-    .chart .dot { fill: var(--panel-solid); stroke: var(--cyan); stroke-width: 2.5; }
-    .note-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-top: 18px;
-    }
-    .note {
+    .metric {
       border: 1px solid var(--line);
       border-radius: 10px;
-      background: var(--panel);
-      padding: 20px;
+      padding: 12px;
+      background: linear-gradient(150deg, var(--panel-solid), rgba(0, 169, 210, .06));
+      min-height: 82px;
     }
-    .note h3 {
-      margin: 0 0 10px;
-      color: var(--cyan);
-      font-size: 1rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-    .note p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-    .note code {
-      color: var(--text);
-      background: rgba(0, 169, 210, .1);
+    .metric .label { color: var(--muted); font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .metric .value { font-size: 1.45rem; font-weight: 850; margin-top: 4px; color: var(--ink); }
+    .metric .small { color: var(--muted); font-size: .8rem; margin-top: 3px; }
+    #status {
+      margin: 8px 0 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
       border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 2px 6px;
+      background: rgba(0, 169, 210, .09);
+      color: var(--ink);
+      line-height: 1.45;
     }
-    @media (max-width: 860px) {
-      .hero, .metrics-grid, .note-grid { grid-template-columns: 1fr; }
-      .summary-panel { order: -1; }
-      .section-head { display: block; }
-      .section-head p { margin-top: 12px; }
+    #status.warn { background: rgba(255, 212, 125, .16); color: var(--warn); }
+    #status.bad { background: rgba(251, 113, 133, .16); color: var(--bad); }
+    .canvas-wrap {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: var(--panel-solid);
+      overflow: auto;
     }
-    @media (max-width: 640px) {
-      .brand { top: 16px; right: 16px; font-size: .74rem; }
-      .shell { width: min(100% - 28px, 1180px); padding-top: 78px; }
-      .breadcrumb { font-size: .74rem; margin-bottom: 24px; letter-spacing: .08em; }
-      .metric-card { padding: 16px; min-height: 335px; }
-      .metric-top { display: block; }
-      .current { text-align: left; margin-top: 16px; }
-      .theme-toggle { left: 14px; bottom: 14px; }
+    canvas { display: block; width: 100%; max-width: 780px; min-height: 360px; margin: 0 auto; }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: .84rem; margin: 10px 0 16px; }
+    .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 5px; border: 1px solid #8885; }
+    .s-blue { background: rgba(0, 169, 210, .22); }
+    .s-red { background: rgba(185, 28, 28, .24); }
+    .s-dot { background: var(--ink); border-radius: 50%; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 8px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; }
+    .explain { margin-top: 16px; color: var(--muted); line-height: 1.5; font-size: .9rem; }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 800;
+      background: rgba(12, 124, 89, .12);
+      color: var(--good);
+    }
+    code { background: rgba(0, 169, 210, .1); padding: 1px 5px; border-radius: 5px; color: var(--ink); }
+
+    @media (max-width: 980px) {
+      .tool-layout { grid-template-columns: 1fr; }
+      .controls { position: static; }
+    }
+    @media (max-width: 700px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+      .row { grid-template-columns: 1fr; }
+      .brand { top: 12px; right: 12px; font-size: .68rem; }
+      .shell { width: min(100% - 20px, 1440px); padding-top: 56px; }
+      .theme-toggle { left: 12px; bottom: 12px; }
     }
   </style>
 </head>
@@ -318,151 +284,717 @@
   </button>
 
   <main class="shell">
-    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span>Fitness Journey</nav>
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>EUT antenna positions</nav>
 
-    <section class="hero">
+    <header class="page-header">
+      <div class="eyebrow">EMC chamber setup</div>
+      <h1>EUT antenna illumination position calculator.</h1>
+      <p>Estimate practical antenna centre positions needed to illuminate a rectangular EUT with a circular antenna footprint. The calculation is numerical, so it is useful for chamber setup planning rather than as a replacement for the relevant test standard or antenna gain model.</p>
+    </header>
+
+    <div class="tool-layout">
+      <section class="card controls">
+        <h2>Inputs</h2>
+    <div class="row">
       <div>
-        <div class="eyebrow">Discipline & Progress</div>
-        <h1>Discipline, measured over time.</h1>
-        <p class="hero-copy">This page tracks the training markers that matter for Spartan-style performance: pulling strength, conditioning, grip control and repeatable effort. The aim is not just a better result, but a more disciplined training process.</p>
+        <label for="diameter">Antenna footprint diameter</label>
+        <input id="diameter" type="number" min="0.1" step="0.1" value="15" />
+        <div class="hint">cm, treated as a circular illumination footprint</div>
       </div>
-      <aside class="summary-panel">
-        <h2>Current Focus</h2>
-        <p>Build back stronger with consistent strength work, controlled conditioning and enough recovery to keep the next block moving forward.</p>
-        <div class="signal" aria-hidden="true">
-          <svg viewBox="0 0 600 86" preserveAspectRatio="none">
-            <path d="M0 52 C70 52 72 52 86 52 C94 52 98 20 106 20 C116 20 120 68 132 68 C146 68 150 42 162 42 C194 42 196 42 226 42 C246 42 250 56 270 56 C292 56 296 30 316 30 C340 30 342 52 366 52 C420 52 430 52 480 52 C498 52 504 38 520 38 C544 38 550 52 600 52" />
-          </svg>
-        </div>
-      </aside>
-    </section>
-
-    <section aria-labelledby="progress-heading">
-      <div class="section-head">
-        <div>
-          <div class="eyebrow">Recorded Results</div>
-          <h2 id="progress-heading">Training markers</h2>
-        </div>
-        <p>The charts are fed from <code>data/fitness-data.json</code>, so the page can stay free on GitHub Pages while the data remains easy to update.</p>
+      <div>
+        <label for="target">Required coverage</label>
+        <input id="target" type="number" min="1" max="100" step="0.1" value="90" />
+        <div class="hint">percentage of EUT area</div>
       </div>
-      <div class="metrics-grid" id="metrics"></div>
-    </section>
+    </div>
 
-    <section class="note-grid" aria-label="Notes">
-      <article class="note">
-        <h3>Why Track It</h3>
-        <p>The numbers give each training block a clear direction. They also keep the page honest: improvement is shown by repeatable results rather than vague motivation.</p>
-      </article>
-      <article class="note">
-        <h3>Free Setup</h3>
-        <p>No paid database is needed yet. Edit the JSON file in GitHub, commit the change, and GitHub Pages will serve the updated charts.</p>
-      </article>
-    </section>
+    <div class="row">
+      <div>
+        <label for="width">EUT width</label>
+        <input id="width" type="number" min="0.1" step="0.1" value="20" />
+      </div>
+      <div>
+        <label for="height">EUT height</label>
+        <input id="height" type="number" min="0.1" step="0.1" value="30" />
+      </div>
+    </div>
+    <div class="hint">cm. Width and height can be swapped; the result may change slightly due to finite sampling.</div>
+
+    <details>
+      <summary>Advanced settings</summary>
+      <label for="resolution">Area calculation resolution</label>
+      <select id="resolution">
+        <option value="55">Fast</option>
+        <option value="80" selected>Balanced</option>
+        <option value="115">High</option>
+        <option value="155">Very high</option>
+      </select>
+      <div class="hint">Number of sample points along the longest EUT side. Higher is slower but more accurate.</div>
+
+      <label for="candidateFactor">Position search fineness</label>
+      <select id="candidateFactor">
+        <option value="0.75">Coarse</option>
+        <option value="0.5" selected>Balanced</option>
+        <option value="0.35">Fine</option>
+        <option value="0.25">Very fine</option>
+      </select>
+      <div class="hint">Candidate centre spacing as a fraction of antenna radius.</div>
+
+      <label for="strategy">Optimisation effort</label>
+      <select id="strategy">
+        <option value="fast">Fast</option>
+        <option value="balanced" selected>Balanced</option>
+        <option value="thorough">Thorough</option>
+      </select>
+      <div class="hint">Thorough tries more centre nudges and is useful near a borderline result.</div>
+
+      <label class="check-row" for="alignRows">
+        <input id="alignRows" type="checkbox" checked />
+        Align centres into practical rows
+      </label>
+      <div class="hint">Groups positions with similar height, averages each row to one y value, then retests coverage. This makes antenna positioning much easier in the chamber.</div>
+    </details>
+
+    <button id="run">Calculate positions</button>
+      </section>
+
+      <section class="card results">
+        <h2>Result</h2>
+    <div id="status">Enter dimensions and press calculate.</div>
+    <div class="summary-grid">
+      <div class="metric">
+        <div class="label">Positions needed</div>
+        <div id="positionsNeeded" class="value">–</div>
+        <div id="positionsSmall" class="small">antenna centre points</div>
+      </div>
+      <div class="metric">
+        <div class="label">Estimated coverage</div>
+        <div id="coverage" class="value">–</div>
+        <div class="small">sampled area inside EUT</div>
+      </div>
+      <div class="metric">
+        <div class="label">Mathematical lower bound</div>
+        <div id="lowerBound" class="value">–</div>
+        <div class="small">area-only minimum</div>
+      </div>
+      <div class="metric">
+        <div class="label">Samples used</div>
+        <div id="samplesUsed" class="value">–</div>
+        <div class="small">area test points</div>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="drawing" width="900" height="620" aria-label="EUT coverage drawing"></canvas>
+    </div>
+    <div class="legend">
+      <span><span class="swatch s-blue"></span>covered by antenna footprint</span>
+      <span><span class="swatch s-red"></span>estimated uncovered EUT area</span>
+      <span><span class="swatch s-dot"></span>antenna centre position</span>
+    </div>
+
+    <h2>Centre positions</h2>
+    <div id="tableWrap"></div>
+
+    <div class="explain">
+      <p><span class="pill">Method</span> The page first calculates an impossible-to-beat area lower bound using
+        <code>ceil(required area / circle area)</code>. It then searches for practical centre positions and tests the actual EUT area covered by the union of the circles.</p>
+      <p>The exact least-number circle-covering problem is not a simple closed-form formula for every rectangle and percentage, so this is a practical numerical optimiser. When row alignment is enabled, the optimiser averages similar y positions into common rows and only accepts the aligned result if the requested coverage is still met. Increase the resolution and search fineness if the result is borderline.</p>
+    </div>
+      </section>
+    </div>
   </main>
 
   <script>
-    const fallbackData = {
-      metrics: [
-        { key: "pullups", label: "Pull-ups", unit: "reps", goal: 12, description: "Strict pull-up progress toward stronger obstacle control.", values: [{ date: "2026-04-01", value: 5 }, { date: "2026-04-20", value: 6 }, { date: "2026-05-10", value: 7 }, { date: "2026-06-08", value: 6 }] },
-        { key: "burpees30", label: "30 burpees", unit: "min", goal: 3.0, lowerIsBetter: true, description: "Conditioning marker for fast recovery under fatigue.", values: [{ date: "2026-04-01", value: 4.8 }, { date: "2026-04-20", value: 4.4 }, { date: "2026-05-10", value: 4.15 }, { date: "2026-06-08", value: 3.92 }] },
-        { key: "latpulldown", label: "Lat pulldown", unit: "kg x 10", goal: 60, description: "Back strength to support climbing and carries.", values: [{ date: "2026-04-01", value: 40 }, { date: "2026-04-20", value: 45 }, { date: "2026-05-10", value: 50 }, { date: "2026-06-08", value: 50 }] },
-        { key: "hangraise", label: "Hanging raises", unit: "sec", goal: 45, description: "Grip and trunk control under hanging fatigue.", values: [{ date: "2026-04-01", value: 20 }, { date: "2026-04-20", value: 24 }, { date: "2026-05-10", value: 28 }, { date: "2026-06-08", value: 30 }] }
-      ]
-    };
-
-    const root = document.documentElement;
-    const toggle = document.querySelector(".theme-toggle");
-    const toggleText = document.querySelector(".toggle-text");
+    const themeRoot = document.documentElement;
+    const themeToggle = document.querySelector(".theme-toggle");
+    const themeToggleText = document.querySelector(".toggle-text");
     const storedTheme = localStorage.getItem("jy-theme");
-    if (storedTheme === "dark") root.dataset.theme = "dark";
-    updateToggleText();
-
-    toggle.addEventListener("click", () => {
-      root.dataset.theme = root.dataset.theme === "dark" ? "" : "dark";
-      localStorage.setItem("jy-theme", root.dataset.theme || "light");
-      updateToggleText();
+    if (storedTheme === "dark") themeRoot.dataset.theme = "dark";
+    updateThemeToggleText();
+    themeToggle.addEventListener("click", () => {
+      themeRoot.dataset.theme = themeRoot.dataset.theme === "dark" ? "" : "dark";
+      localStorage.setItem("jy-theme", themeRoot.dataset.theme || "light");
+      updateThemeToggleText();
     });
-
-    function updateToggleText() {
-      toggleText.textContent = root.dataset.theme === "dark" ? "Light mode" : "Dark mode";
+    function updateThemeToggleText() {
+      themeToggleText.textContent = themeRoot.dataset.theme === "dark" ? "Light mode" : "Dark mode";
     }
-
-    function niceDate(iso) {
-      return new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
-    }
-
-    function formatValue(metric, value) {
-      if (metric.unit === "min") return value.toFixed(2).replace(/\.00$/, "") + " min";
-      return value + " " + metric.unit;
-    }
-
-    function chartSvg(metric) {
-      const values = metric.values;
-      const nums = values.map(point => point.value).concat(metric.goal ? [metric.goal] : []);
-      let min = Math.min(...nums);
-      let max = Math.max(...nums);
-      const pad = (max - min || 1) * 0.18;
-      min -= pad;
-      max += pad;
-      const width = 560;
-      const height = 208;
-      const left = 42;
-      const right = 18;
-      const top = 20;
-      const bottom = 36;
-      const innerW = width - left - right;
-      const innerH = height - top - bottom;
-      const x = index => left + (values.length === 1 ? innerW / 2 : index * innerW / (values.length - 1));
-      const y = value => top + (max - value) * innerH / (max - min);
-      const points = values.map((point, index) => [x(index), y(point.value)]);
-      const line = points.map((point, index) => `${index ? "L" : "M"} ${point[0].toFixed(1)} ${point[1].toFixed(1)}`).join(" ");
-      const area = `${line} L ${points[points.length - 1][0].toFixed(1)} ${height - bottom} L ${points[0][0].toFixed(1)} ${height - bottom} Z`;
-      const goalY = metric.goal ? y(metric.goal) : null;
-      const mid = (min + max) / 2;
-      return `
-        <svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${metric.label} progress chart">
-          <line class="grid" x1="${left}" y1="${top}" x2="${width - right}" y2="${top}"></line>
-          <line class="grid" x1="${left}" y1="${top + innerH / 2}" x2="${width - right}" y2="${top + innerH / 2}"></line>
-          <line class="grid" x1="${left}" y1="${height - bottom}" x2="${width - right}" y2="${height - bottom}"></line>
-          <text x="0" y="${top + 4}">${max.toFixed(1)}</text>
-          <text x="0" y="${top + innerH / 2 + 4}">${mid.toFixed(1)}</text>
-          <text x="0" y="${height - bottom + 4}">${min.toFixed(1)}</text>
-          ${goalY ? `<line class="goal" x1="${left}" y1="${goalY}" x2="${width - right}" y2="${goalY}"></line><text x="${width - 84}" y="${goalY - 7}">goal ${metric.goal}</text>` : ""}
-          <path class="area" d="${area}"></path>
-          <path class="line" d="${line}"></path>
-          ${points.map((point, index) => `<circle class="dot" cx="${point[0]}" cy="${point[1]}" r="5"><title>${niceDate(values[index].date)}: ${formatValue(metric, values[index].value)}</title></circle>`).join("")}
-          <text x="${left}" y="${height - 9}">${niceDate(values[0].date)}</text>
-          <text text-anchor="end" x="${width - right}" y="${height - 9}">${niceDate(values[values.length - 1].date)}</text>
-        </svg>
-      `;
-    }
-
-    function render(data) {
-      const metrics = document.getElementById("metrics");
-      metrics.innerHTML = data.metrics.map(metric => {
-        const latest = metric.values[metric.values.length - 1];
-        return `
-          <article class="metric-card">
-            <div class="metric-top">
-              <div class="metric-title">
-                <h3>${metric.label}</h3>
-                <p>${metric.description}</p>
-              </div>
-              <div class="current">
-                <strong>${formatValue(metric, latest.value)}</strong>
-                <span>Current best</span>
-              </div>
-            </div>
-            ${chartSvg(metric)}
-          </article>
-        `;
-      }).join("");
-    }
-
-    fetch("data/fitness-data.json")
-      .then(response => response.ok ? response.json() : fallbackData)
-      .then(render)
-      .catch(() => render(fallbackData));
   </script>
+
+  <script>
+const $ = (id) => document.getElementById(id);
+
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+function sq(v) { return v * v; }
+function fmt(v, dp = 2) { return Number.isFinite(v) ? v.toFixed(dp) : "–"; }
+
+function readInputs() {
+  const D = parseFloat($("diameter").value);
+  const W = parseFloat($("width").value);
+  const H = parseFloat($("height").value);
+  const target = parseFloat($("target").value) / 100;
+  const resLong = parseInt($("resolution").value, 10);
+  const candidateFactor = parseFloat($("candidateFactor").value);
+  const strategy = $("strategy").value;
+  const alignRows = $("alignRows") ? $("alignRows").checked : false;
+  if (![D,W,H,target].every(Number.isFinite) || D <= 0 || W <= 0 || H <= 0 || target <= 0 || target > 1) {
+    throw new Error("Please enter positive dimensions and a coverage percentage between 1 and 100.");
+  }
+  return { D, r: D / 2, W, H, target, resLong, candidateFactor, strategy, alignRows };
+}
+
+function makeSamples(W, H, resLong) {
+  const longest = Math.max(W, H);
+  const nx = Math.max(8, Math.round(resLong * W / longest));
+  const ny = Math.max(8, Math.round(resLong * H / longest));
+  const samples = [];
+  for (let iy = 0; iy < ny; iy++) {
+    const y = (iy + 0.5) * H / ny;
+    for (let ix = 0; ix < nx; ix++) {
+      const x = (ix + 0.5) * W / nx;
+      samples.push({ x, y, ix, iy });
+    }
+  }
+  return { samples, nx, ny };
+}
+
+function makeCandidates(W, H, r, factor) {
+  let step = Math.max(Math.min(W, H) / 120, r * factor);
+  const maxCandidates = 3600;
+  let xs, ys;
+  while (true) {
+    xs = makeAxisValues(W, step);
+    ys = makeAxisValues(H, step);
+    if (xs.length * ys.length <= maxCandidates || step >= Math.max(W,H)) break;
+    step *= 1.18;
+  }
+  const candidates = [];
+  for (const y of ys) for (const x of xs) candidates.push({ x, y });
+  // Add a few useful analytical points that coarse grids can otherwise miss.
+  const specials = [
+    [W/2, H/2], [0,0], [W,0], [0,H], [W,H], [W/2,0], [W/2,H], [0,H/2], [W,H/2]
+  ];
+  for (const [x,y] of specials) candidates.push({ x, y });
+  return candidates;
+}
+
+function makeAxisValues(length, step) {
+  const values = [0, length];
+  const n = Math.max(1, Math.ceil(length / step));
+  for (let i = 0; i <= n; i++) values.push(clamp(i * length / n, 0, length));
+  // Remove duplicates caused by 0 and length.
+  return [...new Set(values.map(v => +v.toFixed(6)))].sort((a,b) => a-b);
+}
+
+function coverageRatio(positions, samples, r) {
+  const r2 = r*r;
+  let covered = 0;
+  outer:
+  for (const p of samples) {
+    for (const c of positions) {
+      if (sq(p.x - c.x) + sq(p.y - c.y) <= r2) { covered++; continue outer; }
+    }
+  }
+  return covered / samples.length;
+}
+
+function coveredMask(positions, samples, r) {
+  const r2 = r*r;
+  const covered = new Uint8Array(samples.length);
+  let count = 0;
+  for (let i = 0; i < samples.length; i++) {
+    const p = samples[i];
+    for (const c of positions) {
+      if (sq(p.x - c.x) + sq(p.y - c.y) <= r2) {
+        covered[i] = 1;
+        count++;
+        break;
+      }
+    }
+  }
+  return { covered, count };
+}
+
+function greedyPositions(candidates, samples, r, target, maxN) {
+  const r2 = r*r;
+  const uncovered = new Uint8Array(samples.length);
+  uncovered.fill(1);
+  let uncoveredCount = samples.length;
+  const positions = [];
+  const targetCovered = Math.ceil(target * samples.length);
+  let coveredCount = 0;
+
+  for (let n = 0; n < maxN && coveredCount < targetCovered; n++) {
+    let best = null;
+    let bestGain = -1;
+    for (const cand of candidates) {
+      let gain = 0;
+      for (let i = 0; i < samples.length; i++) {
+        if (!uncovered[i]) continue;
+        const p = samples[i];
+        if (sq(p.x - cand.x) + sq(p.y - cand.y) <= r2) gain++;
+      }
+      if (gain > bestGain) { bestGain = gain; best = cand; }
+    }
+    if (!best || bestGain <= 0) break;
+    positions.push({ x: best.x, y: best.y });
+    for (let i = 0; i < samples.length; i++) {
+      if (!uncovered[i]) continue;
+      const p = samples[i];
+      if (sq(p.x - best.x) + sq(p.y - best.y) <= r2) {
+        uncovered[i] = 0;
+        uncoveredCount--;
+      }
+    }
+    coveredCount = samples.length - uncoveredCount;
+  }
+  return positions;
+}
+
+function layoutSeeds(n, W, H) {
+  const layouts = [];
+
+  // Rectangular row/column layouts.
+  for (let rows = 1; rows <= n; rows++) {
+    const cols = Math.ceil(n / rows);
+    const total = rows * cols;
+    if (total < n || total - n > rows) continue;
+    const pts = [];
+    let remaining = n;
+    for (let row = 0; row < rows; row++) {
+      const rowsLeft = rows - row;
+      const count = Math.ceil(remaining / rowsLeft);
+      const y = (row + 0.5) * H / rows;
+      for (let col = 0; col < count; col++) {
+        const x = (col + 0.5) * W / count;
+        pts.push({x,y});
+      }
+      remaining -= count;
+    }
+    layouts.push(pts);
+  }
+
+  // Staggered / hex-style layouts.
+  for (let rows = 1; rows <= n; rows++) {
+    const baseCols = Math.ceil(n / rows);
+    const pts = [];
+    let remaining = n;
+    for (let row = 0; row < rows; row++) {
+      const rowsLeft = rows - row;
+      const count = Math.ceil(remaining / rowsLeft);
+      const y = rows === 1 ? H/2 : row * H / (rows - 1);
+      const offset = (row % 2) * (W / Math.max(1, count)) / 2;
+      for (let col = 0; col < count; col++) {
+        let x = count === 1 ? W/2 : col * W / (count - 1);
+        x = clamp(x + offset - (offset && count > 1 ? W/(2*(count-1)) : 0), 0, W);
+        pts.push({x,y});
+      }
+      remaining -= count;
+    }
+    layouts.push(pts.slice(0,n));
+  }
+
+  return layouts.filter(p => p.length === n);
+}
+
+function optimisePositions(seed, W, H, r, samples, effort) {
+  let best = seed.map(p => ({ x: clamp(p.x, 0, W), y: clamp(p.y, 0, H) }));
+  let bestScore = coverageRatio(best, samples, r);
+  const directionSets = [
+    [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]],
+    [[.5,0],[-.5,0],[0,.5],[0,-.5],[.5,.5],[.5,-.5],[-.5,.5],[-.5,-.5]]
+  ];
+  const minDim = Math.min(W,H);
+  const passes = effort === "thorough" ? 9 : effort === "balanced" ? 6 : 4;
+  let step = Math.max(r * 0.55, Math.max(W,H) / 8);
+  const stop = Math.max(minDim / 160, r / 22);
+
+  for (let pass = 0; pass < passes && step > stop; pass++) {
+    let improvedThisPass = false;
+    for (let i = 0; i < best.length; i++) {
+      for (const dirs of directionSets) {
+        for (const [dx,dy] of dirs) {
+          const test = best.map(p => ({...p}));
+          test[i].x = clamp(test[i].x + dx * step, 0, W);
+          test[i].y = clamp(test[i].y + dy * step, 0, H);
+          const score = coverageRatio(test, samples, r);
+          if (score > bestScore + 1e-10) {
+            best = test;
+            bestScore = score;
+            improvedThisPass = true;
+          }
+        }
+      }
+    }
+    if (!improvedThisPass) step *= 0.55;
+    else step *= 0.82;
+  }
+  return { positions: best, score: bestScore };
+}
+
+
+function makeRowGroups(positions, r, H) {
+  const sorted = positions.map(p => ({ x: p.x, y: p.y })).sort((a,b) => a.y - b.y || a.x - b.x);
+  const tolerance = Math.max(r * 0.45, H / 80);
+  const groups = [];
+
+  for (const p of sorted) {
+    const current = groups[groups.length - 1];
+    if (!current) {
+      groups.push({ y: p.y, items: [{ x: p.x }] });
+      continue;
+    }
+    const meanY = current.y;
+    if (Math.abs(p.y - meanY) <= tolerance) {
+      current.items.push({ x: p.x });
+      current.y = (current.y * (current.items.length - 1) + p.y) / current.items.length;
+    } else {
+      groups.push({ y: p.y, items: [{ x: p.x }] });
+    }
+  }
+
+  for (const g of groups) g.items.sort((a,b) => a.x - b.x);
+  return { groups, tolerance };
+}
+
+function cloneRowGroups(groups) {
+  return groups.map(g => ({
+    y: g.y,
+    items: g.items.map(item => ({ x: item.x }))
+  }));
+}
+
+function positionsFromRowGroups(groups, W, H) {
+  const pts = [];
+  groups.forEach((g, rowIndex) => {
+    const y = clamp(g.y, 0, H);
+    const sortedItems = g.items.slice().sort((a,b) => a.x - b.x);
+    for (const item of sortedItems) {
+      pts.push({ x: clamp(item.x, 0, W), y, row: rowIndex + 1 });
+    }
+  });
+  return pts.sort((a,b) => a.y - b.y || a.x - b.x);
+}
+
+function optimiseRowAlignedGroups(startGroups, W, H, r, samples, effort) {
+  let bestGroups = cloneRowGroups(startGroups);
+  let bestScore = coverageRatio(positionsFromRowGroups(bestGroups, W, H), samples, r);
+  const passes = effort === "thorough" ? 8 : effort === "balanced" ? 5 : 3;
+  let step = Math.max(r * 0.28, Math.min(W,H) / 28);
+  const stop = Math.max(r / 90, Math.min(W,H) / 260);
+
+  for (let pass = 0; pass < passes && step > stop; pass++) {
+    let improved = false;
+
+    // Move an entire row up/down while keeping that row level.
+    for (let row = 0; row < bestGroups.length; row++) {
+      for (const dir of [-1, 1]) {
+        const test = cloneRowGroups(bestGroups);
+        test[row].y = clamp(test[row].y + dir * step, 0, H);
+        const score = coverageRatio(positionsFromRowGroups(test, W, H), samples, r);
+        if (score > bestScore + 1e-10) {
+          bestGroups = test;
+          bestScore = score;
+          improved = true;
+        }
+      }
+    }
+
+    // Shift all centres in a row left/right together.
+    for (let row = 0; row < bestGroups.length; row++) {
+      for (const dir of [-1, 1]) {
+        const test = cloneRowGroups(bestGroups);
+        for (const item of test[row].items) item.x = clamp(item.x + dir * step, 0, W);
+        const score = coverageRatio(positionsFromRowGroups(test, W, H), samples, r);
+        if (score > bestScore + 1e-10) {
+          bestGroups = test;
+          bestScore = score;
+          improved = true;
+        }
+      }
+    }
+
+    // Fine-tune individual x positions. The row y values remain common.
+    for (let row = 0; row < bestGroups.length; row++) {
+      for (let itemIndex = 0; itemIndex < bestGroups[row].items.length; itemIndex++) {
+        for (const dir of [-1, 1]) {
+          const test = cloneRowGroups(bestGroups);
+          test[row].items[itemIndex].x = clamp(test[row].items[itemIndex].x + dir * step, 0, W);
+          const score = coverageRatio(positionsFromRowGroups(test, W, H), samples, r);
+          if (score > bestScore + 1e-10) {
+            bestGroups = test;
+            bestScore = score;
+            improved = true;
+          }
+        }
+      }
+    }
+
+    step *= improved ? 0.72 : 0.5;
+  }
+
+  return {
+    positions: positionsFromRowGroups(bestGroups, W, H),
+    score: bestScore,
+    rowCount: bestGroups.length
+  };
+}
+
+function alignPositionsIntoRows(positions, W, H, r, samples, target, effort) {
+  const originalScore = coverageRatio(positions, samples, r);
+  const grouped = makeRowGroups(positions, r, H);
+  if (grouped.groups.length < 2) {
+    return {
+      positions: positions.map(p => ({ ...p, row: 1 })),
+      score: originalScore,
+      originalScore,
+      rowCount: grouped.groups.length,
+      applied: true,
+      tolerance: grouped.tolerance
+    };
+  }
+
+  const averagedPositions = positionsFromRowGroups(grouped.groups, W, H);
+  const averagedScore = coverageRatio(averagedPositions, samples, r);
+  let bestAligned = { positions: averagedPositions, score: averagedScore, rowCount: grouped.groups.length };
+
+  // If simple averaging lost too much coverage, allow small y-row and x-position nudges while keeping rows level.
+  const nudged = optimiseRowAlignedGroups(grouped.groups, W, H, r, samples, effort);
+  if (nudged.score > bestAligned.score) bestAligned = nudged;
+
+  return {
+    ...bestAligned,
+    originalScore,
+    averagedScore,
+    applied: bestAligned.score >= target,
+    tolerance: grouped.tolerance
+  };
+}
+
+function findBestForN(n, W, H, r, samples, greedySeed, effort) {
+  let bestPositions = greedySeed.slice(0, n).map(p => ({x:p.x, y:p.y}));
+  let bestScore = bestPositions.length === n ? coverageRatio(bestPositions, samples, r) : 0;
+
+  const seeds = layoutSeeds(n, W, H);
+  if (bestPositions.length === n) seeds.unshift(bestPositions);
+
+  const maxSeeds = effort === "thorough" ? 26 : effort === "balanced" ? 15 : 8;
+  seeds.sort((a,b) => coverageRatio(b, samples, r) - coverageRatio(a, samples, r));
+
+  for (const seed of seeds.slice(0, maxSeeds)) {
+    const opt = optimisePositions(seed, W, H, r, samples, effort);
+    if (opt.score > bestScore) {
+      bestScore = opt.score;
+      bestPositions = opt.positions;
+    }
+  }
+  return { positions: bestPositions, score: bestScore };
+}
+
+function calculate() {
+  const status = $("status");
+  status.className = "";
+  try {
+    const { D, r, W, H, target, resLong, candidateFactor, strategy, alignRows } = readInputs();
+    status.textContent = "Calculating…";
+
+    // Let the UI update before CPU work starts.
+    setTimeout(() => {
+      try {
+        const { samples, nx, ny } = makeSamples(W, H, resLong);
+        const eutArea = W * H;
+        const circleArea = Math.PI * r * r;
+        const lowerBound = Math.max(1, Math.ceil((target * eutArea) / circleArea));
+        const maxN = Math.max(lowerBound + 12, Math.ceil((eutArea / circleArea) * 3) + 12);
+        const candidates = makeCandidates(W, H, r, candidateFactor);
+
+        let greedy = greedyPositions(candidates, samples, r, target, maxN);
+        if (!greedy.length) greedy = [{x:W/2, y:H/2}];
+        const greedyCoverage = coverageRatio(greedy, samples, r);
+
+        let best = { positions: greedy, score: greedyCoverage };
+        let found = false;
+        const searchLimit = Math.max(greedy.length, lowerBound + 8);
+        const tooLargeForFullOptimise = samples.length * candidates.length > 28000000 && searchLimit > 16;
+
+        if (!tooLargeForFullOptimise) {
+          for (let n = lowerBound; n <= searchLimit; n++) {
+            const test = findBestForN(n, W, H, r, samples, greedy, strategy);
+            if (test.score > best.score || (test.score >= target && n < best.positions.length)) best = test;
+            if (test.score >= target) { best = test; found = true; break; }
+          }
+        } else {
+          // For very large problems, use the fast greedy result to avoid freezing the browser.
+          found = greedyCoverage >= target;
+          best = { positions: greedy, score: greedyCoverage };
+        }
+
+        // Remove any centre that is not required after final optimisation.
+        let changed = true;
+        while (changed && best.positions.length > 1) {
+          changed = false;
+          for (let i = 0; i < best.positions.length; i++) {
+            const testPositions = best.positions.filter((_, idx) => idx !== i);
+            const score = coverageRatio(testPositions, samples, r);
+            if (score >= target) {
+              best = { positions: testPositions, score };
+              changed = true;
+              break;
+            }
+          }
+        }
+
+        let alignmentInfo = null;
+        if (alignRows && best.positions.length > 1) {
+          const aligned = alignPositionsIntoRows(best.positions, W, H, r, samples, target, strategy);
+          alignmentInfo = aligned;
+          if (aligned.applied) {
+            best = { positions: aligned.positions, score: aligned.score };
+          }
+        }
+
+        best.positions.sort((a,b) => a.y - b.y || a.x - b.x);
+        renderResults({ W,H,D,r,target, lowerBound, samples, nx, ny, positions: best.positions, coverage: best.score, found, tooLargeForFullOptimise, candidates: candidates.length, alignRows, alignmentInfo });
+      } catch (err) {
+        showError(err.message);
+      }
+    }, 20);
+  } catch (err) {
+    showError(err.message);
+  }
+}
+
+function showError(message) {
+  $("status").textContent = message;
+  $("status").className = "bad";
+}
+
+function renderResults(data) {
+  const { W,H,D,r,target, lowerBound, samples, nx, ny, positions, coverage, found, tooLargeForFullOptimise, candidates, alignRows, alignmentInfo } = data;
+  $("positionsNeeded").textContent = positions.length;
+  $("positionsSmall").textContent = positions.length === 1 ? "antenna centre point" : "antenna centre points";
+  $("coverage").textContent = (coverage * 100).toFixed(1) + "%";
+  $("lowerBound").textContent = lowerBound;
+  $("samplesUsed").textContent = samples.length.toLocaleString();
+
+  const delta = coverage - target;
+  let msg = `Estimated ${positions.length} position${positions.length === 1 ? "" : "s"} gives ${(coverage*100).toFixed(2)}% coverage for a ${W} cm × ${H} cm EUT using a ${D} cm diameter footprint.`;
+  if (positions.length === lowerBound && coverage >= target) {
+    msg += " This meets the area lower bound, so no smaller number is physically possible under this model.";
+  } else if (coverage >= target) {
+    msg += ` The area-only lower bound is ${lowerBound}, but overlap and edge geometry mean the practical result needs more.`;
+  } else {
+    msg += " The optimiser did not reach the target; increase search effort/resolution or check whether the footprint is too small for the requested coverage.";
+  }
+  if (alignRows && alignmentInfo) {
+    if (alignmentInfo.applied) {
+      msg += ` Row alignment is on: positions have been grouped into ${alignmentInfo.rowCount} common-height row${alignmentInfo.rowCount === 1 ? "" : "s"} and retested.`;
+    } else {
+      msg += ` Row alignment was tried, but the aligned layout only reached ${(alignmentInfo.score * 100).toFixed(2)}%, so the original free-position layout is shown.`;
+    }
+  }
+  if (tooLargeForFullOptimise) msg += " Large-case fast mode was used to keep the browser responsive.";
+  msg += ` Search used ${candidates.toLocaleString()} candidate centre points and a ${nx} × ${ny} area grid.`;
+  $("status").textContent = msg;
+  $("status").className = coverage >= target ? "" : "warn";
+
+  drawCanvas(data);
+  renderTable(positions);
+}
+
+function drawCanvas(data) {
+  const { W,H,r,samples,nx,ny,positions } = data;
+  const canvas = $("drawing");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const pad = 70;
+  const scale = Math.min((canvas.width - 2*pad) / W, (canvas.height - 2*pad) / H);
+  const ox = (canvas.width - W*scale) / 2;
+  const oy = (canvas.height - H*scale) / 2;
+  const toX = x => ox + x * scale;
+  const toY = y => oy + y * scale;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // Draw illumination circles first.
+  for (let i = 0; i < positions.length; i++) {
+    const p = positions[i];
+    ctx.beginPath();
+    ctx.arc(toX(p.x), toY(p.y), r * scale, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(36,87,197,0.17)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(36,87,197,0.62)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // Show uncovered sampled cells inside the EUT.
+  const mask = coveredMask(positions, samples, r).covered;
+  const cellW = W / nx * scale;
+  const cellH = H / ny * scale;
+  ctx.fillStyle = "rgba(185, 28, 28, 0.26)";
+  for (let i = 0; i < samples.length; i++) {
+    if (mask[i]) continue;
+    const s = samples[i];
+    ctx.fillRect(toX(s.x) - cellW/2, toY(s.y) - cellH/2, cellW, cellH);
+  }
+
+  // EUT boundary.
+  ctx.strokeStyle = "#17202a";
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(toX(0), toY(0), W*scale, H*scale);
+
+  // Centres and labels.
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "bold 13px system-ui, sans-serif";
+  for (let i = 0; i < positions.length; i++) {
+    const p = positions[i];
+    ctx.beginPath();
+    ctx.arc(toX(p.x), toY(p.y), 5, 0, Math.PI*2);
+    ctx.fillStyle = "#17202a";
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(String(i+1), toX(p.x), toY(p.y));
+  }
+
+  // Dimensions.
+  ctx.fillStyle = "#5f6b7a";
+  ctx.font = "13px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(`${W} cm`, toX(W/2), toY(H) + 24);
+  ctx.save();
+  ctx.translate(toX(0) - 32, toY(H/2));
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText(`${H} cm`, 0, 0);
+  ctx.restore();
+}
+
+function renderTable(positions) {
+  if (!positions.length) {
+    $("tableWrap").innerHTML = "<p>No positions found.</p>";
+    return;
+  }
+  const hasRows = positions.some(p => Number.isFinite(p.row));
+  const rows = positions.map((p, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      ${hasRows ? `<td>${p.row}</td>` : ""}
+      <td>${fmt(p.x, 2)}</td>
+      <td>${fmt(p.y, 2)}</td>
+    </tr>`).join("");
+  $("tableWrap").innerHTML = `
+    <table>
+      <thead><tr><th>Position</th>${hasRows ? "<th>Row</th>" : ""}<th>x from left edge, cm</th><th>y from top edge, cm</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+$("run").addEventListener("click", calculate);
+window.addEventListener("load", calculate);
+</script>
 </body>
 </html>
