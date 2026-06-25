@@ -1,0 +1,1298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>James Yates | Field Strength Calculator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5fbff;
+      --bg-2: #eaf5fb;
+      --panel: rgba(255, 255, 255, .9);
+      --panel-solid: #ffffff;
+      --text: #071522;
+      --muted: #526678;
+      --faint: #7890a3;
+      --line: #c8dce8;
+      --line-strong: #8fb7c9;
+      --accent: #007fa3;
+      --accent-bright: #00a9d2;
+      --warn: #8a6200;
+      --shadow: 0 24px 70px rgba(20, 55, 80, .14);
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111d;
+      --bg-2: #0b1d2f;
+      --panel: rgba(10, 28, 45, .84);
+      --panel-solid: #0a1a2a;
+      --text: #f4f8fd;
+      --muted: #a9bccf;
+      --faint: #7890a3;
+      --line: rgba(139, 239, 255, .22);
+      --line-strong: rgba(139, 239, 255, .46);
+      --accent: #54dff4;
+      --accent-bright: #8befff;
+      --warn: #ffd27d;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(0, 127, 163, .055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 127, 163, .055) 1px, transparent 1px),
+        radial-gradient(circle at 14% 12%, rgba(0, 169, 210, .16), transparent 32rem),
+        radial-gradient(circle at 86% 24%, rgba(22, 108, 168, .12), transparent 30rem),
+        linear-gradient(145deg, var(--bg), var(--bg-2));
+      background-size: 34px 34px, 34px 34px, auto, auto, auto;
+    }
+
+    .brand {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      z-index: 30;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 40;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 7px 11px;
+      font-size: .86rem;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .toggle-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      box-shadow: 0 0 0 4px rgba(0, 169, 210, .13);
+    }
+
+    .shell {
+      width: min(1440px, calc(100% - 20px));
+      margin: 0 auto;
+      padding: 34px 0 42px;
+    }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .breadcrumb a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .breadcrumb span {
+      margin: 0 9px;
+      color: var(--faint);
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-size: .68rem;
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin: 0;
+      font-size: clamp(1.45rem, 2.6vw, 2.35rem);
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+
+    .intro {
+      max-width: 980px;
+      margin: 8px 0 12px;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: .88rem;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 10px;
+    }
+
+    .panel h2 {
+      margin: 0 0 5px;
+      color: var(--accent);
+      font-size: .98rem;
+      letter-spacing: .03em;
+    }
+
+    .panel-note {
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: .78rem;
+    }
+
+    .warning {
+      border: 1px solid rgba(138, 98, 0, .28);
+      border-radius: 8px;
+      color: var(--warn);
+      background: rgba(255, 210, 125, .13);
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      font-size: .78rem;
+      line-height: 1.35;
+    }
+
+    .field-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      border: 1px solid var(--line);
+      background: var(--panel-solid);
+    }
+
+    .field-table th,
+    .field-table td {
+      border: 1px solid var(--line-strong);
+      height: 39px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .field-table th {
+      background: rgba(0, 169, 210, .08);
+      padding: 7px 8px;
+      font-size: .86rem;
+    }
+
+    .unit-cell {
+      width: 32%;
+      padding: 6px 8px;
+      background: rgba(0, 169, 210, .07);
+      font-weight: 800;
+      text-align: center;
+      font-size: .86rem;
+    }
+
+    .value-cell {
+      background: var(--panel-solid);
+      padding: 0;
+    }
+
+    .value-input {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 7px 9px;
+      text-align: right;
+      font: inherit;
+      font-size: .88rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .value-input:focus,
+    .small-input:focus {
+      outline: 3px solid rgba(0, 169, 210, .28);
+      outline-offset: -3px;
+    }
+
+    .inline-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: var(--muted);
+      font-size: .74rem;
+      font-weight: 700;
+    }
+
+    .small-input {
+      width: 116px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel-solid);
+      color: var(--text);
+      padding: 7px 8px;
+      font: inherit;
+    }
+
+    .standard-helper {
+      margin-top: 12px;
+    }
+
+    .standards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .standard-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(0, 169, 210, .04);
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .standard-card h3 {
+      margin: 0 0 7px;
+      color: var(--accent);
+      font-size: .88rem;
+    }
+
+    .standard-card .inline-controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .standard-card .small-input {
+      width: 100%;
+    }
+
+    .standard-card .formula-list {
+      gap: 6px;
+      margin: 8px 0;
+    }
+
+    .helper-result {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-solid);
+      padding: 8px;
+      min-height: 60px;
+      margin-top: 8px;
+    }
+
+    .helper-result span {
+      display: block;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .helper-result strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--text);
+      font-size: .92rem;
+      line-height: 1.25;
+    }
+
+    .status-pass strong { color: #087b4f; }
+    .status-warn strong { color: var(--warn); }
+
+    .standard-ref {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: .74rem;
+      line-height: 1.35;
+    }
+
+    .equations {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .equation-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(0, 169, 210, .06);
+      padding: 10px;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: .8rem;
+    }
+
+    .equation-card h3 {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font-size: .85rem;
+    }
+
+    .equation-card ul {
+      margin: 6px 0 0 18px;
+      padding: 0;
+    }
+
+    .equation-card li { margin: 3px 0; }
+
+    .formula-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .formula {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-solid);
+      padding: 7px 9px;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .83rem;
+      line-height: 1.4;
+    }
+
+    .formula small {
+      color: var(--muted);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    .frac {
+      display: inline-grid;
+      grid-template-rows: auto auto;
+      align-items: center;
+      min-width: 26px;
+      text-align: center;
+      line-height: 1.05;
+      vertical-align: middle;
+    }
+
+    .frac .top {
+      border-bottom: 1px solid currentColor;
+      padding: 0 4px 2px;
+    }
+
+    .frac .bottom {
+      padding: 2px 4px 0;
+    }
+
+    .cases {
+      display: grid;
+      gap: 5px;
+      width: 100%;
+      margin-top: 3px;
+    }
+
+    .case-row {
+      display: grid;
+      grid-template-columns: minmax(120px, auto) minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .symbol-key {
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid var(--line);
+    }
+
+    .symbol-key h4 {
+      margin: 0 0 7px;
+      color: var(--text);
+      font-size: .78rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .symbol-key dl {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr);
+      gap: 5px 9px;
+      margin: 0;
+    }
+
+    .symbol-key dt {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 800;
+    }
+
+    .symbol-key dd {
+      margin: 0;
+    }
+
+    .symbol-warning {
+      margin: 8px 0 0;
+      color: var(--warn);
+      font-size: .78rem;
+      line-height: 1.35;
+    }
+
+    .unit-notes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .note-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 10px;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: .82rem;
+    }
+
+    .note-card h3 {
+      margin: 0 0 7px;
+      color: var(--accent);
+      font-size: .9rem;
+    }
+
+    .note-card dl {
+      margin: 0;
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 6px 10px;
+    }
+
+    .note-card dt {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .note-card dd {
+      margin: 0;
+    }
+
+    .reference-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .reference-list a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent);
+      background: rgba(0, 169, 210, .06);
+      padding: 4px 8px;
+      text-decoration: none;
+      font-size: .76rem;
+    }
+
+    .reference-list a:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    code {
+      color: var(--text);
+      background: rgba(0, 169, 210, .09);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1px 5px;
+    }
+
+    @media (max-width: 900px) {
+      .panel-grid,
+      .equations,
+      .unit-notes,
+      .standards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .brand { top: 16px; right: 16px; font-size: .74rem; }
+      .shell { width: min(100% - 28px, 1440px); padding-top: 78px; }
+      .symbol-key dl,
+      .note-card dl { grid-template-columns: 72px minmax(0, 1fr); }
+      .theme-toggle { left: 14px; bottom: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="brand">James Yates</div>
+  <button class="theme-toggle" type="button" aria-label="Toggle colour theme">
+    <span class="toggle-dot" aria-hidden="true"></span>
+    <span class="toggle-text">Dark mode</span>
+  </button>
+
+  <main class="shell">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>Field Strength</nav>
+    <div class="eyebrow">EMC Field Strength Calculator</div>
+    <h1>Field strength, power density and radiated power.</h1>
+    <p class="intro">This page separates two related but different problems: plane-wave field-unit conversion, and distance-based radiated power estimates. Type into any value box within a section to update that section.</p>
+
+    <div class="panel-grid">
+      <section class="panel" aria-label="Plane wave field unit converter">
+        <h2>Plane-wave field units</h2>
+        <p class="panel-note">Use this when a free-space plane-wave assumption is valid. It links E-field, H-field, flux density and power density through the impedance of free space.</p>
+        <div class="warning">Assumption: far-field plane wave in free space. Near-field E/H relationships can be very different, so do not use this section for close-probe magnetic or electric near-field work.</div>
+        <table class="field-table">
+          <thead><tr><th>Unit</th><th>Value</th></tr></thead>
+          <tbody id="plane-body"></tbody>
+        </table>
+      </section>
+
+      <section class="panel" aria-label="Radiated power field strength converter">
+        <h2>Radiated power vs field strength</h2>
+        <p class="panel-note">Use this for ideal far-field estimates between measured field strength at distance and EIRP/ERP. It assumes isotropic free-space spreading.</p>
+        <div class="inline-controls">
+          <label>
+            Distance, m
+            <input id="distance" class="small-input" type="number" value="1" min="0.0001" step="0.1">
+          </label>
+        </div>
+        <div class="warning">Assumption: far field, free space, peak direction, EIRP referenced to an isotropic radiator. ERP is treated as EIRP - 2.15 dB.</div>
+        <table class="field-table">
+          <thead><tr><th>Unit</th><th>Value</th></tr></thead>
+          <tbody id="radiated-body"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <section class="panel standard-helper" aria-label="Standards distance helper">
+      <h2>Standards placement helper</h2>
+      <p class="panel-note">One set of inputs feeds the three standards checks. This keeps the RE103, RS103 and DO-160G logic separate instead of mixing them into one crowded block.</p>
+      <div class="standards-grid">
+        <article class="standard-card">
+          <h3>1. Inputs</h3>
+          <div class="inline-controls">
+            <label>
+              Frequency, MHz
+              <input id="mil-frequency" class="small-input" type="number" value="1000" min="0.001" step="1">
+            </label>
+            <label>
+              Transmit antenna D, m
+              <input id="mil-source-d" class="small-input" type="number" value="0.30" min="0" step="0.01">
+            </label>
+            <label>
+              Receive antenna / sensor d, m
+              <input id="mil-receive-d" class="small-input" type="number" value="0.05" min="0" step="0.01">
+            </label>
+            <label>
+              Antenna distance R, m
+              <input id="mil-proposed-r" class="small-input" type="number" value="1" min="0.0001" step="0.1">
+            </label>
+            <label>
+              RS boundary length L, m
+              <input id="rs-boundary-l" class="small-input" type="number" value="3" min="0" step="0.1">
+            </label>
+            <label>
+              3 dB beamwidth, deg
+              <input id="rs-beamwidth" class="small-input" type="number" value="60" min="0.1" max="179" step="1">
+            </label>
+          </div>
+          <div class="helper-result">
+            <span>Wavelength</span>
+            <strong id="mil-wavelength">-</strong>
+          </div>
+        </article>
+
+        <article class="standard-card">
+          <h3>2. RE103</h3>
+          <p class="panel-note">Antenna-dimension far-field separation check for radiated emissions.</p>
+          <div class="formula-list">
+            <div class="formula">R<sub>min</sub> = RE103 distance rule</div>
+          </div>
+          <div class="helper-result">
+            <span>Required distance</span>
+            <strong id="mil-required-r">-</strong>
+          </div>
+          <div id="mil-status-card" class="helper-result">
+            <span>Status</span>
+            <strong id="mil-status">-</strong>
+          </div>
+          <p class="standard-ref">Reference: MIL-STD-461G RE103.</p>
+        </article>
+
+        <article class="standard-card">
+          <h3>3. RS103</h3>
+          <p class="panel-note">Susceptibility antenna placement is driven by minimum distance and beam coverage, not the RE103 far-field equation.</p>
+          <div class="formula-list">
+            <div class="formula">R<sub>TX</sub> ≥ 1 m</div>
+            <div class="formula">W = 2R tan(θ / 2)</div>
+          </div>
+          <div id="rs-status-card" class="helper-result">
+            <span>Placement</span>
+            <strong id="rs-status">-</strong>
+          </div>
+          <div class="helper-result">
+            <span>Beamwidth cover</span>
+            <strong id="rs-coverage">-</strong>
+          </div>
+          <p class="standard-ref">Reference: MIL-STD-461G RS103.</p>
+        </article>
+
+        <article class="standard-card">
+          <h3>4. Section 20</h3>
+          <p class="panel-note">DO-160G direct-illumination distance check using the transmitting antenna dimension.</p>
+          <div class="formula-list">
+            <div class="formula">R<sub>FF</sub> = <span class="frac"><span class="top">2D<sup>2</sup></span><span class="bottom">λ</span></span></div>
+          </div>
+          <div class="helper-result">
+            <span>Far-field distance</span>
+            <strong id="do160-required-r">-</strong>
+          </div>
+          <div id="do160-status-card" class="helper-result">
+            <span>Status</span>
+            <strong id="do160-status">-</strong>
+          </div>
+          <p class="standard-ref">Reference: RTCA DO-160G Section 20 guidance.</p>
+        </article>
+      </div>
+      <div class="warning">Important: these are placement helpers, not substitutes for the governing test procedure. RE103 and DO-160G use antenna-dimension far-field checks. RS103 is normally driven by minimum distance and 3 dB beamwidth coverage rules.</div>
+    </section>
+
+    <section class="equations" aria-label="Equations used">
+      <article class="equation-card">
+        <h3>Plane-wave equations</h3>
+        <div class="formula-list">
+          <div class="formula">dBµV/m = 20 log<sub>10</sub>(E) + 120</div>
+          <div class="formula">E = 10<sup>(dBµV/m - 120) / 20</sup></div>
+          <div class="formula">H = <span class="frac"><span class="top">E</span><span class="bottom">η<sub>0</sub></span></span></div>
+          <div class="formula">dBµA/m = 20 log<sub>10</sub>(H) + 120</div>
+          <div class="formula">B = µ<sub>0</sub>H</div>
+          <div class="formula">pT = B × 10<sup>12</sup></div>
+          <div class="formula">dBpT = 20 log<sub>10</sub>(pT)</div>
+          <div class="formula">S = <span class="frac"><span class="top">E<sup>2</sup></span><span class="bottom">η<sub>0</sub></span></span> = E × H</div>
+        </div>
+        <div class="symbol-key">
+          <h4>Symbol key</h4>
+          <dl>
+            <dt>E</dt>
+            <dd>Electric field strength, measured in volts per metre <code>V/m</code>.</dd>
+            <dt>H</dt>
+            <dd>Magnetic field strength, measured in amps per metre <code>A/m</code>.</dd>
+            <dt>B</dt>
+            <dd>Magnetic flux density, measured in tesla <code>T</code>.</dd>
+            <dt>η0</dt>
+            <dd>Impedance of free space, about <code>377 Ω</code>. It links <code>E</code> and <code>H</code> for a plane wave.</dd>
+            <dt>µ0</dt>
+            <dd>Permeability of free space, used to link <code>H</code> to <code>B</code>.</dd>
+            <dt>pT</dt>
+            <dd>Picotesla. <code>1 pT = 10^-12 T</code>.</dd>
+            <dt>S</dt>
+            <dd>Power density, measured in watts per square metre <code>W/m²</code>.</dd>
+          </dl>
+          <p class="symbol-warning">In this equation set, <code>S</code> means power density. It is not siemens; siemens is the SI unit of conductance and is unrelated here.</p>
+        </div>
+      </article>
+
+      <article class="equation-card">
+        <h3>Radiated power equations</h3>
+        <div class="formula-list">
+          <div class="formula">E = <span class="frac"><span class="top">√(30 × EIRP)</span><span class="bottom">d</span></span></div>
+          <div class="formula">EIRP = <span class="frac"><span class="top">(E × d)<sup>2</sup></span><span class="bottom">30</span></span></div>
+          <div class="formula">EIRP<sub>dBm</sub> = 10 log<sub>10</sub>(EIRP<sub>W</sub> × 1000)</div>
+          <div class="formula">ERP<sub>dBm</sub> = EIRP<sub>dBm</sub> - 2.15</div>
+          <div class="formula">ERP<sub>W</sub> = <span class="frac"><span class="top">EIRP<sub>W</sub></span><span class="bottom">1.6406</span></span></div>
+          <div class="formula">dBµV/m at d = 20 log<sub>10</sub>(E) + 120</div>
+        </div>
+        <div class="symbol-key">
+          <h4>Symbol key</h4>
+          <dl>
+            <dt>E</dt>
+            <dd>Electric field strength at the chosen measurement distance.</dd>
+            <dt>d</dt>
+            <dd>Distance from the radiator or antenna, measured in metres.</dd>
+            <dt>EIRP</dt>
+            <dd>Effective isotropic radiated power: power referenced to an ideal all-direction antenna.</dd>
+            <dt>ERP</dt>
+            <dd>Effective radiated power: power referenced to a half-wave dipole.</dd>
+            <dt>dBm</dt>
+            <dd>Power in decibels referenced to <code>1 mW</code>.</dd>
+            <dt>30</dt>
+            <dd>Free-space far-field constant used in the ideal <code>EIRP</code> to field-strength relationship.</dd>
+            <dt>1.6406</dt>
+            <dd>Linear ratio equivalent to <code>2.15 dB</code>, used to convert between <code>EIRP</code> and <code>ERP</code>.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="equation-card">
+        <h3>MIL-STD-461G RE103 distance check</h3>
+        <div class="formula-list">
+          <div class="formula">λ = <span class="frac"><span class="top">c</span><span class="bottom">f</span></span></div>
+          <div class="formula">
+            R =
+            <div class="cases">
+              <div class="case-row"><span>max(2D<sup>2</sup>/λ, 3λ)</span><small>for f ≤ 1.24 GHz</small></div>
+              <div class="case-row"><span>2D<sup>2</sup>/λ</span><small>for f &gt; 1.24 GHz and 2.5D &lt; d</small></div>
+              <div class="case-row"><span>(D + d)<sup>2</sup>/λ</span><small>for f &gt; 1.24 GHz otherwise</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="symbol-key">
+          <h4>Symbol key</h4>
+          <dl>
+            <dt>R</dt>
+            <dd>Minimum separation distance for the RE103 far-field check.</dd>
+            <dt>λ</dt>
+            <dd>Wavelength at the test frequency.</dd>
+            <dt>D</dt>
+            <dd>Largest physical dimension of the source antenna.</dd>
+            <dt>d</dt>
+            <dd>Largest physical dimension of the receiving antenna or sensor.</dd>
+            <dt>c</dt>
+            <dd>Speed of light in free space, approximately <code>299,792,458 m/s</code>.</dd>
+          </dl>
+        </div>
+        <p class="symbol-warning">Reference: MIL-STD-461G, RE103 test method.</p>
+      </article>
+
+      <article class="equation-card">
+        <h3>MIL-STD-461G RS103 placement check</h3>
+        <div class="formula-list">
+          <div class="formula">R<sub>TX</sub> ≥ 1 m <small>from the test setup boundary</small></div>
+          <div class="formula">W = 2R tan(θ / 2) <small>approximate 3 dB beamwidth coverage width</small></div>
+          <div class="formula">N = ceil(L / 3 m) <small>used for 2 MHz to 200 MHz when boundary length exceeds 3 m</small></div>
+        </div>
+        <div class="symbol-key">
+          <h4>Symbol key</h4>
+          <dl>
+            <dt>R<sub>TX</sub></dt>
+            <dd>Transmit antenna distance from the test setup boundary.</dd>
+            <dt>W</dt>
+            <dd>Approximate width covered by the antenna 3 dB beam at distance <code>R</code>.</dd>
+            <dt>θ</dt>
+            <dd>Antenna 3 dB beamwidth angle.</dd>
+            <dt>L</dt>
+            <dd>Length of the test setup boundary being covered.</dd>
+            <dt>N</dt>
+            <dd>Number of antenna positions needed using 3 metre spacing.</dd>
+          </dl>
+        </div>
+        <p class="symbol-warning">Reference: MIL-STD-461G, RS103 setup and antenna positioning rules.</p>
+      </article>
+
+      <article class="equation-card">
+        <h3>DO-160G Section 20 distance check</h3>
+        <div class="formula-list">
+          <div class="formula">λ = <span class="frac"><span class="top">c</span><span class="bottom">f</span></span></div>
+          <div class="formula">R<sub>FF</sub> = <span class="frac"><span class="top">2D<sup>2</sup></span><span class="bottom">λ</span></span></div>
+          <div class="formula">R ≥ R<sub>FF</sub> <small>when using a distance closer than 1 m</small></div>
+        </div>
+        <div class="symbol-key">
+          <h4>Symbol key</h4>
+          <dl>
+            <dt>R<sub>FF</sub></dt>
+            <dd>Far-field boundary distance from the transmitting antenna.</dd>
+            <dt>D</dt>
+            <dd>Largest dimension of the transmitting antenna aperture.</dd>
+            <dt>R</dt>
+            <dd>Chosen antenna-to-EUT distance.</dd>
+          </dl>
+        </div>
+        <p class="symbol-warning">Reference: RTCA DO-160G Section 20 direct illumination guidance. Confirm the exact edition and procedure before using in a formal test.</p>
+      </article>
+
+      <article class="equation-card">
+        <h3>Constants</h3>
+        <div class="formula-list">
+          <div class="formula">η<sub>0</sub> = 376.730313668 Ω</div>
+          <div class="formula">µ<sub>0</sub> = 4π × 10<sup>-7</sup> H/m</div>
+          <div class="formula">c = 299,792,458 m/s</div>
+          <div class="formula">1 T = 10,000 G</div>
+          <div class="formula">1 W/m² = 0.1 mW/cm²</div>
+        </div>
+      </article>
+
+      <article class="equation-card">
+        <h3>What is deliberately not mixed in</h3>
+        <p>Antenna-factor receiver readings, cable loss, preamp gain, detector type, bandwidth correction, scan dwell, and near-field probe factors belong in separate calculators. They are not pure field-unit conversions.</p>
+      </article>
+    </section>
+
+    <section class="unit-notes" aria-label="Unit descriptions and references">
+      <article class="note-card">
+        <h3>Plane-wave unit notes</h3>
+        <dl>
+          <dt>V/m</dt>
+          <dd>Electric field strength. Think of it as the push on charge per metre. In EMC radiated testing, limits are often written as electric field strength.</dd>
+          <dt>dBµV/m</dt>
+          <dd>The same electric field on a decibel scale, referenced to 1 microvolt per metre. Useful because EMC levels can cover a very large range.</dd>
+          <dt>A/m</dt>
+          <dd>Magnetic field strength. In a plane wave it is tied to the electric field by the impedance of free space: <code>E = η0H</code>.</dd>
+          <dt>dBµA/m</dt>
+          <dd>Magnetic field strength on a decibel scale, referenced to 1 microamp per metre.</dd>
+          <dt>T</dt>
+          <dd>Tesla, the SI unit for magnetic flux density <code>B</code>. It describes how strong the magnetic field is in terms of magnetic flux per area.</dd>
+          <dt>G</dt>
+          <dd>Gauss, an older magnetic flux density unit. It is still seen in some fields. <code>1 T = 10,000 G</code>.</dd>
+          <dt>pT</dt>
+          <dd>Picotesla. This is a very small magnetic flux density unit, useful when magnetic fields are tiny.</dd>
+          <dt>dBpT</dt>
+          <dd>Picotesla on a decibel scale, referenced to 1 pT.</dd>
+          <dt>W/m²</dt>
+          <dd>Power density. It says how much electromagnetic power passes through one square metre.</dd>
+          <dt>mW/cm²</dt>
+          <dd>The same idea as W/m², but in milliwatts per square centimetre. It is often used in RF exposure discussions.</dd>
+        </dl>
+      </article>
+
+      <article class="note-card">
+        <h3>Radiated-power unit notes</h3>
+        <dl>
+          <dt>EIRP</dt>
+          <dd>Effective isotropic radiated power. It is the power an ideal all-direction antenna would need to produce the same field in the strongest direction.</dd>
+          <dt>ERP</dt>
+          <dd>Effective radiated power. Similar to EIRP, but referenced to a half-wave dipole rather than an ideal isotropic antenna. <code>EIRP ≈ ERP + 2.15 dB</code>.</dd>
+          <dt>dBm</dt>
+          <dd>A decibel power unit referenced to 1 milliwatt. <code>30 dBm = 1 W</code>.</dd>
+          <dt>Distance</dt>
+          <dd>Field strength falls as distance increases because the same power spreads over a larger area. This page uses the ideal free-space far-field model.</dd>
+          <dt>Power density</dt>
+          <dd>In the far field, power density relates to electric field by <code>S = E² / η0</code>. This links the field value to energy flow through an area.</dd>
+          <dt>Far field</dt>
+          <dd>A region far enough from the antenna that the wave behaves more like a travelling plane wave. Close to the antenna, E and H may not follow the simple plane-wave relationship.</dd>
+        </dl>
+      </article>
+
+      <article class="note-card">
+        <h3>Plain-English links</h3>
+        <p>These links are useful background reading. They are not the authority for a test report, but they are good for checking the basic physics language.</p>
+        <div class="reference-list">
+          <a href="https://en.wikipedia.org/wiki/Electric_field">Electric field</a>
+          <a href="https://en.wikipedia.org/wiki/Magnetic_field">Magnetic field</a>
+          <a href="https://en.wikipedia.org/wiki/Impedance_of_free_space">Impedance of free space</a>
+          <a href="https://en.wikipedia.org/wiki/Tesla_(unit)">Tesla</a>
+          <a href="https://en.wikipedia.org/wiki/Gauss_(unit)">Gauss</a>
+          <a href="https://en.wikipedia.org/wiki/Effective_radiated_power">ERP / EIRP</a>
+          <a href="https://en.wikipedia.org/wiki/Isotropic_radiator">Isotropic radiator</a>
+          <a href="https://en.wikipedia.org/wiki/Free-space_path_loss">Free-space path loss</a>
+          <a href="https://s3vi.ndc.nasa.gov/ssri-kb/static/resources/MIL-STD-461G.pdf">MIL-STD-461G</a>
+          <a href="https://www.faa.gov/documentLibrary/media/Advisory_Circular/AC_21-16G.pdf">FAA AC 21-16G</a>
+          <a href="https://nts.com/wp-content/uploads/2021/09/RTCA_DO-160_overview.pdf">DO-160 overview</a>
+        </div>
+      </article>
+
+      <article class="note-card">
+        <h3>Practical EMC reminder</h3>
+        <p>These conversions help with understanding units and ideal relationships. Real EMC measurements still need antenna factors, cable loss, receiver bandwidth, detector type, measurement distance, uncertainty and the exact standard being used.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const ETA0 = 376.730313668;
+    const MU0 = 4 * Math.PI * 1e-7;
+    const ERP_TO_EIRP = 1.640589;
+    const SPEED_OF_LIGHT = 299792458;
+
+    const planeUnits = [
+      { key: "vpm", label: "V/m" },
+      { key: "dbuvpm", label: "dBµV/m" },
+      { key: "apm", label: "A/m" },
+      { key: "dbuapm", label: "dBµA/m" },
+      { key: "tesla", label: "T" },
+      { key: "gauss", label: "G" },
+      { key: "pt", label: "pT" },
+      { key: "dbpt", label: "dBpT" },
+      { key: "wm2", label: "W/m²" },
+      { key: "mwcm2", label: "mW/cm²" },
+      { key: "dbwm2", label: "dBW/m²" },
+      { key: "dbmwm2", label: "dBm/m²" }
+    ];
+
+    const radiatedUnits = [
+      { key: "dbuvpm", label: "dBµV/m" },
+      { key: "vpm", label: "V/m" },
+      { key: "eirpw", label: "EIRP W" },
+      { key: "eirpmw", label: "EIRP mW" },
+      { key: "eirpdbm", label: "EIRP dBm" },
+      { key: "erpw", label: "ERP W" },
+      { key: "erpmw", label: "ERP mW" },
+      { key: "erpdbm", label: "ERP dBm" },
+      { key: "sWm2", label: "Power density W/m²" }
+    ];
+
+    const root = document.documentElement;
+    const toggle = document.querySelector(".theme-toggle");
+    const toggleText = document.querySelector(".toggle-text");
+    const planeBody = document.getElementById("plane-body");
+    const radiatedBody = document.getElementById("radiated-body");
+    const distanceInput = document.getElementById("distance");
+    const milFrequencyInput = document.getElementById("mil-frequency");
+    const milSourceDInput = document.getElementById("mil-source-d");
+    const milReceiveDInput = document.getElementById("mil-receive-d");
+    const milProposedRInput = document.getElementById("mil-proposed-r");
+    const rsBoundaryInput = document.getElementById("rs-boundary-l");
+    const rsBeamwidthInput = document.getElementById("rs-beamwidth");
+    const milWavelength = document.getElementById("mil-wavelength");
+    const milRequiredR = document.getElementById("mil-required-r");
+    const milStatus = document.getElementById("mil-status");
+    const milStatusCard = document.getElementById("mil-status-card");
+    const rsStatus = document.getElementById("rs-status");
+    const rsCoverage = document.getElementById("rs-coverage");
+    const rsStatusCard = document.getElementById("rs-status-card");
+    const do160RequiredR = document.getElementById("do160-required-r");
+    const do160Status = document.getElementById("do160-status");
+    const do160StatusCard = document.getElementById("do160-status-card");
+    let activePlane = { key: null, value: "" };
+    let activeRadiated = { key: null, value: "" };
+    let planeInputs = [];
+    let radiatedInputs = [];
+
+    const storedTheme = localStorage.getItem("jy-theme");
+    if (storedTheme === "dark") root.dataset.theme = "dark";
+    updateToggleText();
+    buildTables();
+    updateMilDistanceHelper();
+    runSelfTest();
+
+    toggle.addEventListener("click", () => {
+      root.dataset.theme = root.dataset.theme === "dark" ? "" : "dark";
+      localStorage.setItem("jy-theme", root.dataset.theme || "light");
+      updateToggleText();
+    });
+
+    distanceInput.addEventListener("input", () => {
+      milProposedRInput.value = distanceInput.value;
+      updateMilDistanceHelper();
+      if (activeRadiated.key && activeRadiated.value.trim() !== "") {
+        populateRadiated(activeRadiated.key, activeRadiated.value);
+      }
+    });
+
+    [milFrequencyInput, milSourceDInput, milReceiveDInput, rsBoundaryInput, rsBeamwidthInput].forEach(input => {
+      input.addEventListener("input", updateMilDistanceHelper);
+    });
+
+    milProposedRInput.addEventListener("input", () => {
+      distanceInput.value = milProposedRInput.value;
+      updateMilDistanceHelper();
+      if (activeRadiated.key && activeRadiated.value.trim() !== "") {
+        populateRadiated(activeRadiated.key, activeRadiated.value);
+      }
+    });
+
+    function updateToggleText() {
+      toggleText.textContent = root.dataset.theme === "dark" ? "Light mode" : "Dark mode";
+    }
+
+    function buildTables() {
+      planeBody.innerHTML = planeUnits.map(unit => rowTemplate(unit, "plane")).join("");
+      radiatedBody.innerHTML = radiatedUnits.map(unit => rowTemplate(unit, "radiated")).join("");
+
+      planeInputs = Array.from(document.querySelectorAll("[data-group='plane']"));
+      radiatedInputs = Array.from(document.querySelectorAll("[data-group='radiated']"));
+
+      planeInputs.forEach(input => {
+        input.addEventListener("input", event => {
+          const active = event.currentTarget;
+          activePlane = { key: active.dataset.unit, value: active.value };
+          if (active.value.trim() === "") return clearInputs(planeInputs);
+          populatePlane(active.dataset.unit, active.value, active);
+        });
+      });
+
+      radiatedInputs.forEach(input => {
+        input.addEventListener("input", event => {
+          const active = event.currentTarget;
+          activeRadiated = { key: active.dataset.unit, value: active.value };
+          if (active.value.trim() === "") return clearInputs(radiatedInputs);
+          populateRadiated(active.dataset.unit, active.value, active);
+        });
+      });
+    }
+
+    function rowTemplate(unit, group) {
+      return `<tr><td class="unit-cell">${unit.label}</td><td class="value-cell"><input class="value-input" data-group="${group}" data-unit="${unit.key}" inputmode="decimal" aria-label="Input ${unit.label}"></td></tr>`;
+    }
+
+    function log10(value) {
+      return Math.log(value) / Math.LN10;
+    }
+
+    function distance() {
+      const value = Number(distanceInput.value);
+      return Number.isFinite(value) && value > 0 ? value : 1;
+    }
+
+    function clearInputs(inputs) {
+      inputs.forEach(input => input.value = "");
+    }
+
+    function format(value, preferred = "linear") {
+      if (!Number.isFinite(value)) return "";
+      if (preferred === "db") return Number(value.toFixed(3)).toString();
+      const abs = Math.abs(value);
+      if (abs !== 0 && (abs < 0.001 || abs >= 10000000)) return value.toExponential(4);
+      if (abs < 1) return Number(value.toPrecision(6)).toString();
+      return Number(value.toFixed(6)).toString();
+    }
+
+    function eFromPlane(value, unit) {
+      const x = Number(value);
+      if (!Number.isFinite(x)) return NaN;
+      if (unit === "vpm") return x;
+      if (unit === "dbuvpm") return Math.pow(10, (x - 120) / 20);
+      if (unit === "apm") return x * ETA0;
+      if (unit === "dbuapm") return Math.pow(10, (x - 120) / 20) * ETA0;
+      if (unit === "tesla") return (x / MU0) * ETA0;
+      if (unit === "gauss") return ((x / 10000) / MU0) * ETA0;
+      if (unit === "pt") return ((x * 1e-12) / MU0) * ETA0;
+      if (unit === "dbpt") return ((Math.pow(10, x / 20) * 1e-12) / MU0) * ETA0;
+      if (unit === "wm2") return x > 0 ? Math.sqrt(x * ETA0) : NaN;
+      if (unit === "mwcm2") return x > 0 ? Math.sqrt((x / 0.1) * ETA0) : NaN;
+      if (unit === "dbwm2") return Math.sqrt(Math.pow(10, x / 10) * ETA0);
+      if (unit === "dbmwm2") return Math.sqrt(Math.pow(10, (x - 30) / 10) * ETA0);
+      return NaN;
+    }
+
+    function planeFromE(e, unit) {
+      const h = e / ETA0;
+      const b = MU0 * h;
+      const s = e * h;
+      if (unit === "vpm") return e;
+      if (unit === "dbuvpm") return 20 * log10(e) + 120;
+      if (unit === "apm") return h;
+      if (unit === "dbuapm") return 20 * log10(h) + 120;
+      if (unit === "tesla") return b;
+      if (unit === "gauss") return b * 10000;
+      if (unit === "pt") return b * 1e12;
+      if (unit === "dbpt") return 20 * log10(b * 1e12);
+      if (unit === "wm2") return s;
+      if (unit === "mwcm2") return s * 0.1;
+      if (unit === "dbwm2") return 10 * log10(s);
+      if (unit === "dbmwm2") return 10 * log10(s) + 30;
+      return NaN;
+    }
+
+    function populatePlane(sourceUnit, rawValue, activeInput) {
+      const e = eFromPlane(rawValue, sourceUnit);
+      if (!Number.isFinite(e) || e <= 0) {
+        planeInputs.forEach(input => { if (input !== activeInput) input.value = ""; });
+        return;
+      }
+      planeInputs.forEach(input => {
+        if (input === activeInput) return;
+        const unit = input.dataset.unit;
+        input.value = format(planeFromE(e, unit), unit.includes("db") ? "db" : "linear");
+      });
+    }
+
+    function eFromRadiated(value, unit) {
+      const x = Number(value);
+      if (!Number.isFinite(x)) return NaN;
+      const r = distance();
+      if (unit === "dbuvpm") return Math.pow(10, (x - 120) / 20);
+      if (unit === "vpm") return x;
+      if (unit === "eirpw") return x > 0 ? Math.sqrt(30 * x) / r : NaN;
+      if (unit === "eirpmw") return x > 0 ? Math.sqrt(30 * (x / 1000)) / r : NaN;
+      if (unit === "eirpdbm") return Math.sqrt(30 * Math.pow(10, (x - 30) / 10)) / r;
+      if (unit === "erpw") return x > 0 ? Math.sqrt(30 * x * ERP_TO_EIRP) / r : NaN;
+      if (unit === "erpmw") return x > 0 ? Math.sqrt(30 * (x / 1000) * ERP_TO_EIRP) / r : NaN;
+      if (unit === "erpdbm") return Math.sqrt(30 * Math.pow(10, ((x + 2.15) - 30) / 10)) / r;
+      if (unit === "sWm2") return x > 0 ? Math.sqrt(x * ETA0) : NaN;
+      return NaN;
+    }
+
+    function radiatedFromE(e, unit) {
+      const r = distance();
+      const eirpW = Math.pow(e * r, 2) / 30;
+      const erpW = eirpW / ERP_TO_EIRP;
+      const s = Math.pow(e, 2) / ETA0;
+      if (unit === "dbuvpm") return 20 * log10(e) + 120;
+      if (unit === "vpm") return e;
+      if (unit === "eirpw") return eirpW;
+      if (unit === "eirpmw") return eirpW * 1000;
+      if (unit === "eirpdbm") return 10 * log10(eirpW * 1000);
+      if (unit === "erpw") return erpW;
+      if (unit === "erpmw") return erpW * 1000;
+      if (unit === "erpdbm") return 10 * log10(erpW * 1000);
+      if (unit === "sWm2") return s;
+      return NaN;
+    }
+
+    function populateRadiated(sourceUnit, rawValue, activeInput) {
+      const e = eFromRadiated(rawValue, sourceUnit);
+      if (!Number.isFinite(e) || e <= 0) {
+        radiatedInputs.forEach(input => { if (input !== activeInput) input.value = ""; });
+        return;
+      }
+      radiatedInputs.forEach(input => {
+        if (input === activeInput) return;
+        const unit = input.dataset.unit;
+        input.value = format(radiatedFromE(e, unit), unit.includes("db") ? "db" : "linear");
+      });
+    }
+
+    function updateMilDistanceHelper() {
+      const freqMHz = Number(milFrequencyInput.value);
+      const D = Number(milSourceDInput.value);
+      const d = Number(milReceiveDInput.value);
+      const proposedR = Number(milProposedRInput.value);
+      const boundaryLength = Number(rsBoundaryInput.value);
+      const beamwidthDeg = Number(rsBeamwidthInput.value);
+
+      if (!Number.isFinite(freqMHz) || freqMHz <= 0 || !Number.isFinite(D) || D < 0 || !Number.isFinite(d) || d < 0) {
+        milWavelength.textContent = "-";
+        milRequiredR.textContent = "-";
+        milStatus.textContent = "Enter valid values";
+        rsStatus.textContent = "-";
+        rsCoverage.textContent = "-";
+        do160RequiredR.textContent = "-";
+        do160Status.textContent = "-";
+        milStatusCard.className = "helper-result";
+        rsStatusCard.className = "helper-result";
+        do160StatusCard.className = "helper-result";
+        return;
+      }
+
+      const wavelength = SPEED_OF_LIGHT / (freqMHz * 1e6);
+      let requiredR;
+      let ruleText;
+
+      if (freqMHz <= 1240) {
+        const apertureDistance = (2 * D * D) / wavelength;
+        const wavelengthDistance = 3 * wavelength;
+        requiredR = Math.max(apertureDistance, wavelengthDistance);
+        ruleText = requiredR === apertureDistance ? "f ≤ 1.24 GHz: 2D² / λ controls" : "f ≤ 1.24 GHz: 3λ controls";
+      } else if (2.5 * D < d) {
+        requiredR = (2 * D * D) / wavelength;
+        ruleText = "f > 1.24 GHz and 2.5D < d: 2D² / λ";
+      } else {
+        requiredR = Math.pow(D + d, 2) / wavelength;
+        ruleText = "f > 1.24 GHz: (D + d)² / λ";
+      }
+
+      const do160Rff = (2 * D * D) / wavelength;
+      const validBeam = Number.isFinite(beamwidthDeg) && beamwidthDeg > 0 && beamwidthDeg < 180;
+      const validBoundary = Number.isFinite(boundaryLength) && boundaryLength > 0;
+      const beamCover = validBeam && Number.isFinite(proposedR) && proposedR > 0
+        ? 2 * proposedR * Math.tan((beamwidthDeg * Math.PI / 180) / 2)
+        : NaN;
+      const rsPositionCount = validBoundary ? Math.ceil(boundaryLength / 3) : NaN;
+
+      milWavelength.textContent = `${format(wavelength)} m`;
+      milRequiredR.textContent = `${format(requiredR)} m (${ruleText})`;
+      rsCoverage.textContent = Number.isFinite(beamCover) ? `${format(beamCover)} m wide at R` : "Enter beamwidth and R";
+      do160RequiredR.textContent = `${format(do160Rff)} m`;
+
+      if (freqMHz >= 2 && freqMHz <= 200 && validBoundary && boundaryLength > 3) {
+        rsStatus.textContent = `≥1 m, ${rsPositionCount} positions at ≤3 m spacing`;
+      } else if (freqMHz >= 200 && freqMHz <= 1000) {
+        rsStatus.textContent = "≥1 m, cover EUT plus first 0.35 m of cables";
+      } else if (freqMHz > 1000) {
+        rsStatus.textContent = "≥1 m, cover EUT plus first 0.07 m of cables";
+      } else {
+        rsStatus.textContent = "≥1 m from setup boundary";
+      }
+
+      if (!Number.isFinite(proposedR) || proposedR <= 0) {
+        milStatus.textContent = "Enter proposed R";
+        do160Status.textContent = "Enter proposed R";
+        milStatusCard.className = "helper-result status-warn";
+        rsStatusCard.className = "helper-result status-warn";
+        do160StatusCard.className = "helper-result status-warn";
+      } else if (proposedR >= requiredR) {
+        milStatus.textContent = "OK for RE103 R";
+        milStatusCard.className = "helper-result status-pass";
+      } else {
+        milStatus.textContent = "Inside RE103 calculated near-field region";
+        milStatusCard.className = "helper-result status-warn";
+      }
+
+      if (Number.isFinite(proposedR) && proposedR > 0) {
+        rsStatusCard.className = proposedR >= 1 ? "helper-result status-pass" : "helper-result status-warn";
+      }
+
+      if (Number.isFinite(proposedR) && proposedR > 0 && proposedR >= do160Rff) {
+        do160Status.textContent = "OK for RFF";
+        do160StatusCard.className = "helper-result status-pass";
+      } else if (Number.isFinite(proposedR) && proposedR > 0) {
+        do160Status.textContent = "Closer than RFF";
+        do160StatusCard.className = "helper-result status-warn";
+      }
+    }
+
+    function approx(actual, expected, tolerance = 1e-9) {
+      const scale = Math.max(1, Math.abs(actual), Math.abs(expected));
+      return Math.abs(actual - expected) / scale <= tolerance;
+    }
+
+    function runSelfTest() {
+      const failures = [];
+      const e = 1;
+      const checks = {
+        dbuvpm: 120,
+        apm: 1 / ETA0,
+        dbuapm: 20 * log10(1 / ETA0) + 120,
+        wm2: 1 / ETA0,
+        mwcm2: 0.1 / ETA0
+      };
+      for (const [unit, expected] of Object.entries(checks)) {
+        const actual = planeFromE(e, unit);
+        if (!approx(actual, expected, 1e-10)) failures.push(`${unit}: ${actual} != ${expected}`);
+      }
+      const oldDistance = distanceInput.value;
+      distanceInput.value = "1";
+      const eFrom1WEirp = Math.sqrt(30);
+      if (!approx(radiatedFromE(eFrom1WEirp, "eirpw"), 1, 1e-10)) failures.push("EIRP W roundtrip failed");
+      if (!approx(radiatedFromE(eFrom1WEirp, "eirpdbm"), 30, 1e-10)) failures.push("EIRP dBm anchor failed");
+      const wavelength1GHz = SPEED_OF_LIGHT / 1e9;
+      const requiredR = Math.max((2 * 0.3 * 0.3) / wavelength1GHz, 3 * wavelength1GHz);
+      if (!approx(requiredR, 0.899377374, 1e-9)) failures.push("MIL distance helper anchor failed");
+      distanceInput.value = oldDistance;
+      if (failures.length) console.error("Field strength self-test failures", failures);
+    }
+  </script>
+</body>
+</html>
