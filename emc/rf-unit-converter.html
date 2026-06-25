@@ -1,106 +1,636 @@
-{
-  "updated": "2026-06-25",
-  "metrics": [
-    {
-      "key": "pullups",
-      "label": "Pull-ups",
-      "unit": "reps",
-      "description": "Pulling strength marker for walls, ropes and obstacle control.",
-      "values": [
-        {
-          "date": "2026-06-13",
-          "value": 6,
-          "display": "6 reps",
-          "detail": "Sets: 6, 4, 3, 3. Total 16."
-        },
-        {
-          "date": "2026-06-23",
-          "value": 10,
-          "display": "10 reps",
-          "detail": "Bonus set after leg session."
-        },
-        {
-          "date": "2026-06-24",
-          "value": 8,
-          "display": "8 reps",
-          "detail": "Sets: 8, 6, 3. Total 17. Done after row in heat."
-        }
-      ]
-    },
-    {
-      "key": "burpees30",
-      "label": "30 burpees",
-      "unit": "min",
-      "lowerIsBetter": true,
-      "description": "Conditioning marker for repeated effort under fatigue.",
-      "values": [
-        {
-          "date": "2026-06-13",
-          "value": 3.92,
-          "display": "3:55",
-          "detail": "30 burpees split as 3 sets of 10."
-        }
-      ]
-    },
-    {
-      "key": "latpulldown",
-      "label": "Lat pulldown",
-      "unit": "kg",
-      "description": "Back-strength support work for pulling and climbing capacity.",
-      "values": [
-        {
-          "date": "2026-06-13",
-          "value": 50,
-          "display": "50kg x 10",
-          "detail": "Then 45kg x 10 x 2."
-        },
-        {
-          "date": "2026-06-24",
-          "value": 45,
-          "display": "45kg x 10",
-          "detail": "3 sets of 10."
-        }
-      ]
-    },
-    {
-      "key": "deadhang",
-      "label": "Dead hang",
-      "unit": "sec",
-      "description": "Grip endurance marker for hanging obstacles and fatigue resistance.",
-      "values": [
-        {
-          "date": "2026-06-13",
-          "value": 30,
-          "display": "30 sec",
-          "detail": "3 sets reaching 30 seconds."
-        },
-        {
-          "date": "2026-06-24",
-          "value": 40,
-          "display": "40 sec",
-          "detail": "Sets: 40s, 35s, 30s. Total 105 seconds."
-        }
-      ]
-    },
-    {
-      "key": "hanginglegraises",
-      "label": "Hanging leg raises",
-      "unit": "reps",
-      "description": "Core and hanging-control marker, especially when grip is already tired.",
-      "values": [
-        {
-          "date": "2026-06-13",
-          "value": 12,
-          "display": "12 reps",
-          "detail": "3 sets of 12."
-        },
-        {
-          "date": "2026-06-24",
-          "value": 10,
-          "display": "10 reps",
-          "detail": "Sets: 10, 6, 10. Grip was limiting."
-        }
-      ]
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>James Yates | EMC Unit Converter</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5fbff;
+      --bg-2: #eaf5fb;
+      --panel: rgba(255, 255, 255, .9);
+      --panel-solid: #ffffff;
+      --text: #071522;
+      --muted: #526678;
+      --faint: #7890a3;
+      --line: #c8dce8;
+      --line-strong: #8fb7c9;
+      --accent: #007fa3;
+      --accent-bright: #00a9d2;
+      --shadow: 0 24px 70px rgba(20, 55, 80, .14);
     }
-  ]
-}
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111d;
+      --bg-2: #0b1d2f;
+      --panel: rgba(10, 28, 45, .84);
+      --panel-solid: #0a1a2a;
+      --text: #f4f8fd;
+      --muted: #a9bccf;
+      --faint: #7890a3;
+      --line: rgba(139, 239, 255, .22);
+      --line-strong: rgba(139, 239, 255, .46);
+      --accent: #54dff4;
+      --accent-bright: #8befff;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(0, 127, 163, .055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 127, 163, .055) 1px, transparent 1px),
+        radial-gradient(circle at 14% 12%, rgba(0, 169, 210, .16), transparent 32rem),
+        radial-gradient(circle at 86% 24%, rgba(22, 108, 168, .12), transparent 30rem),
+        linear-gradient(145deg, var(--bg), var(--bg-2));
+      background-size: 34px 34px, 34px 34px, auto, auto, auto;
+    }
+
+    .brand {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      z-index: 30;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 40;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 7px 11px;
+      font-size: .86rem;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .toggle-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      box-shadow: 0 0 0 4px rgba(0, 169, 210, .13);
+    }
+
+    .shell {
+      width: min(1440px, calc(100% - 20px));
+      margin: 0 auto;
+      padding: 34px 0 36px;
+    }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .breadcrumb a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .breadcrumb span {
+      margin: 0 9px;
+      color: var(--faint);
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-size: .68rem;
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin: 0;
+      font-size: clamp(1.35rem, 2.5vw, 2.2rem);
+      line-height: .98;
+      letter-spacing: -.045em;
+    }
+
+    .intro {
+      max-width: 850px;
+      margin: 8px 0 10px;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: .82rem;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 8px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: var(--muted);
+      font-size: .74rem;
+      font-weight: 700;
+    }
+
+    input {
+      width: 96px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel-solid);
+      color: var(--text);
+      padding: 6px 8px;
+      font: inherit;
+    }
+
+    input:focus {
+      outline: 2px solid rgba(0, 169, 210, .24);
+      outline-offset: 2px;
+      border-color: var(--line-strong);
+    }
+
+    .hint {
+      color: var(--faint);
+      line-height: 1.35;
+      font-size: .76rem;
+      margin-left: auto;
+      max-width: 470px;
+    }
+
+    .converter-wrap {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-solid);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: .88rem;
+    }
+
+    th, td {
+      border: 1px solid var(--line-strong);
+      height: 42px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: rgba(0, 169, 210, .08);
+      color: var(--text);
+      font-weight: 750;
+      padding: 8px 10px;
+      white-space: nowrap;
+    }
+
+    th.unit-head,
+    td.unit-cell {
+      width: 7%;
+      background: rgba(0, 169, 210, .07);
+      text-align: center;
+      font-weight: 800;
+    }
+
+    td {
+      padding: 0;
+    }
+
+    td.value-cell {
+      width: 26.333%;
+      background: var(--panel-solid);
+    }
+
+    .value-input {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: .9rem;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .value-input:focus {
+      outline: 3px solid rgba(0, 169, 210, .28);
+      outline-offset: -3px;
+    }
+
+    .formulas {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .formula-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(0, 169, 210, .06);
+      padding: 10px;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: .82rem;
+    }
+
+    .formula-card h2 {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font-size: .82rem;
+      letter-spacing: .04em;
+    }
+
+    .formula-card ul {
+      margin: 6px 0 0 18px;
+      padding: 0;
+    }
+
+    .formula-card li { margin: 3px 0; }
+    code {
+      color: var(--text);
+      background: rgba(0, 169, 210, .09);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1px 5px;
+    }
+
+    @media (max-width: 760px) {
+      .brand { top: 16px; right: 16px; font-size: .74rem; }
+      .shell { width: min(100% - 28px, 1380px); padding-top: 78px; }
+      .hint { margin-left: 0; }
+      table { font-size: .82rem; }
+      .converter-wrap { overflow-x: auto; }
+      .converter-wrap table { min-width: 860px; }
+      .formulas { grid-template-columns: 1fr; }
+      .theme-toggle { left: 14px; bottom: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="brand">James Yates</div>
+  <button class="theme-toggle" type="button" aria-label="Toggle colour theme">
+    <span class="toggle-dot" aria-hidden="true"></span>
+    <span class="toggle-text">Dark mode</span>
+  </button>
+
+  <main class="shell">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>RF Unit Converter</nav>
+    <div class="eyebrow">EMC Conversion Calculator</div>
+    <h1>RF unit converter.</h1>
+    <p class="intro">Type into any value box. Every other unit updates automatically from that entry.</p>
+
+    <section class="panel" aria-label="RF unit converter">
+      <div class="controls">
+        <label>
+          System impedance, ohms
+          <input id="impedance" type="number" value="50" min="0.0001" step="0.1">
+        </label>
+        <p class="hint">Change impedance and all impedance-based current and power values recalculate.</p>
+      </div>
+
+      <div class="converter-wrap">
+        <table aria-label="RF unit conversion values">
+          <thead>
+            <tr>
+              <th class="unit-head">Unit</th>
+              <th>Value</th>
+              <th class="unit-head">Unit</th>
+              <th>Value</th>
+              <th class="unit-head">Unit</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody id="converter-body"></tbody>
+        </table>
+      </div>
+
+      <section class="formulas" aria-label="Conversion formulas">
+        <article class="formula-card">
+          <h2>From dBµV</h2>
+          <p>Let <code>Z = impedance in ohms</code> and <code>U = µV</code>.</p>
+          <ul>
+            <li><code>dBmV = dBµV - 60</code></li>
+            <li><code>dBV = dBµV - 120</code></li>
+            <li><code>dBµA = dBµV - 20 log10(Z)</code></li>
+            <li><code>dBmA = dBµV - 20 log10(Z) - 60</code></li>
+            <li><code>dBA = dBµV - 20 log10(Z) - 120</code></li>
+            <li><code>dBpW = dBµV - 10 log10(Z)</code></li>
+            <li><code>dBm = dBµV - 10 log10(Z) - 90</code></li>
+            <li><code>dBW = dBµV - 10 log10(Z) - 120</code></li>
+            <li><code>µV = 10^(dBµV / 20)</code></li>
+            <li><code>mV = 10^((dBµV - 60) / 20)</code></li>
+            <li><code>V = 10^((dBµV - 120) / 20)</code></li>
+            <li><code>µA = 10^((dBµV - 20 log10(Z)) / 20)</code></li>
+            <li><code>mA = 10^((dBµV - 20 log10(Z) - 60) / 20)</code></li>
+            <li><code>A = 10^((dBµV - 20 log10(Z) - 120) / 20)</code></li>
+            <li><code>pW = U² / Z</code></li>
+            <li><code>mW = (U² / Z) × 10^-9</code></li>
+            <li><code>W = (U² / Z) × 10^-12</code></li>
+          </ul>
+        </article>
+        <article class="formula-card">
+          <h2>To dBµV</h2>
+          <ul>
+            <li><code>dBµV = dBmV + 60</code></li>
+            <li><code>dBµV = dBV + 120</code></li>
+            <li><code>dBµV = dBµA + 20 log10(Z)</code></li>
+            <li><code>dBµV = dBmA + 20 log10(Z) + 60</code></li>
+            <li><code>dBµV = dBA + 20 log10(Z) + 120</code></li>
+            <li><code>dBµV = dBpW + 10 log10(Z)</code></li>
+            <li><code>dBµV = dBm + 10 log10(Z) + 90</code></li>
+            <li><code>dBµV = dBW + 10 log10(Z) + 120</code></li>
+            <li><code>dBµV = 20 log10(µV)</code></li>
+            <li><code>dBµV = 20 log10(mV) + 60</code></li>
+            <li><code>dBµV = 20 log10(V) + 120</code></li>
+            <li><code>dBµV = 20 log10(µA) + 20 log10(Z)</code></li>
+            <li><code>dBµV = 20 log10(mA) + 20 log10(Z) + 60</code></li>
+            <li><code>dBµV = 20 log10(A) + 20 log10(Z) + 120</code></li>
+            <li><code>dBµV = 10 log10(pW) + 10 log10(Z)</code></li>
+            <li><code>dBµV = 10 log10(mW) + 10 log10(Z) + 90</code></li>
+            <li><code>dBµV = 10 log10(W) + 10 log10(Z) + 120</code></li>
+          </ul>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const units = [
+      { key: "dbuv", label: "dBµV" },
+      { key: "dbmv", label: "dBmV" },
+      { key: "dbv", label: "dBV" },
+      { key: "dbua", label: "dBµA" },
+      { key: "dbma", label: "dBmA" },
+      { key: "dba", label: "dBA" },
+      { key: "dbpw", label: "dBpW" },
+      { key: "dbm", label: "dBm" },
+      { key: "dbw", label: "dBW" },
+      { key: "uv", label: "µV" },
+      { key: "mv", label: "mV" },
+      { key: "v", label: "V" },
+      { key: "ua", label: "µA" },
+      { key: "ma", label: "mA" },
+      { key: "a", label: "A" },
+      { key: "pw", label: "pW" },
+      { key: "mw", label: "mW" },
+      { key: "w", label: "W" }
+    ];
+
+    const root = document.documentElement;
+    const toggle = document.querySelector(".theme-toggle");
+    const toggleText = document.querySelector(".toggle-text");
+    const converterBody = document.getElementById("converter-body");
+    const impedanceInput = document.getElementById("impedance");
+    let activeUnit = null;
+    let activeValue = "";
+    let inputs = [];
+
+    const storedTheme = localStorage.getItem("jy-theme");
+    if (storedTheme === "dark") root.dataset.theme = "dark";
+    updateToggleText();
+    buildConverter();
+    runMathSelfTest();
+
+    toggle.addEventListener("click", () => {
+      root.dataset.theme = root.dataset.theme === "dark" ? "" : "dark";
+      localStorage.setItem("jy-theme", root.dataset.theme || "light");
+      updateToggleText();
+    });
+
+    impedanceInput.addEventListener("input", () => {
+      if (activeUnit && activeValue.trim() !== "") populate(activeUnit, activeValue);
+      runMathSelfTest();
+    });
+
+    function updateToggleText() {
+      toggleText.textContent = root.dataset.theme === "dark" ? "Light mode" : "Dark mode";
+    }
+
+    function buildConverter() {
+      const columnCount = 3;
+      const rowsPerColumn = Math.ceil(units.length / columnCount);
+      const groups = Array.from({ length: columnCount }, (_, index) =>
+        units.slice(index * rowsPerColumn, (index + 1) * rowsPerColumn)
+      );
+
+      converterBody.innerHTML = Array.from({ length: rowsPerColumn }, (_, rowIndex) => {
+        return `
+        <tr>
+          ${groups.map(group => {
+            const unit = group[rowIndex];
+            return unit
+              ? `<td class="unit-cell">${unit.label}</td><td class="value-cell"><input class="value-input" data-unit="${unit.key}" inputmode="decimal" aria-label="Input ${unit.label}"></td>`
+              : `<td class="unit-cell"></td><td class="value-cell"></td>`;
+          }).join("")}
+        </tr>
+      `;
+      }).join("");
+
+      inputs = Array.from(document.querySelectorAll(".value-input"));
+      inputs.forEach(input => {
+        input.addEventListener("input", event => {
+          const active = event.currentTarget;
+          activeUnit = active.dataset.unit;
+          activeValue = active.value;
+          if (active.value.trim() === "") {
+            clearAll();
+            return;
+          }
+          populate(activeUnit, activeValue, active);
+        });
+      });
+    }
+
+    function z() {
+      const value = Number(impedanceInput.value);
+      return Number.isFinite(value) && value > 0 ? value : 50;
+    }
+
+    function log10(value) {
+      return Math.log(value) / Math.LN10;
+    }
+
+    function toDbuv(value, unit) {
+      const impedance = z();
+      const logZ20 = 20 * log10(impedance);
+      const logZ10 = 10 * log10(impedance);
+      if (unit === "dbuv") return value;
+      if (unit === "dbmv") return value + 60;
+      if (unit === "dbv") return value + 120;
+      if (unit === "dbua") return value + logZ20;
+      if (unit === "dbma") return value + logZ20 + 60;
+      if (unit === "dba") return value + logZ20 + 120;
+      if (unit === "dbpw") return value + logZ10;
+      if (unit === "dbm") return value + logZ10 + 90;
+      if (unit === "dbw") return value + logZ10 + 120;
+      if (unit === "uv") return value > 0 ? 20 * log10(value) : NaN;
+      if (unit === "mv") return value > 0 ? 20 * log10(value) + 60 : NaN;
+      if (unit === "v") return value > 0 ? 20 * log10(value) + 120 : NaN;
+      if (unit === "ua") return value > 0 ? 20 * log10(value) + logZ20 : NaN;
+      if (unit === "ma") return value > 0 ? 20 * log10(value) + logZ20 + 60 : NaN;
+      if (unit === "a") return value > 0 ? 20 * log10(value) + logZ20 + 120 : NaN;
+      if (unit === "pw") return value > 0 ? 10 * log10(value) + logZ10 : NaN;
+      if (unit === "mw") return value > 0 ? 10 * log10(value) + logZ10 + 90 : NaN;
+      if (unit === "w") return value > 0 ? 10 * log10(value) + logZ10 + 120 : NaN;
+      return NaN;
+    }
+
+    function fromDbuv(dbuv, unit) {
+      const impedance = z();
+      const logZ20 = 20 * log10(impedance);
+      const logZ10 = 10 * log10(impedance);
+      if (unit === "dbuv") return dbuv;
+      if (unit === "dbmv") return dbuv - 60;
+      if (unit === "dbv") return dbuv - 120;
+      if (unit === "dbua") return dbuv - logZ20;
+      if (unit === "dbma") return dbuv - logZ20 - 60;
+      if (unit === "dba") return dbuv - logZ20 - 120;
+      if (unit === "dbpw") return dbuv - logZ10;
+      if (unit === "dbm") return dbuv - logZ10 - 90;
+      if (unit === "dbw") return dbuv - logZ10 - 120;
+      if (unit === "uv") return Math.pow(10, dbuv / 20);
+      if (unit === "mv") return Math.pow(10, (dbuv - 60) / 20);
+      if (unit === "v") return Math.pow(10, (dbuv - 120) / 20);
+      if (unit === "ua") return Math.pow(10, (dbuv - logZ20) / 20);
+      if (unit === "ma") return Math.pow(10, (dbuv - logZ20 - 60) / 20);
+      if (unit === "a") return Math.pow(10, (dbuv - logZ20 - 120) / 20);
+      if (unit === "pw") return Math.pow(10, (dbuv - logZ10) / 10);
+      if (unit === "mw") return Math.pow(10, (dbuv - logZ10 - 90) / 10);
+      if (unit === "w") return Math.pow(10, (dbuv - logZ10 - 120) / 10);
+      return NaN;
+    }
+
+    function format(value, unit) {
+      if (!Number.isFinite(value)) return "";
+      if (["uv", "mv", "v", "ua", "ma", "a", "pw", "mw", "w"].includes(unit)) {
+        const abs = Math.abs(value);
+        if (abs !== 0 && (abs < 0.001 || abs >= 10000000)) return value.toExponential(4);
+        return Number(value.toPrecision(7)).toString();
+      }
+      return Number(value.toFixed(3)).toString();
+    }
+
+    function clearAll() {
+      activeUnit = null;
+      activeValue = "";
+      inputs.forEach(input => input.value = "");
+    }
+
+    function populate(sourceUnit, rawValue, activeInput) {
+      const value = Number(rawValue);
+      if (rawValue.trim() === "" || !Number.isFinite(value)) {
+        clearAll();
+        return;
+      }
+
+      const dbuv = toDbuv(value, sourceUnit);
+      if (!Number.isFinite(dbuv)) {
+        inputs.forEach(input => {
+          if (input !== activeInput) input.value = "";
+        });
+        return;
+      }
+
+      inputs.forEach(input => {
+        if (input === activeInput) return;
+        const targetUnit = input.dataset.unit;
+        input.value = format(fromDbuv(dbuv, targetUnit), targetUnit);
+      });
+    }
+
+    function approxEqual(actual, expected, tolerance = 1e-9) {
+      if (!Number.isFinite(actual) || !Number.isFinite(expected)) return false;
+      const scale = Math.max(1, Math.abs(actual), Math.abs(expected));
+      return Math.abs(actual - expected) / scale <= tolerance;
+    }
+
+    function runMathSelfTest() {
+      const oldZ = impedanceInput.value;
+      impedanceInput.value = "50";
+      const expectedAt120 = {
+        dbuv: 120,
+        dbmv: 60,
+        dbv: 0,
+        dbua: 86.02059991327963,
+        dbma: 26.02059991327963,
+        dba: -33.97940008672037,
+        dbpw: 103.01029995663981,
+        dbm: 13.01029995663981,
+        dbw: -16.98970004336019,
+        uv: 1000000,
+        mv: 1000,
+        v: 1,
+        ua: 20000,
+        ma: 20,
+        a: 0.02,
+        pw: 20000000000,
+        mw: 20,
+        w: 0.02
+      };
+
+      const failures = [];
+      for (const [unit, expected] of Object.entries(expectedAt120)) {
+        const actual = fromDbuv(120, unit);
+        if (!approxEqual(actual, expected, 1e-10)) failures.push(`${unit}: ${actual} != ${expected}`);
+        const roundTrip = toDbuv(actual, unit);
+        if (!approxEqual(roundTrip, 120, 1e-10)) failures.push(`${unit} roundtrip: ${roundTrip} != 120`);
+      }
+
+      const arbitraryDbuv = 73.4;
+      for (const unit of units.map(item => item.key)) {
+        const value = fromDbuv(arbitraryDbuv, unit);
+        const roundTrip = toDbuv(value, unit);
+        if (!approxEqual(roundTrip, arbitraryDbuv, 1e-10)) failures.push(`${unit} arbitrary roundtrip: ${roundTrip} != ${arbitraryDbuv}`);
+      }
+
+      impedanceInput.value = oldZ;
+      if (failures.length) {
+        console.error("Conversion math self-test failures", failures);
+      }
+    }
+  </script>
+</body>
+</html>
