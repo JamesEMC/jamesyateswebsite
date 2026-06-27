@@ -1,0 +1,1465 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Frequency Beamwidth Reader</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5fbff;
+      --panel: rgba(255, 255, 255, .94);
+      --panel-solid: #ffffff;
+      --text: #071522;
+      --muted: #526678;
+      --line: #c8dce8;
+      --line-strong: #8fb7c9;
+      --accent: #007fa3;
+      --accent-2: #00a9d2;
+      --e-colour: #111820;
+      --h-colour: #df2424;
+      --good: #197a4e;
+      --warn: #8a6200;
+      --shadow: 0 24px 70px rgba(20, 55, 80, .14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(0, 127, 163, .055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 127, 163, .055) 1px, transparent 1px),
+        radial-gradient(circle at 14% 12%, rgba(0, 169, 210, .16), transparent 32rem),
+        radial-gradient(circle at 86% 24%, rgba(22, 108, 168, .12), transparent 30rem),
+        linear-gradient(145deg, #fbfdff, var(--bg));
+      background-size: 34px 34px, 34px 34px, auto, auto, auto;
+    }
+
+    .shell {
+      width: min(1460px, calc(100% - 22px));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+
+    .brand {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      z-index: 30;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .breadcrumb a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .breadcrumb span {
+      margin: 0 9px;
+      color: var(--muted);
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font: 700 .7rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(1.45rem, 2.8vw, 2.35rem);
+      line-height: 1.04;
+      letter-spacing: -.035em;
+    }
+
+    .intro {
+      max-width: 1050px;
+      margin: 9px 0 16px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: .94rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 370px minmax(0, 1fr);
+      gap: 13px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+
+    .panel h2 {
+      margin: 0 0 9px;
+      color: var(--accent);
+      font-size: .98rem;
+      letter-spacing: .02em;
+    }
+
+    .panel-note {
+      margin: -2px 0 10px;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: .78rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 39px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #ffffff;
+      color: var(--text);
+      padding: 8px 10px;
+      font: inherit;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus {
+      outline: 3px solid rgba(0, 169, 210, .22);
+      border-color: var(--accent);
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .button-row,
+    .tool-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    button,
+    .file-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--accent);
+      min-height: 37px;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: .84rem;
+      font-weight: 750;
+      line-height: 1.1;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    button:hover,
+    .file-button:hover {
+      background: rgba(0, 169, 210, .09);
+    }
+
+    button.is-active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 169, 210, .18);
+    }
+
+    button.danger {
+      border-color: #a73e1d;
+      color: #a73e1d;
+    }
+
+    button.danger:hover {
+      background: rgba(167, 62, 29, .08);
+    }
+
+    button:disabled {
+      border-color: var(--line);
+      background: #f4f8fb;
+      color: var(--muted);
+      cursor: not-allowed;
+      opacity: .68;
+      box-shadow: none;
+    }
+
+    .file-button input {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mode-button {
+      border-radius: 8px;
+      justify-content: flex-start;
+      flex: 1 1 46%;
+      min-width: 150px;
+    }
+
+    .mode-button[data-mode="e"] {
+      border-color: var(--e-colour);
+      color: var(--e-colour);
+    }
+
+    .mode-button[data-mode="h"] {
+      border-color: var(--h-colour);
+      color: var(--h-colour);
+    }
+
+    .mode-button.is-active[data-mode="e"] {
+      background: var(--e-colour);
+      color: #ffffff;
+    }
+
+    .mode-button.is-active[data-mode="h"] {
+      background: var(--h-colour);
+      color: #ffffff;
+    }
+
+    .stage {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-solid);
+      box-shadow: var(--shadow);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      min-height: 520px;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .status-bar {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .92);
+      color: var(--muted);
+      padding: 6px 9px;
+      font-size: .76rem;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(20, 55, 80, .08);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .dot.e {
+      background: var(--e-colour);
+    }
+
+    .dot.h {
+      background: var(--h-colour);
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 10px;
+      min-height: 82px;
+    }
+
+    .stat-label {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-size: clamp(1.08rem, 2.3vw, 1.65rem);
+      font-weight: 800;
+      letter-spacing: -.035em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.05;
+    }
+
+    .stat-note {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: .76rem;
+      line-height: 1.3;
+    }
+
+    .data-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 310px;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 330px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-solid);
+    }
+
+    table {
+      width: 100%;
+      min-width: 650px;
+      border-collapse: collapse;
+      font-size: .82rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 7px 9px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #edf7fb;
+      color: var(--muted);
+      font-size: .72rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: .83rem;
+      line-height: 1.35;
+    }
+
+    .summary-list strong {
+      color: var(--text);
+    }
+
+    .warning {
+      border: 1px solid rgba(138, 98, 0, .28);
+      border-radius: 8px;
+      color: var(--warn);
+      background: rgba(255, 210, 125, .13);
+      padding: 8px 10px;
+      font-size: .78rem;
+      line-height: 1.35;
+    }
+
+    .csv-output {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .csv-output[hidden] {
+      display: none;
+    }
+
+    .export-status {
+      align-self: center;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.35;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      resize: vertical;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #ffffff;
+      color: var(--text);
+      padding: 8px 10px;
+      font: .78rem/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    @media (max-width: 1060px) {
+      .layout,
+      .data-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .result-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      canvas {
+        min-height: 430px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 14px, 1460px);
+        padding-top: 14px;
+      }
+
+      .form-grid,
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-button {
+        flex-basis: 100%;
+      }
+
+      canvas {
+        min-height: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="brand">James Yates</div>
+  <main class="shell">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../antenna.html">Antennas</a><span>/</span>Beamwidth Reader</nav>
+    <p class="eyebrow">Graph reader for antenna datasheets</p>
+    <h1>Read frequency vs half-power beamwidth plots into a table</h1>
+    <p class="intro">Load a datasheet graph, set the rectangular plot area, click along one or two beamwidth curves, then export the raw points or an interpolated frequency table.</p>
+
+    <div class="layout">
+      <aside class="stack">
+        <section class="panel">
+          <h2>1. Image</h2>
+          <p class="panel-note">Use a rectangular frequency versus beamwidth plot from a datasheet. Paste from clipboard also works.</p>
+          <div class="button-row">
+            <label class="file-button">
+              Load image
+              <input id="imageInput" type="file" accept="image/*">
+            </label>
+            <button id="clearAllButton" class="danger" type="button">Clear all</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>2. Axis values</h2>
+          <p class="panel-note">These are the values at the graph edges, not the sampled test points.</p>
+          <div class="form-grid">
+            <label>
+              X min, GHz
+              <input id="xMinInput" type="number" value="0.75" step="0.01">
+            </label>
+            <label>
+              X max, GHz
+              <input id="xMaxInput" type="number" value="18" step="0.1">
+            </label>
+            <label>
+              Y min, deg
+              <input id="yMinInput" type="number" value="0" step="1">
+            </label>
+            <label>
+              Y max, deg
+              <input id="yMaxInput" type="number" value="180" step="1">
+            </label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>3. Sampling</h2>
+          <p class="panel-note">Leave start and end blank to use the first and last selected points from the active trace data.</p>
+          <div class="form-grid">
+            <label class="full">
+              Lines to read
+              <select id="lineModeInput">
+                <option value="2" selected>Two lines: E-plane and H-plane</option>
+                <option value="1">One line only</option>
+              </select>
+            </label>
+            <label>
+              Sample every, GHz
+              <input id="stepInput" type="number" value="0.25" min="0.01" step="0.01">
+            </label>
+            <label>
+              Start freq, GHz
+              <input id="startInput" type="number" step="0.01" placeholder="auto">
+            </label>
+            <label>
+              End freq, GHz
+              <input id="endInput" type="number" step="0.1" placeholder="auto">
+            </label>
+            <label class="full">
+              Note
+              <input id="noteInput" type="text" placeholder="antenna, datasheet, page, etc.">
+            </label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>4. Click tools</h2>
+          <p class="panel-note">Set bottom-left and top-right graph corners first. Then click along each curve from left to right.</p>
+          <div class="tool-row" id="modeButtons">
+            <button class="mode-button is-active" type="button" data-mode="bottomLeft">Set bottom-left</button>
+            <button class="mode-button" type="button" data-mode="topRight">Set top-right</button>
+            <button class="mode-button" type="button" data-mode="e">Add E-plane</button>
+            <button class="mode-button" type="button" data-mode="h">Add H-plane</button>
+            <button class="mode-button" type="button" data-mode="erase">Erase point</button>
+          </div>
+          <div class="button-row" style="margin-top: 10px;">
+            <button id="undoButton" type="button">Undo point</button>
+            <button id="clearPointsButton" type="button">Clear points</button>
+            <button id="clearCalibrationButton" type="button">Clear calibration</button>
+            <button id="exportRawButton" type="button">Export raw CSV</button>
+            <button id="exportSampledButton" type="button">Export table CSV</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Quick guide</h2>
+          <ul class="summary-list">
+            <li><strong>Bottom-left</strong> is the graph corner at X min and Y min.</li>
+            <li><strong>Top-right</strong> is the graph corner at X max and Y max.</li>
+            <li><strong>Raw points</strong> are exactly what you clicked.</li>
+            <li><strong>Sampled table</strong> interpolates between clicked points at the chosen frequency step. Blank start/end values use the selected point range.</li>
+          </ul>
+        </section>
+      </aside>
+
+      <section class="stage">
+        <div class="canvas-wrap">
+          <canvas id="readerCanvas"></canvas>
+          <div class="status-bar">
+            <span class="badge"><span class="dot"></span><span id="modeStatus">Set bottom-left</span></span>
+            <span class="badge"><span class="dot e"></span><span id="eStatus">E: 0 points</span></span>
+            <span class="badge"><span class="dot h"></span><span id="hStatus">H: 0 points</span></span>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="stat">
+            <p class="stat-label">Calibration</p>
+            <div class="stat-value" id="calibrationValue">--</div>
+            <div class="stat-note" id="calibrationNote">Set plot corners</div>
+          </div>
+          <div class="stat">
+            <p class="stat-label">E-plane minimum</p>
+            <div class="stat-value" id="eMinimum">--</div>
+            <div class="stat-note" id="eMinimumNote">No E-plane points</div>
+          </div>
+          <div class="stat">
+            <p class="stat-label">H-plane minimum</p>
+            <div class="stat-value" id="hMinimum">--</div>
+            <div class="stat-note" id="hMinimumNote">No H-plane points</div>
+          </div>
+          <div class="stat">
+            <p class="stat-label">Table rows</p>
+            <div class="stat-value" id="rowCount">--</div>
+            <div class="stat-note">Interpolated sample rows</div>
+          </div>
+        </div>
+
+        <section class="panel data-panel">
+          <div>
+            <h2>Sampled table</h2>
+            <p class="panel-note">Only rows inside each series' clicked frequency range are filled. Add more points to extend the table.</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Frequency GHz</th>
+                    <th>E-plane deg</th>
+                    <th>H-plane deg</th>
+                  </tr>
+                </thead>
+                <tbody id="sampledBody">
+                  <tr><td colspan="3" style="text-align:left;">No sampled rows yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h2>Status</h2>
+            <div class="warning" id="statusBox">Load an image, then set the graph corners.</div>
+            <ul class="summary-list" style="margin-top: 10px;" id="summaryList"></ul>
+            <div class="csv-output" id="csvOutput" hidden>
+              <div class="button-row">
+                <button id="copyCsvButton" type="button">Copy CSV</button>
+                <span class="export-status" id="exportStatus"></span>
+              </div>
+              <textarea id="csvPreview" readonly aria-label="CSV preview"></textarea>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const state = {
+      mode: "bottomLeft",
+      image: null,
+      imageName: "",
+      natural: null,
+      canvasSize: { width: 900, height: 620 },
+      bottomLeft: null,
+      topRight: null,
+      points: { E: [], H: [] },
+      history: []
+    };
+
+    const canvas = document.getElementById("readerCanvas");
+    const ctx = canvas.getContext("2d");
+    const imageInput = document.getElementById("imageInput");
+    const sampledBody = document.getElementById("sampledBody");
+    const statusBox = document.getElementById("statusBox");
+    const summaryList = document.getElementById("summaryList");
+    const csvOutput = document.getElementById("csvOutput");
+    const csvPreview = document.getElementById("csvPreview");
+    const exportStatus = document.getElementById("exportStatus");
+
+    const inputs = {
+      xMin: document.getElementById("xMinInput"),
+      xMax: document.getElementById("xMaxInput"),
+      yMin: document.getElementById("yMinInput"),
+      yMax: document.getElementById("yMaxInput"),
+      lineMode: document.getElementById("lineModeInput"),
+      step: document.getElementById("stepInput"),
+      start: document.getElementById("startInput"),
+      end: document.getElementById("endInput"),
+      note: document.getElementById("noteInput")
+    };
+
+    const els = {
+      modeStatus: document.getElementById("modeStatus"),
+      eStatus: document.getElementById("eStatus"),
+      hStatus: document.getElementById("hStatus"),
+      calibrationValue: document.getElementById("calibrationValue"),
+      calibrationNote: document.getElementById("calibrationNote"),
+      eMinimum: document.getElementById("eMinimum"),
+      hMinimum: document.getElementById("hMinimum"),
+      eMinimumNote: document.getElementById("eMinimumNote"),
+      hMinimumNote: document.getElementById("hMinimumNote"),
+      rowCount: document.getElementById("rowCount")
+    };
+
+    const colours = {
+      E: getComputedStyle(document.documentElement).getPropertyValue("--e-colour").trim(),
+      H: getComputedStyle(document.documentElement).getPropertyValue("--h-colour").trim()
+    };
+
+    function numberValue(input, fallback) {
+      const value = Number(input.value);
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    function optionalNumberValue(input) {
+      if (input.value.trim() === "") return null;
+      const value = Number(input.value);
+      return Number.isFinite(value) ? value : null;
+    }
+
+    function axisSettings() {
+      const xMin = numberValue(inputs.xMin, 0.75);
+      const xMax = numberValue(inputs.xMax, 18);
+      const yMin = numberValue(inputs.yMin, 0);
+      const yMax = numberValue(inputs.yMax, 180);
+      return { xMin, xMax, yMin, yMax };
+    }
+
+    function activeSeries() {
+      return inputs.lineMode.value === "1" ? ["E"] : ["E", "H"];
+    }
+
+    function selectedFrequencyBounds() {
+      const points = activeSeries().flatMap((series) => sortedPoints(series));
+      if (!points.length) return null;
+      return points.reduce((bounds, point) => ({
+        min: Math.min(bounds.min, point.frequency),
+        max: Math.max(bounds.max, point.frequency)
+      }), { min: points[0].frequency, max: points[0].frequency });
+    }
+
+    function settings() {
+      const axis = axisSettings();
+      const selected = selectedFrequencyBounds();
+      let start = optionalNumberValue(inputs.start);
+      let end = optionalNumberValue(inputs.end);
+      if (start === null) start = selected ? selected.min : axis.xMin;
+      if (end === null) end = selected ? selected.max : axis.xMax;
+      if (end < start) [start, end] = [end, start];
+      return {
+        ...axis,
+        step: Math.max(0.01, numberValue(inputs.step, 0.25)),
+        start,
+        end,
+        note: inputs.note.value.trim()
+      };
+    }
+
+    function setMode(mode) {
+      if (mode === "h" && inputs.lineMode.value === "1") mode = "e";
+      state.mode = mode;
+      document.querySelectorAll(".mode-button").forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.mode === mode);
+      });
+      els.modeStatus.textContent = modeLabel(mode);
+      draw();
+    }
+
+    function modeLabel(mode) {
+      return {
+        bottomLeft: "Set bottom-left",
+        topRight: "Set top-right",
+        e: "Add E-plane",
+        h: "Add H-plane",
+        erase: "Erase point"
+      }[mode] || "Read graph";
+    }
+
+    function imageFit() {
+      const { width, height } = state.canvasSize;
+      if (!state.image) {
+        return { x: 0, y: 0, width, height, scale: 1 };
+      }
+      const scale = Math.min(width / state.image.naturalWidth, height / state.image.naturalHeight);
+      const drawW = state.image.naturalWidth * scale;
+      const drawH = state.image.naturalHeight * scale;
+      return {
+        x: (width - drawW) / 2,
+        y: (height - drawH) / 2,
+        width: drawW,
+        height: drawH,
+        scale
+      };
+    }
+
+    function resizeCanvas() {
+      const previous = { ...state.canvasSize };
+      const wrap = canvas.parentElement;
+      const width = Math.max(340, wrap.clientWidth);
+      let height = 620;
+      if (state.natural) {
+        const ratio = state.natural.height / state.natural.width;
+        height = Math.min(760, Math.max(430, width * ratio));
+      } else if (width < 760) {
+        height = Math.max(360, width * .72);
+      }
+      const dpr = window.devicePixelRatio || 1;
+      state.canvasSize = { width, height };
+      canvas.style.height = `${height}px`;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      scaleGeometry(previous, state.canvasSize);
+      draw();
+    }
+
+    function scaleGeometry(previous, next) {
+      if (!previous.width || !previous.height) return;
+      if (Math.abs(previous.width - next.width) < .5 && Math.abs(previous.height - next.height) < .5) return;
+      const sx = next.width / previous.width;
+      const sy = next.height / previous.height;
+      ["bottomLeft", "topRight"].forEach((key) => {
+        if (state[key]) state[key] = { x: state[key].x * sx, y: state[key].y * sy };
+      });
+      ["E", "H"].forEach((series) => {
+        state.points[series] = state.points[series].map((point) => ({
+          ...point,
+          x: point.x * sx,
+          y: point.y * sy
+        }));
+      });
+    }
+
+    function loadImageFile(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = () => loadImageSrc(reader.result, file.name || "loaded image");
+      reader.readAsDataURL(file);
+    }
+
+    function loadImageSrc(src, name) {
+      const img = new Image();
+      img.onload = () => {
+        state.image = img;
+        state.imageName = name;
+        state.natural = { width: img.naturalWidth, height: img.naturalHeight };
+        clearCalibration(false);
+        clearPoints(false);
+        resizeCanvas();
+        updateOutputs();
+      };
+      img.onerror = () => {
+        statusBox.textContent = "Could not load the image.";
+      };
+      img.src = src;
+    }
+
+    function clearAll() {
+      state.image = null;
+      state.imageName = "";
+      state.natural = null;
+      clearCalibration(false);
+      clearPoints(false);
+      inputs.note.value = "";
+      clearCsvPreview();
+      setMode("bottomLeft");
+      resizeCanvas();
+      updateOutputs();
+    }
+
+    function clearCalibration(shouldUpdate = true) {
+      state.bottomLeft = null;
+      state.topRight = null;
+      setMode("bottomLeft");
+      if (shouldUpdate) updateOutputs();
+    }
+
+    function clearPoints(shouldUpdate = true) {
+      state.points.E = [];
+      state.points.H = [];
+      state.history = [];
+      clearCsvPreview();
+      if (shouldUpdate) updateOutputs();
+    }
+
+    function canvasPoint(event) {
+      const rect = canvas.getBoundingClientRect();
+      return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    }
+
+    function canMap() {
+      return state.bottomLeft && state.topRight &&
+        Math.abs(state.topRight.x - state.bottomLeft.x) > 20 &&
+        Math.abs(state.bottomLeft.y - state.topRight.y) > 20;
+    }
+
+    function dataFromPoint(point) {
+      if (!canMap()) return null;
+      const s = axisSettings();
+      const xRatio = (point.x - state.bottomLeft.x) / (state.topRight.x - state.bottomLeft.x);
+      const yRatio = (state.bottomLeft.y - point.y) / (state.bottomLeft.y - state.topRight.y);
+      return {
+        frequency: s.xMin + xRatio * (s.xMax - s.xMin),
+        beamwidth: s.yMin + yRatio * (s.yMax - s.yMin)
+      };
+    }
+
+    function pointFromData(frequency, beamwidth) {
+      if (!canMap()) return null;
+      const s = axisSettings();
+      const xRatio = (frequency - s.xMin) / (s.xMax - s.xMin);
+      const yRatio = (beamwidth - s.yMin) / (s.yMax - s.yMin);
+      return {
+        x: state.bottomLeft.x + xRatio * (state.topRight.x - state.bottomLeft.x),
+        y: state.bottomLeft.y - yRatio * (state.bottomLeft.y - state.topRight.y)
+      };
+    }
+
+    function addPoint(series, point) {
+      const data = dataFromPoint(point);
+      if (!data) return;
+      const entry = {
+        ...point,
+        ...data,
+        series,
+        id: `${series}-${Date.now()}-${Math.random().toString(16).slice(2)}`
+      };
+      state.points[series].push(entry);
+      state.history.push({ series, id: entry.id });
+      updateOutputs();
+    }
+
+    function sortedPoints(series) {
+      return state.points[series]
+        .map((point) => ({ ...point, ...dataFromPoint(point) }))
+        .filter((point) => Number.isFinite(point.frequency) && Number.isFinite(point.beamwidth))
+        .sort((a, b) => a.frequency - b.frequency);
+    }
+
+    function eraseNearest(point) {
+      let best = null;
+      activeSeries().forEach((series) => {
+        state.points[series].forEach((candidate, index) => {
+          const distance = Math.hypot(candidate.x - point.x, candidate.y - point.y);
+          if (!best || distance < best.distance) best = { series, index, distance };
+        });
+      });
+      if (best && best.distance <= 16) {
+        state.points[best.series].splice(best.index, 1);
+        updateOutputs();
+      }
+    }
+
+    function undoPoint() {
+      const last = state.history.pop();
+      if (!last) return;
+      const list = state.points[last.series];
+      const index = list.findIndex((point) => point.id === last.id);
+      if (index >= 0) list.splice(index, 1);
+      updateOutputs();
+    }
+
+    function interpolate(series, frequency) {
+      const points = sortedPoints(series);
+      if (points.length < 2) return null;
+      if (frequency < points[0].frequency || frequency > points[points.length - 1].frequency) return null;
+      for (let i = 1; i < points.length; i += 1) {
+        const a = points[i - 1];
+        const b = points[i];
+        if (frequency >= a.frequency && frequency <= b.frequency) {
+          const span = b.frequency - a.frequency;
+          if (Math.abs(span) < .00001) return a.beamwidth;
+          const t = (frequency - a.frequency) / span;
+          return a.beamwidth + (b.beamwidth - a.beamwidth) * t;
+        }
+      }
+      return null;
+    }
+
+    function sampledRows() {
+      const s = settings();
+      const rows = [];
+      const count = Math.floor((s.end - s.start) / s.step + .000001);
+      for (let i = 0; i <= count; i += 1) {
+        const frequency = roundTo(s.start + i * s.step, 5);
+        const e = interpolate("E", frequency);
+        const h = activeSeries().includes("H") ? interpolate("H", frequency) : null;
+        if (e !== null || h !== null) {
+          rows.push({
+            frequency,
+            e,
+            h
+          });
+        }
+      }
+      return rows;
+    }
+
+    function roundTo(value, decimals) {
+      const scale = 10 ** decimals;
+      return Math.round(value * scale) / scale;
+    }
+
+    function format(value, decimals = 2) {
+      if (!Number.isFinite(value)) return "";
+      return value.toFixed(decimals);
+    }
+
+    function rangeText(series) {
+      const points = sortedPoints(series);
+      if (!points.length) return "--";
+      return `${format(points[0].frequency, 2)}-${format(points[points.length - 1].frequency, 2)} GHz`;
+    }
+
+    function minimumPoint(series) {
+      const points = sortedPoints(series);
+      if (!points.length) return null;
+      return points.reduce((best, point) => point.beamwidth < best.beamwidth ? point : best, points[0]);
+    }
+
+    function minimumText(series) {
+      const minimum = minimumPoint(series);
+      if (!minimum) return "--";
+      return `${format(minimum.beamwidth, 1)} deg`;
+    }
+
+    function minimumNote(series) {
+      const minimum = minimumPoint(series);
+      if (!minimum) return series === "H" && !activeSeries().includes("H") ? "H-plane disabled" : `No ${series}-plane points`;
+      return `at ${format(minimum.frequency, 2)} GHz`;
+    }
+
+    function updateOutputs() {
+      updateLineMode();
+      const rows = sampledRows();
+      els.eStatus.textContent = `E: ${state.points.E.length} points`;
+      els.hStatus.textContent = activeSeries().includes("H") ? `H: ${state.points.H.length} points` : "H: off";
+      els.calibrationValue.textContent = canMap() ? "Ready" : "--";
+      els.calibrationNote.textContent = canMap() ? `${settings().xMin}-${settings().xMax} GHz, ${settings().yMin}-${settings().yMax} deg` : "Set plot corners";
+      els.eMinimum.textContent = minimumText("E");
+      els.hMinimum.textContent = activeSeries().includes("H") ? minimumText("H") : "--";
+      els.eMinimumNote.textContent = minimumNote("E");
+      els.hMinimumNote.textContent = minimumNote("H");
+      els.rowCount.textContent = rows.length ? String(rows.length) : "--";
+      updateSampledTable(rows);
+      updateStatus(rows);
+      draw();
+    }
+
+    function updateLineMode() {
+      const hButton = document.querySelector('[data-mode="h"]');
+      const hEnabled = activeSeries().includes("H");
+      hButton.disabled = !hEnabled;
+      if (!hEnabled && state.mode === "h") setMode("e");
+    }
+
+    function updateSampledTable(rows) {
+      if (!rows.length) {
+        sampledBody.innerHTML = `<tr><td colspan="3" style="text-align:left;">No sampled rows yet.</td></tr>`;
+        return;
+      }
+      sampledBody.innerHTML = rows.map((row) => `
+        <tr>
+          <td>${format(row.frequency, 2)}</td>
+          <td>${format(row.e, 1)}</td>
+          <td>${format(row.h, 1)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function updateStatus(rows) {
+      const messages = [];
+      if (!state.image) messages.push("Load or paste a graph image.");
+      if (!state.bottomLeft) messages.push("Click the graph bottom-left corner.");
+      if (!state.topRight) messages.push("Click the graph top-right corner.");
+      if (state.points.E.length < 2) messages.push("Add at least two E-plane points.");
+      if (activeSeries().includes("H") && state.points.H.length < 2) messages.push("Add at least two H-plane points, or switch to one line only.");
+      if (!rows.length) messages.push("Add points across the frequency range you want to tabulate.");
+      statusBox.textContent = messages[0] || "Ready. The sampled table can be exported.";
+      statusBox.style.color = messages.length ? "var(--warn)" : "var(--good)";
+
+      const ePoints = sortedPoints("E");
+      const hPoints = sortedPoints("H");
+      summaryList.innerHTML = [
+        `<li><strong>Image:</strong> ${escapeHtml(state.imageName || "none")}</li>`,
+        `<li><strong>Lines enabled:</strong> ${activeSeries().length === 1 ? "one" : "two"}</li>`,
+        `<li><strong>E-plane clicked:</strong> ${ePoints.length} points</li>`,
+        `<li><strong>H-plane clicked:</strong> ${activeSeries().includes("H") ? `${hPoints.length} points` : "disabled"}</li>`,
+        `<li><strong>Sample interval:</strong> ${format(settings().step, 2)} GHz</li>`,
+        `<li><strong>Sample range:</strong> ${format(settings().start, 2)}-${format(settings().end, 2)} GHz</li>`
+      ].join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function exportRawCsv() {
+      const rows = [["series", "note", "frequency_ghz", "beamwidth_deg", "x_px", "y_px"]];
+      let dataRowCount = 0;
+      activeSeries().forEach((series) => {
+        sortedPoints(series).forEach((point) => {
+          dataRowCount += 1;
+          rows.push([
+            `${series}-plane`,
+            settings().note,
+            format(point.frequency, 5),
+            format(point.beamwidth, 5),
+            format(point.x, 2),
+            format(point.y, 2)
+          ]);
+        });
+      });
+      rows.push([]);
+      rows.push(["summary", "note", "frequency_ghz", "minimum_beamwidth_deg", "", ""]);
+      minimumSummaryRows().forEach((row) => rows.push(row));
+      downloadCsv("beamwidth-raw-points.csv", rows, dataRowCount, "raw point");
+    }
+
+    function exportSampledCsv() {
+      const rows = [["frequency_ghz", "e_plane_deg", "h_plane_deg", "note"]];
+      const samples = sampledRows();
+      samples.forEach((row) => {
+        rows.push([
+          format(row.frequency, 5),
+          format(row.e, 5),
+          format(row.h, 5),
+          settings().note
+        ]);
+      });
+      rows.push([]);
+      rows.push(["summary", "frequency_ghz", "minimum_beamwidth_deg", "note"]);
+      minimumSummaryRows().forEach((row) => rows.push([row[0], row[2], row[3], row[1]]));
+      downloadCsv("beamwidth-sampled-table.csv", rows, samples.length, "sampled row");
+    }
+
+    function minimumSummaryRows() {
+      return activeSeries().map((series) => {
+        const minimum = minimumPoint(series);
+        return [
+          `${series}-plane minimum`,
+          settings().note,
+          minimum ? format(minimum.frequency, 5) : "",
+          minimum ? format(minimum.beamwidth, 5) : "",
+          "",
+          ""
+        ];
+      });
+    }
+
+    function downloadCsv(filename, rows, dataRowCount, rowLabel) {
+      const csv = rows.map((row) => row.map(csvCell).join(",")).join("\n");
+      showCsvPreview(csv, filename, dataRowCount, rowLabel);
+      if (!dataRowCount) return;
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    function showCsvPreview(csv, filename, dataRowCount, rowLabel) {
+      csvOutput.hidden = false;
+      csvPreview.value = csv;
+      const plural = dataRowCount === 1 ? rowLabel : `${rowLabel}s`;
+      exportStatus.textContent = dataRowCount
+        ? `${filename} prepared with ${dataRowCount} ${plural}. If no file appeared, use Copy CSV.`
+        : `No ${plural} yet. Add more points, then export again.`;
+    }
+
+    function clearCsvPreview() {
+      csvOutput.hidden = true;
+      csvPreview.value = "";
+      exportStatus.textContent = "";
+    }
+
+    async function copyCsv() {
+      const text = csvPreview.value;
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        exportStatus.textContent = "CSV copied.";
+      } catch (error) {
+        csvPreview.focus();
+        csvPreview.select();
+        document.execCommand("copy");
+        exportStatus.textContent = "CSV selected and copied where supported.";
+      }
+    }
+
+    function csvCell(value) {
+      const text = String(value ?? "");
+      if (/[",\n]/.test(text)) return `"${text.replace(/"/g, "\"\"")}"`;
+      return text;
+    }
+
+    function draw() {
+      const { width, height } = state.canvasSize;
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+
+      if (state.image) {
+        const fit = imageFit();
+        ctx.drawImage(state.image, fit.x, fit.y, fit.width, fit.height);
+      } else {
+        drawPlaceholder(width, height);
+      }
+
+      drawCalibration();
+      activeSeries().forEach((series) => drawSeries(series));
+      drawSampleMarkers();
+      drawHint(width, height);
+    }
+
+    function drawPlaceholder(width, height) {
+      ctx.fillStyle = "#fbfdff";
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeStyle = "#d6e7ef";
+      ctx.lineWidth = 1;
+      for (let x = 60; x < width; x += 80) {
+        ctx.beginPath();
+        ctx.moveTo(x, 40);
+        ctx.lineTo(x, height - 40);
+        ctx.stroke();
+      }
+      for (let y = 50; y < height; y += 70) {
+        ctx.beginPath();
+        ctx.moveTo(40, y);
+        ctx.lineTo(width - 40, y);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#526678";
+      ctx.font = "700 15px ui-sans-serif, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Load an image or paste a screenshot", width / 2, height / 2);
+    }
+
+    function drawCalibration() {
+      if (state.bottomLeft) drawHandle(state.bottomLeft, "#007fa3", "BL");
+      if (state.topRight) drawHandle(state.topRight, "#007fa3", "TR");
+      if (!canMap()) return;
+      const left = state.bottomLeft.x;
+      const right = state.topRight.x;
+      const bottom = state.bottomLeft.y;
+      const top = state.topRight.y;
+      ctx.save();
+      ctx.strokeStyle = "#007fa3";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([7, 5]);
+      ctx.strokeRect(left, top, right - left, bottom - top);
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    function drawHandle(point, colour, label) {
+      ctx.save();
+      ctx.fillStyle = colour;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = colour;
+      ctx.font = "700 12px ui-sans-serif, system-ui, sans-serif";
+      ctx.fillText(label, point.x + 10, point.y - 10);
+      ctx.restore();
+    }
+
+    function drawSeries(series) {
+      const points = sortedPoints(series);
+      if (!points.length) return;
+      ctx.save();
+      ctx.strokeStyle = colours[series];
+      ctx.fillStyle = colours[series];
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      points.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+      });
+      ctx.stroke();
+      points.forEach((point) => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.strokeStyle = colours[series];
+        ctx.lineWidth = 2.5;
+      });
+      ctx.restore();
+    }
+
+    function drawSampleMarkers() {
+      if (!canMap()) return;
+      const rows = sampledRows();
+      if (!rows.length) return;
+      ctx.save();
+      ctx.globalAlpha = .65;
+      rows.forEach((row) => {
+        if (row.e !== null) {
+          const point = pointFromData(row.frequency, row.e);
+          drawTinyPoint(point, colours.E);
+        }
+        if (row.h !== null) {
+          const point = pointFromData(row.frequency, row.h);
+          drawTinyPoint(point, colours.H);
+        }
+      });
+      ctx.restore();
+    }
+
+    function drawTinyPoint(point, colour) {
+      if (!point) return;
+      ctx.fillStyle = colour;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawHint(width, height) {
+      let text = "";
+      if (!state.image) text = "Load an image or paste a screenshot";
+      else if (!state.bottomLeft) text = "Click the graph bottom-left corner";
+      else if (!state.topRight) text = "Click the graph top-right corner";
+      else if (state.mode === "e") text = "Click along the black E-plane curve";
+      else if (state.mode === "h") text = "Click along the red H-plane curve";
+      else if (state.mode === "erase") text = "Click near a point to erase it";
+      if (!text) return;
+
+      ctx.save();
+      ctx.fillStyle = "rgba(255,255,255,.93)";
+      ctx.strokeStyle = "#c8dce8";
+      ctx.lineWidth = 1;
+      const boxW = Math.min(width - 40, 430);
+      const boxH = 46;
+      const x = (width - boxW) / 2;
+      const y = Math.max(18, height * .065);
+      roundRect(x, y, boxW, boxH, 8);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#526678";
+      ctx.font = "700 14px ui-sans-serif, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, width / 2, y + boxH / 2);
+      ctx.restore();
+    }
+
+    function roundRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    document.getElementById("modeButtons").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-mode]");
+      if (!button) return;
+      setMode(button.dataset.mode);
+    });
+
+    canvas.addEventListener("pointerdown", (event) => {
+      const point = canvasPoint(event);
+      if (state.mode === "bottomLeft") {
+        state.bottomLeft = point;
+        setMode("topRight");
+      } else if (state.mode === "topRight") {
+        state.topRight = point;
+        setMode("e");
+      } else if (state.mode === "e") {
+        addPoint("E", point);
+      } else if (state.mode === "h") {
+        addPoint("H", point);
+      } else if (state.mode === "erase") {
+        eraseNearest(point);
+      }
+      updateOutputs();
+    });
+
+    imageInput.addEventListener("change", (event) => {
+      loadImageFile(event.target.files[0]);
+      imageInput.value = "";
+    });
+
+    document.addEventListener("paste", (event) => {
+      const item = [...event.clipboardData.items].find((entry) => entry.type.startsWith("image/"));
+      if (item) loadImageFile(item.getAsFile());
+    });
+
+    document.getElementById("clearAllButton").addEventListener("click", clearAll);
+    document.getElementById("undoButton").addEventListener("click", undoPoint);
+    document.getElementById("clearPointsButton").addEventListener("click", () => clearPoints(true));
+    document.getElementById("clearCalibrationButton").addEventListener("click", () => clearCalibration(true));
+    document.getElementById("exportRawButton").addEventListener("click", exportRawCsv);
+    document.getElementById("exportSampledButton").addEventListener("click", exportSampledCsv);
+    document.getElementById("copyCsvButton").addEventListener("click", copyCsv);
+
+    Object.values(inputs).forEach((input) => {
+      input.addEventListener("input", updateOutputs);
+    });
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    updateOutputs();
+  </script>
+</body>
+</html>
