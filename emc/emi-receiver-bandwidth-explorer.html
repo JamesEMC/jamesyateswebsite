@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>James Yates | EMI Receiver Bandwidth Explorer</title>
+<style>
+  :root{
+    color-scheme:light;
+    --bg:#f5fbff;
+    --bg2:#eaf5fb;
+    --panel:rgba(255,255,255,.9);
+    --panel-solid:#ffffff;
+    --ink:#071522;
+    --muted:#526678;
+    --faint:#7890a3;
+    --line:#c8dce8;
+    --line-strong:#8fb7c9;
+    --cyan:#00a9d2;
+    --blue:#007fa3;
+    --navy:#071522;
+    --green:#20b486;
+    --amber:#ffb020;
+    --red:#e14b5a;
+    --purple:#7b61ff;
+    --soft:#f7fbfd;
+    --shadow:0 24px 70px rgba(20,55,80,.14);
+    --radius:8px;
+  }
+  [data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#07111d;
+    --bg2:#0b1d2f;
+    --panel:rgba(10,28,45,.84);
+    --panel-solid:#0a1a2a;
+    --ink:#f4f8fd;
+    --muted:#a9bccf;
+    --faint:#7890a3;
+    --line:rgba(139,239,255,.22);
+    --line-strong:rgba(139,239,255,.46);
+    --cyan:#54dff4;
+    --blue:#54dff4;
+    --navy:#071522;
+    --soft:rgba(139,239,255,.08);
+    --shadow:0 24px 70px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(rgba(0,127,163,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,127,163,.055) 1px,transparent 1px),radial-gradient(circle at 14% 12%,rgba(0,169,210,.16),transparent 32rem),radial-gradient(circle at 86% 24%,rgba(22,108,168,.12),transparent 30rem),linear-gradient(145deg,var(--bg),var(--bg2));background-size:34px 34px,34px 34px,auto,auto,auto}
+  .brand{position:fixed;top:14px;right:18px;z-index:30;letter-spacing:.28em;text-transform:uppercase;font-size:.72rem;color:var(--muted)}
+  .theme-toggle{position:fixed;left:16px;bottom:16px;z-index:40;display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink);padding:7px 11px;font:inherit;font-size:.86rem;box-shadow:var(--shadow);cursor:pointer}
+  .toggle-dot{width:18px;height:18px;border-radius:999px;background:linear-gradient(135deg,var(--blue),var(--cyan));box-shadow:0 0 0 4px rgba(0,169,210,.13)}
+  header{background:transparent;color:var(--ink);padding:34px 14px 8px;border-bottom:0}
+  .wrap{max-width:1240px;margin:0 auto}
+  .hero{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+  .breadcrumb{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin:0 0 22px}
+  .breadcrumb a{color:var(--blue);text-decoration:none}.breadcrumb a:hover{text-decoration:underline;text-underline-offset:4px}.breadcrumb span{margin:0 9px;color:var(--faint)}
+  h1{margin:0 0 8px;font-size:clamp(1.65rem,3.2vw,2.8rem);line-height:1;font-weight:850;letter-spacing:-.045em}
+  h2{margin:0 0 8px;font-size:1.18rem;color:var(--ink)}
+  h3{margin:0 0 8px;font-size:1rem;color:var(--ink)}
+  p{line-height:1.55;margin:0 0 12px}.sub{font:700 .78rem/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin:0}.tagline{color:var(--muted);max-width:860px;margin-top:10px}
+  .quick{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;min-width:260px;box-shadow:var(--shadow)}.quick label{font-weight:800;font-size:.9rem;display:block;margin-bottom:8px}.quick select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line-strong);background:var(--panel-solid);color:var(--ink)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:16px 14px 30px}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.wide{grid-column:1/-1}.card .hint{background:rgba(0,169,210,.08);border:1px solid var(--line);color:var(--muted);padding:10px 12px;border-radius:8px;font-size:.9rem;margin-top:12px}.kpi{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0}.kpi b{color:var(--blue)}
+  canvas{width:100%;height:270px;border-radius:14px;background:linear-gradient(180deg,#fff,#f7fbff);border:1px solid var(--line)}.smallcanvas{height:210px}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}.control{background:var(--panel-solid);border:1px solid var(--line);border-radius:8px;padding:12px}.control label{display:flex;justify-content:space-between;gap:8px;font-weight:750;color:var(--muted);font-size:.9rem;margin-bottom:8px}.control output{color:var(--blue);font-weight:850}input[type=range]{width:100%;accent-color:var(--blue)}select,button{font:inherit}button{border:1px solid var(--line);background:var(--panel-solid);color:var(--ink);padding:10px 12px;border-radius:8px;font-weight:800;cursor:pointer}button.active{background:var(--blue);color:#071522;border-color:var(--blue)}.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.mini{font-size:.86rem;padding:8px 10px}.split{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:8px}table{border-collapse:collapse;width:100%;font-size:.92rem;background:var(--panel-solid)}th{background:#082340;color:#fff;text-align:left}th,td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}tr:last-child td{border-bottom:0}.pill{display:inline-flex;align-items:center;border-radius:999px;background:rgba(0,169,210,.12);color:var(--blue);padding:4px 9px;font-size:.78rem;font-weight:800}.note{border-left:5px solid var(--amber);background:var(--panel);padding:12px 14px;border-radius:8px;margin-top:12px}.callout{background:linear-gradient(135deg,#082340,#0b4270);color:#fff;border-radius:8px;padding:18px}.callout h2{color:#fff}.callout p{color:#d7f5ff}.ref li{margin:8px 0;line-height:1.45}.footer{padding:20px 14px 42px}.svgbox{border:1px solid var(--line);border-radius:8px;background:var(--panel-solid);padding:14px;min-height:210px}.defs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.def{background:var(--panel-solid);border:1px solid var(--line);border-radius:8px;padding:14px}.def strong{display:block;color:var(--ink);margin-bottom:6px}
+  @media (max-width:900px){.hero,.grid,.split,.three,.defs{grid-template-columns:1fr}.quick{min-width:0}.grid{padding:14px 10px}.card{padding:14px}canvas{height:230px}}
+</style>
+</head>
+<body>
+<div class="brand">James Yates</div>
+<button class="theme-toggle" type="button" aria-label="Toggle colour theme">
+  <span class="toggle-dot" aria-hidden="true"></span>
+  <span class="toggle-text">Dark mode</span>
+</button>
+<header>
+  <div class="wrap">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>Receiver Bandwidth</nav>
+    <div class="hero">
+      <div>
+        <p class="sub">Resolution bandwidth • 6 dB bandwidth • impulse bandwidth • detector functions</p>
+        <h1>EMI Receiver Bandwidth Explorer</h1>
+        <p class="tagline">A practical EMC page for understanding what the receiver actually captures, why 3 dB/6 dB wording matters, and why CISPR-style EMI filters are not just ordinary spectrum analyser RBWs.</p>
+      </div>
+      <div class="quick">
+        <label for="jump">Quick jump</label>
+        <select id="jump">
+          <option value="why">Why bandwidth matters</option>
+          <option value="two">Two narrow signals</option>
+          <option value="bw">3 dB vs 6 dB</option>
+          <option value="impulse">Impulse bandwidth</option>
+          <option value="detectors">Detector functions</option>
+          <option value="standards">Standards comparison</option>
+          <option value="refs">References</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="wrap grid">
+  <section class="card wide" id="why">
+    <div class="callout">
+      <h2>Core idea</h2>
+      <p>The receiver bandwidth is the slice of spectrum admitted into the detector. A narrow CW signal is mostly unchanged once the filter is wide enough to contain it. Broadband noise and impulses change more because a wider filter captures more energy and responds differently in time.</p>
+    </div>
+    <div class="defs" style="margin-top:14px">
+      <div class="def"><strong>RBW / resolution bandwidth</strong>Frequency resolving width of the IF filter. Narrower RBW separates closer carriers and lowers the displayed noise floor.</div>
+      <div class="def"><strong>6 dB bandwidth</strong>The filter width measured where response has fallen 6 dB from the peak. MIL-STD-461G explicitly uses this convention for emission receiver bandwidths.</div>
+      <div class="def"><strong>Impulse bandwidth</strong>The effective receiver bandwidth for short pulses. It depends on the full filter shape, not just the -6 dB points.</div>
+      <div class="def"><strong>Detector</strong>The circuit or algorithm after the filter: Peak, Average, RMS or Quasi-Peak. Same signal, different detector, different displayed value.</div>
+    </div>
+  </section>
+
+  <section class="card" id="two">
+    <h2>1. Tool: two narrow signals through a receiver filter</h2>
+    <p>Move the bandwidth. At small bandwidth the two carriers are resolved. At large bandwidth they merge into one broad measured response.</p>
+    <canvas id="twoCanvas"></canvas>
+    <div class="controls">
+      <div class="control"><label>6 dB bandwidth <output id="rbwOut">30 kHz</output></label><input id="rbw" type="range" min="5" max="180" value="30"></div>
+      <div class="control"><label>Carrier spacing <output id="spacingOut">120 kHz</output></label><input id="spacing" type="range" min="25" max="220" value="120"></div>
+    </div>
+    <div class="kpi"><span>Can the receiver resolve both carriers?</span><b id="resolveKpi">Yes</b></div>
+    <div class="hint">Rule of thumb: resolution improves with narrower bandwidth, but sweep time increases and the noise floor falls.</div>
+  </section>
+
+  <section class="card">
+    <h2>2. Tool: broadband noise captured by bandwidth</h2>
+    <p>For broadband noise, measured noise power increases approximately 10 log₁₀(BW ratio). This is why using a larger bandwidth can raise the displayed level.</p>
+    <canvas id="noiseCanvas"></canvas>
+    <div class="controls">
+      <div class="control"><label>Bandwidth <output id="noiseBwOut">120 kHz</output></label><input id="noiseBw" type="range" min="1" max="1000" value="120"></div>
+      <div class="control"><label>Reference bandwidth <output>10 kHz</output></label><input type="range" min="10" max="10" value="10" disabled></div>
+    </div>
+    <div class="kpi"><span>Noise increase vs 10 kHz</span><b id="noiseRise">10.8 dB</b></div>
+    <div class="hint">This is conceptual: real readings also depend on detector, filter shape and signal statistics.</div>
+  </section>
+
+  <section class="card" id="bw">
+    <h2>3. Tool: 3 dB vs 6 dB bandwidth</h2>
+    <p>The same filter can be quoted at different down-points. This does not change the filter; it changes where you measure its width.</p>
+    <canvas id="bwCanvas"></canvas>
+    <div class="three">
+      <div class="kpi"><span>3 dB width</span><b id="w3">85 kHz</b></div>
+      <div class="kpi"><span>6 dB width</span><b id="w6">120 kHz</b></div>
+      <div class="kpi"><span>6 dB / 3 dB</span><b>≈ 1.41</b></div>
+    </div>
+    <div class="hint">MIL-STD-461G, DEF STAN wording and CISPR-style EMI receiver filters are based around 6 dB bandwidth / impulse response behaviour, not generic analyser 3 dB RBW.</div>
+  </section>
+
+  <section class="card" id="impulse">
+    <h2>4. Tool: CISPR-style impulse response</h2>
+    <p>Select a CISPR band. The page shows a conceptual time response of a receiver IF filter. Wider bandwidth means a shorter response in time.</p>
+    <canvas id="impulseCanvas"></canvas>
+    <div class="btnrow" id="bandButtons">
+      <button class="mini" data-b="0">Band A<br>200 Hz</button>
+      <button class="mini" data-b="1">Band B<br>9 kHz</button>
+      <button class="mini active" data-b="2">Band C/D<br>120 kHz</button>
+      <button class="mini" data-b="3">Band E<br>1 MHz</button>
+    </div>
+    <div class="three">
+      <div class="kpi"><span>Selected 6 dB BW</span><b id="ibwSel">120 kHz</b></div>
+      <div class="kpi"><span>Conceptual impulse BW</span><b id="ibwApprox">≈ 120 kHz</b></div>
+      <div class="kpi"><span>Relative pulse duration</span><b id="pulseDur">Medium</b></div>
+    </div>
+    <div class="note"><strong>Important:</strong> this diagram is educational, not a CISPR tolerance mask. CISPR receivers are verified using detailed requirements for 6 dB bandwidth, impulse response, selectivity and detector behaviour.</div>
+  </section>
+
+  <section class="card" id="detectors">
+    <h2>5. Tool: detector functions</h2>
+    <p>The filter decides what reaches the detector. The detector decides how the receiver displays it.</p>
+    <canvas id="detCanvas" class="smallcanvas"></canvas>
+    <div class="btnrow" id="detButtons">
+      <button class="mini active" data-d="peak">Peak</button>
+      <button class="mini" data-d="avg">Average</button>
+      <button class="mini" data-d="rms">RMS</button>
+      <button class="mini" data-d="qp">Quasi-Peak</button>
+    </div>
+    <div class="kpi"><span>Displayed value for burst train</span><b id="detVal">68.0 dBµV</b></div>
+    <div class="hint">Quasi-Peak is intentionally weighted by repetition rate. In commercial EMC it can penalise frequent pulses more than rare ones.</div>
+  </section>
+
+  <section class="card">
+    <h2>6. Instrument mode: analyser vs EMI receiver</h2>
+    <div class="split">
+      <div class="svgbox">
+        <h3>Spectrum analyser mode</h3>
+        <ul>
+          <li>RBW often specified at 3 dB.</li>
+          <li>Excellent for diagnostics and troubleshooting.</li>
+          <li>May not provide CISPR/MIL compliant IF filters unless EMI options are enabled.</li>
+        </ul>
+      </div>
+      <div class="svgbox">
+        <h3>EMI receiver mode</h3>
+        <ul>
+          <li>Uses defined EMC receiver bandwidths.</li>
+          <li>Supports Peak, Average, RMS and/or Quasi-Peak detector functions.</li>
+          <li>Best choice for formal compliance measurements.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hint">For formal work, select the receiver mode/filter family required by the procedure and record the bandwidth/detector in the report.</div>
+  </section>
+
+  <section class="card wide" id="standards">
+    <h2>7. Standards comparison</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Standard / family</th><th>Bandwidth convention</th><th>Typical emission bandwidths</th><th>Detector notes</th><th>Practical note</th></tr></thead>
+        <tbody>
+          <tr><td><strong>MIL-STD-461G</strong></td><td>Bandwidths specified at the <strong>6 dB down points</strong> of the receiver selectivity curve.</td><td>10 Hz, 1 kHz, 10 kHz, 1 MHz depending on test and frequency range.</td><td>Predominantly Peak for emissions.</td><td>Do not treat listed bandwidths as generic 3 dB analyser RBW unless your procedure/equipment evidence supports equivalence.</td></tr>
+          <tr><td><strong>DEF STAN 59-411 Part 3</strong></td><td>Uses wording such as <strong>receiver 6 dB (impulse) bandwidths</strong>.</td><td>Defined by test method/frequency range tables in the standard.</td><td>Peak detector generally, with average detector where required by specific tests.</td><td>Confirm bandwidths used in the test report.</td></tr>
+          <tr><td><strong>CISPR 16 / EN 550xx family</strong></td><td>EMI receiver specification includes <strong>6 dB bandwidth</strong>, impulse response and filter selectivity requirements.</td><td>200 Hz, 9 kHz, 120 kHz, 1 MHz bands are commonly encountered.</td><td>Peak, Quasi-Peak, Average and RMS depending on standard and frequency range.</td><td>CISPR compliance is about the complete receiver behaviour, not just the label “120 kHz”.</td></tr>
+          <tr><td><strong>DO-160 emissions</strong></td><td>Uses specified receiver bandwidths/detectors in the procedure; check section and category.</td><td>Commonly 10 kHz, 120 kHz and 1 MHz style bandwidths depending on test/frequency.</td><td>Peak and/or Average depending on section.</td><td>Always use the section-specific table rather than memory.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card wide" id="refs">
+    <h2>8. References and further reading</h2>
+    <ul class="ref">
+      <li><strong>MIL-STD-461G, 4.3.10.3.1:</strong> measurement receiver bandwidths are specified at the 6 dB down points for the overall receiver selectivity curve.</li>
+      <li><strong>DEF STAN 59-411 Part 3, 4.16:</strong> discusses receiver 6 dB (impulse) bandwidths and detector function, and requires bandwidth use to be confirmed in the test report.</li>
+      <li><strong>CISPR 16-1-1:</strong> defines radio disturbance measuring apparatus including IF bandwidth, impulse response, selectivity, detector functions and overload behaviour.</li>
+      <li><strong>Tektronix EMI diagnostics guidance:</strong> explains the practical difference between -3 dB and -6 dB filter definitions.</li>
+      <li><strong>Schwarzbeck CISPR receiver note:</strong> provides a useful explanation of CISPR receiver impulse behaviour.</li>
+    </ul>
+    <div class="note"><strong>Report wording suggestion:</strong> “Measurements were performed using the bandwidths and detector functions required by the applicable test method. Receiver bandwidths were selected using EMI receiver mode / compliant filters where applicable.”</div>
+  </section>
+</main>
+<div class="wrap footer">
+  <div class="note"><strong>Key takeaway:</strong> EMC results depend critically on bandwidth, filter shape and detector function. For compliance work, use the bandwidth definition required by the standard and document any deviation.</div>
+</div>
+<script>
+const root=document.documentElement;
+const toggle=document.querySelector(".theme-toggle");
+const toggleText=document.querySelector(".toggle-text");
+const storedTheme=localStorage.getItem("jy-theme");
+if(storedTheme==="dark") root.dataset.theme="dark";
+updateToggleText();
+toggle.addEventListener("click",()=>{
+  root.dataset.theme=root.dataset.theme==="dark"?"":"dark";
+  localStorage.setItem("jy-theme",root.dataset.theme||"light");
+  updateToggleText();
+});
+function updateToggleText(){
+  toggleText.textContent=root.dataset.theme==="dark"?"Light mode":"Dark mode";
+}
+const $=id=>document.getElementById(id);
+function setupCanvas(c){ const dpr=window.devicePixelRatio||1; const r=c.getBoundingClientRect(); c.width=r.width*dpr; c.height=r.height*dpr; const ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); return {ctx,w:r.width,h:r.height}; }
+function axes(ctx,w,h,xlab='Frequency offset (kHz)',ylab='Relative level (dB)'){ctx.clearRect(0,0,w,h);ctx.strokeStyle='#d9e3ee';ctx.lineWidth=1;ctx.fillStyle='#607086';ctx.font='12px Segoe UI';let l=50,t=18,r=w-18,b=h-38;ctx.strokeRect(l,t,r-l,b-t);for(let i=0;i<=4;i++){let y=t+(b-t)*i/4;ctx.beginPath();ctx.moveTo(l,y);ctx.lineTo(r,y);ctx.stroke();ctx.fillText(String(-20*i),12,y+4)}ctx.fillText(xlab,(l+r)/2-55,h-12);ctx.save();ctx.translate(14,(t+b)/2+35);ctx.rotate(-Math.PI/2);ctx.fillText(ylab,0,0);ctx.restore();return {l,t,r,b};}
+function drawLine(ctx,pts,color,width=2,dash=[]){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.setLineDash([])}
+function drawTwo(){const {ctx,w,h}=setupCanvas($('twoCanvas'));const A=axes(ctx,w,h);const rbw=+$('rbw').value, spacing=+$('spacing').value; $('rbwOut').textContent=rbw+' kHz';$('spacingOut').textContent=spacing+' kHz';let ptsSig=[],ptsFilt=[];for(let i=0;i<500;i++){let f=-250+500*i/499;let sig=-100+75*Math.exp(-Math.pow((f-spacing/2)/3,2))+70*Math.exp(-Math.pow((f+spacing/2)/3,2));let filt=-100+50*Math.exp(-Math.pow(f/(rbw*.55),4));let measured=Math.max(-100, Math.min(-5, sig+0.45*(filt+100)/50));let x=A.l+(f+250)/500*(A.r-A.l);let y=A.b-(measured+100)/100*(A.b-A.t);ptsSig.push([x,y]);let yf=A.b-(filt+100)/100*(A.b-A.t);ptsFilt.push([x,yf]);}
+drawLine(ctx,ptsSig,'#111827',1.4);drawLine(ctx,ptsFilt,'#0b63ce',2.5);ctx.fillStyle='#111827';ctx.font='12px Segoe UI';ctx.fillText('Signal',A.r-150,A.t+18);ctx.fillStyle='#0b63ce';ctx.fillText('Receiver filter',A.r-150,A.t+36);let resolved=spacing>rbw*1.25;$('resolveKpi').textContent=resolved?'Yes':'No, they merge';$('resolveKpi').style.color=resolved?'#20b486':'#e14b5a';}
+function drawNoise(){const {ctx,w,h}=setupCanvas($('noiseCanvas'));const A=axes(ctx,w,h);let bw=+$('noiseBw').value;$('noiseBwOut').textContent=bw+' kHz';let rise=10*Math.log10(bw/10);$('noiseRise').textContent=rise.toFixed(1)+' dB';let pts=[];for(let i=0;i<500;i++){let f=-500+1000*i/499;let base=-96+3*Math.sin(i*.7)+2*Math.sin(i*.17);let inFilter=Math.abs(f)<bw/2;let level=base+(inFilter?rise:0);let x=A.l+(f+500)/1000*(A.r-A.l);let y=A.b-(level+120)/90*(A.b-A.t);pts.push([x,y]);}drawLine(ctx,pts,'#0b63ce',1.6);ctx.fillStyle='rgba(46,199,255,.16)';let x1=A.l+(500-bw/2)/1000*(A.r-A.l), x2=A.l+(500+bw/2)/1000*(A.r-A.l);ctx.fillRect(x1,A.t,x2-x1,A.b-A.t);ctx.strokeStyle='#0b63ce';ctx.strokeRect(x1,A.t,x2-x1,A.b-A.t);ctx.fillStyle='#0b63ce';ctx.fillText('Captured bandwidth',x1+8,A.t+18);}
+function drawBw(){const {ctx,w,h}=setupCanvas($('bwCanvas'));const A=axes(ctx,w,h,'Frequency offset (kHz)','Relative gain (dB)');let sigma=72;let pts=[];for(let i=0;i<500;i++){let f=-220+440*i/499;let db=-4.343*Math.pow(f/sigma,2);let x=A.l+(f+220)/440*(A.r-A.l);let y=A.b-(db+60)/60*(A.b-A.t);pts.push([x,y]);}drawLine(ctx,pts,'#0b63ce',2.5);[-3,-6].forEach((db,idx)=>{let y=A.b-(db+60)/60*(A.b-A.t);drawLine(ctx,[[A.l,y],[A.r,y]],idx?'#e14b5a':'#0b63ce',1.5,[5,4]);ctx.fillStyle=idx?'#e14b5a':'#0b63ce';ctx.fillText(db+' dB',A.l+6,y-5)});let w3=2*sigma*Math.sqrt(3/4.343), w6=2*sigma*Math.sqrt(6/4.343);$('w3').textContent=Math.round(w3)+' kHz';$('w6').textContent=Math.round(w6)+' kHz';}
+const bands=[{n:'Band A',bw:.2,label:'200 Hz',dur:'Long'},{n:'Band B',bw:9,label:'9 kHz',dur:'Long/medium'},{n:'Band C/D',bw:120,label:'120 kHz',dur:'Medium'},{n:'Band E',bw:1000,label:'1 MHz',dur:'Short'}];let bandIndex=2;
+function drawImpulse(){const {ctx,w,h}=setupCanvas($('impulseCanvas'));ctx.clearRect(0,0,w,h);let l=42,t=20,r=w-18,b=h-34;ctx.strokeStyle='#d9e3ee';ctx.strokeRect(l,t,r-l,b-t);ctx.fillStyle='#607086';ctx.font='12px Segoe UI';ctx.fillText('Time response after a short impulse',l,t-6);let bw=bands[bandIndex].bw;let scale=Math.max(.09, Math.min(.9, 120/bw));let pts=[];for(let i=0;i<600;i++){let xnorm=i/599;let time=(xnorm-.12);let y=0;if(time>0){let env=Math.exp(-time/(.13*scale));y=env*(.72+ .28*Math.sin(time*90/scale));}let x=l+xnorm*(r-l);let yy=b-y*(b-t)*.82;pts.push([x,yy]);}drawLine(ctx,pts,'#0b63ce',2.5);ctx.strokeStyle='#e14b5a';ctx.setLineDash([4,4]);let xi=l+.12*(r-l);ctx.beginPath();ctx.moveTo(xi,t);ctx.lineTo(xi,b);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#e14b5a';ctx.fillText('Input impulse',xi+8,t+18);$('ibwSel').textContent=bands[bandIndex].label;$('ibwApprox').textContent='≈ '+bands[bandIndex].label;$('pulseDur').textContent=bands[bandIndex].dur;}
+let det='peak';function drawDet(){const {ctx,w,h}=setupCanvas($('detCanvas'));ctx.clearRect(0,0,w,h);let l=40,t=18,r=w-18,b=h-36;ctx.strokeStyle='#d9e3ee';ctx.strokeRect(l,t,r-l,b-t);let pulses=[];for(let i=0;i<60;i++){let x=l+(r-l)*i/60;let active=(i%18<5);let amp=active?(.75+.2*Math.sin(i*2.1)):0.05;let y=b-amp*(b-t);pulses.push([x,y,active,amp]);ctx.strokeStyle=active?'#0b63ce':'#cad5e2';ctx.beginPath();ctx.moveTo(x,b);ctx.lineTo(x,y);ctx.stroke();}
+let val={peak:68,avg:48.2,rms:52.4,qp:57.3}[det];$('detVal').textContent=val.toFixed(1)+' dBµV';ctx.strokeStyle={peak:'#0b63ce',avg:'#20b486',rms:'#7b61ff',qp:'#e14b5a'}[det];ctx.lineWidth=3;ctx.beginPath();if(det==='peak'){ctx.moveTo(l,b-.92*(b-t));ctx.lineTo(r,b-.92*(b-t));} else if(det==='avg'){ctx.moveTo(l,b-.33*(b-t));ctx.lineTo(r,b-.33*(b-t));} else if(det==='rms'){ctx.moveTo(l,b-.46*(b-t));ctx.lineTo(r,b-.46*(b-t));} else {for(let i=0;i<240;i++){let x=l+(r-l)*i/239;let y=b-(.2+.45*(1-Math.exp(-i/80)))*(b-t); i?ctx.lineTo(x,y):ctx.moveTo(x,y)}}ctx.stroke();ctx.fillStyle='#122033';ctx.font='12px Segoe UI';ctx.fillText(det.toUpperCase(),l+8,t+18);}
+$('jump').addEventListener('change',e=>$(e.target.value).scrollIntoView({behavior:'smooth'}));['rbw','spacing'].forEach(id=>$(id).addEventListener('input',drawTwo));$('noiseBw').addEventListener('input',drawNoise);document.querySelectorAll('#bandButtons button').forEach(btn=>btn.addEventListener('click',e=>{document.querySelectorAll('#bandButtons button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');bandIndex=+btn.dataset.b;drawImpulse();}));document.querySelectorAll('#detButtons button').forEach(btn=>btn.addEventListener('click',e=>{document.querySelectorAll('#detButtons button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');det=btn.dataset.d;drawDet();}));
+window.addEventListener('resize',()=>{drawTwo();drawNoise();drawBw();drawImpulse();drawDet();});drawTwo();drawNoise();drawBw();drawImpulse();drawDet();
+</script>
+</body>
+</html>
