@@ -7,7 +7,7 @@
 <style>
 :root{--cyan:#28d7ff;--cyan-soft:#9bf0ff;--text:#f4f8fd}
 *{box-sizing:border-box} html,body{height:100%}
-body{margin:0;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 50% 42%,rgba(40,215,255,.10),transparent 24%),radial-gradient(circle at 72% 80%,rgba(40,215,255,.05),transparent 26%),linear-gradient(135deg,#02070f,#06131f 52%,#02070f)}
+body{margin:0;overflow:auto;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 50% 42%,rgba(40,215,255,.10),transparent 24%),radial-gradient(circle at 72% 80%,rgba(40,215,255,.05),transparent 26%),linear-gradient(135deg,#02070f,#06131f 52%,#02070f)}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.44;background:linear-gradient(rgba(120,226,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,226,255,.04) 1px,transparent 1px);background-size:82px 82px;mask-image:radial-gradient(circle at 50% 50%,black 0,transparent 78%)}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.24;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 6px)}
 .brand{position:fixed;top:24px;right:28px;z-index:50;font-size:1.08rem;font-weight:700;letter-spacing:.34em;text-transform:uppercase;color:rgba(244,248,253,.94);text-align:right}
@@ -20,9 +20,29 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.24;ba
 .ripple-zone{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:280px;z-index:2;cursor:crosshair;touch-action:none}
 svg{width:100%;height:100%;display:block}.base-line{fill:none;stroke:rgba(140,235,255,.58);stroke-width:2.2;filter:drop-shadow(0 0 10px rgba(40,215,255,.35))}.noise-line{fill:none;stroke:rgba(90,205,235,.26);stroke-width:1.2}.spike-line{fill:none;stroke:var(--cyan);stroke-width:3;filter:drop-shadow(0 0 15px rgba(40,215,255,.9))}.guide{stroke:rgba(151,239,255,.26);stroke-width:1.4;stroke-dasharray:8 8}.marker-dot{fill:var(--cyan);filter:drop-shadow(0 0 10px rgba(40,215,255,.9))}
 .marker-label{position:absolute;z-index:10;left:0;top:0;transform:translateX(-50%);padding:10px 18px;border-radius:999px;background:rgba(3,12,22,.72);border:1px solid rgba(151,239,255,.34);color:var(--cyan-soft);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;letter-spacing:2.8px;text-transform:uppercase;white-space:nowrap;box-shadow:0 0 20px rgba(40,215,255,.12);backdrop-filter:blur(4px)}
+.marker-label.is-link{cursor:pointer;border-color:rgba(155,240,255,.68);box-shadow:0 0 24px rgba(40,215,255,.2)}
+.marker-label.is-link:hover{background:rgba(7,24,38,.88);color:#fff}
+.site-directory{position:relative;width:min(1180px,calc(100% - 40px));margin:0 auto;padding:72px 0 96px}
+.directory-eyebrow{margin:0 0 12px;color:var(--cyan-soft);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.82rem;letter-spacing:.18em;text-transform:uppercase}
+.site-directory h1{max-width:780px;margin:0 0 16px;font-size:clamp(2rem,4vw,4.2rem);line-height:.98;letter-spacing:-.045em}
+.directory-intro{max-width:760px;margin:0;color:rgba(244,248,253,.68);font-size:1rem;line-height:1.7}
+.root-node{width:max-content;max-width:100%;margin:46px auto 34px;padding:14px 22px;border:1px solid rgba(151,239,255,.34);border-radius:999px;background:rgba(3,12,22,.62);color:var(--cyan-soft);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86rem;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 0 24px rgba(40,215,255,.12)}
+.directory-map{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.directory-map::before{content:"";position:absolute;left:8%;right:8%;top:-17px;height:1px;background:linear-gradient(90deg,transparent,rgba(151,239,255,.36),transparent)}
+.branch{position:relative;padding:18px;border:1px solid rgba(151,239,255,.22);border-radius:8px;background:rgba(3,12,22,.58);box-shadow:0 18px 52px rgba(0,0,0,.22)}
+.branch::before{content:"";position:absolute;top:-17px;left:50%;width:1px;height:17px;background:rgba(151,239,255,.36)}
+.branch h2{margin:0 0 8px;font-size:1rem;line-height:1.25}
+.branch h2 a{color:#fff;text-decoration:none}
+.branch h2 a:hover{text-decoration:underline;text-underline-offset:4px}
+.branch p{margin:0 0 14px;color:rgba(244,248,253,.58);font-size:.84rem;line-height:1.45}
+.leaf-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.leaf-list a,.leaf-list span{display:block;padding:9px 10px;border:1px solid rgba(151,239,255,.16);border-radius:6px;background:rgba(151,239,255,.055);color:rgba(244,248,253,.82);text-decoration:none;font-size:.84rem;line-height:1.35}
+.leaf-list a:hover{border-color:rgba(155,240,255,.58);color:#fff;background:rgba(40,215,255,.12)}
+.leaf-list span{color:rgba(244,248,253,.42)}
 @media (max-width:1100px){.thumb-row{grid-template-columns:repeat(3,1fr);row-gap:28px;top:12%;width:min(840px,100%)}.thumb{height:132px}.ripple-zone{top:64%;height:260px}}
+@media (max-width:980px){.directory-map{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:680px){body{overflow:auto}.stage{height:920px}.brand{top:14px;right:14px;font-size:.94rem;letter-spacing:.24em}.thumb-row{grid-template-columns:repeat(2,1fr);gap:22px;top:9%;width:min(540px,100%)}.thumb{height:122px}.ripple-zone{top:70%;height:240px}.marker-label{font-size:12px;letter-spacing:1.8px;padding:8px 14px}}
-@media (max-width:680px){body{overflow:auto}.stage{height:820px;width:min(100%,calc(100% - 20px))}.brand{top:14px;right:14px;font-size:.94rem;letter-spacing:.24em}.thumb-row{grid-template-columns:repeat(2,1fr);gap:12px 18px;top:8%;width:min(520px,100%);padding:0 8px}.thumb{height:104px}.ripple-zone{top:64%;height:230px;left:-8px;right:-8px}.marker-label{font-size:12px;letter-spacing:1.7px;padding:8px 13px;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}.hint{bottom:18px;font-size:.74rem;width:calc(100% - 24px);text-align:center;white-space:normal}}
+@media (max-width:680px){body{overflow:auto}.stage{height:820px;width:min(100%,calc(100% - 20px))}.brand{top:14px;right:14px;font-size:.94rem;letter-spacing:.24em}.thumb-row{grid-template-columns:repeat(2,1fr);gap:12px 18px;top:8%;width:min(520px,100%);padding:0 8px}.thumb{height:104px}.ripple-zone{top:64%;height:230px;left:-8px;right:-8px}.marker-label{font-size:12px;letter-spacing:1.7px;padding:8px 13px;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}.hint{bottom:18px;font-size:.74rem;width:calc(100% - 24px);text-align:center;white-space:normal}.site-directory{width:min(100%,calc(100% - 28px));padding:42px 0 72px}.directory-map{grid-template-columns:1fr}.directory-map::before,.branch::before{display:none}.site-directory h1{font-size:2rem}}
 </style>
 </head>
 <body>
@@ -47,8 +67,52 @@ svg{width:100%;height:100%;display:block}.base-line{fill:none;stroke:rgba(140,23
       <circle id="markerDot" class="marker-dot" cx="0" cy="0" r="5"></circle>
     </svg>
   </div>
-  <div class="hint" style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);font-size:.82rem;letter-spacing:.08em;color:rgba(244,248,253,.38);white-space:nowrap">Hover, tap or drag the trace to move the signal. Open linked sections from their images.</div>
+  <div class="hint" style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);font-size:.82rem;letter-spacing:.08em;color:rgba(244,248,253,.38);white-space:nowrap">Hover, tap or drag the trace to move the signal. Open linked sections from their image or label.</div>
 </main>
+<section class="site-directory" aria-label="Site directory">
+  <p class="directory-eyebrow">Site directory</p>
+  <h1>Quick routes through the work.</h1>
+  <p class="directory-intro">Use the image navigation above for the main site, or jump straight to a section or tool from this directory.</p>
+  <div class="root-node">jamesyates.co.uk</div>
+  <div class="directory-map">
+    <article class="branch">
+      <h2><a href="emc.html">EMC</a></h2>
+      <p>Calculators and explainers for EMC test work, RF units and field strength planning.</p>
+      <ul class="leaf-list">
+        <li><a href="emc/rf-unit-converter.html">RF unit converter</a></li>
+        <li><a href="emc/field-strength-calculator.html">Field strength calculator</a></li>
+        <li><a href="emc/milstd461-fft.html">MIL-STD-461 FFT receiver</a></li>
+        <li><a href="emc/emi-receiver-bandwidth-explorer.html">EMI receiver bandwidth</a></li>
+      </ul>
+    </article>
+    <article class="branch">
+      <h2><a href="antenna.html">Antennas</a></h2>
+      <p>Practical antenna tools for region checks and reading manufacturer beamwidth plots.</p>
+      <ul class="leaf-list">
+        <li><a href="antenna/antenna-region-plotter.html">Antenna region plotter</a></li>
+        <li><a href="antenna/frequency-beamwidth-reader.html">Frequency beamwidth reader</a></li>
+        <li><a href="antenna/polarisation-beam-animator.html">Polarisation beam animator</a></li>
+      </ul>
+    </article>
+    <article class="branch">
+      <h2><a href="environmental.html">Space Qualification</a></h2>
+      <p>Environmental and qualification tools linked to spacecraft and aerospace test planning.</p>
+      <ul class="leaf-list">
+        <li><a href="environmental/environmental-test-calculators.html">Environmental test calculators</a></li>
+        <li><span>More qualification guides planned</span></li>
+      </ul>
+    </article>
+    <article class="branch">
+      <h2><a href="fitness.html">Personal Targets</a></h2>
+      <p>Current objectives, progress tracking and broader personal work as the section develops.</p>
+      <ul class="leaf-list">
+        <li><a href="fitness.html">Targets and progress</a></li>
+        <li><span>Radar page planned</span></li>
+        <li><span>Management / leadership page planned</span></li>
+      </ul>
+    </article>
+  </div>
+</section>
 <script>
 const thumbs=[...document.querySelectorAll('.thumb')];
 const stage=document.getElementById('stage');
@@ -94,6 +158,11 @@ function positionHtmlLabel(index, xOverride=null){
   markerLabel.style.left=`${x}px`;
   markerLabel.style.top=`${y}px`;
   markerLabel.textContent=thumbs[index].dataset.label;
+  const url = thumbs[index].dataset.url;
+  markerLabel.classList.toggle('is-link', Boolean(url));
+  markerLabel.tabIndex = url ? 0 : -1;
+  markerLabel.setAttribute('role', url ? 'link' : 'status');
+  markerLabel.setAttribute('aria-label', url ? `Open ${thumbs[index].dataset.label}` : thumbs[index].dataset.label);
 }
 
 function setActive(index, fromTrace=false, stageX=null, svgX=null){
@@ -176,6 +245,19 @@ thumbs.forEach((thumb,i)=>{
     const url = thumb.dataset.url;
     if(url) window.location.href = url;
   });
+});
+
+function openActiveSection(){
+  const url = thumbs[activeIndex] && thumbs[activeIndex].dataset.url;
+  if(url) window.location.href = url;
+}
+
+markerLabel.addEventListener('click', openActiveSection);
+markerLabel.addEventListener('keydown', evt => {
+  if(evt.key === 'Enter' || evt.key === ' '){
+    evt.preventDefault();
+    openActiveSection();
+  }
 });
 
 rippleZone.addEventListener('mouseenter', handleTraceMove);

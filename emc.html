@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="James Yates EMC engineering background and practical RF/EMC tools.">
-  <title>James Yates | EMC Tools</title>
+  <meta name="description" content="James Yates EMC engineering tools and website page index.">
+  <title>James Yates | EMC Pages</title>
   <style>
     :root {
       color-scheme: light;
@@ -161,7 +161,7 @@
 
     .page-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
     }
 
@@ -246,9 +246,9 @@
   <main class="shell">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span>EMC</nav>
 
-    <div class="eyebrow">EMC Engineering</div>
-    <h1>Practical EMC tools from real test work.</h1>
-    <p class="intro">My EMC background has been built across more than 20 years of aerospace, defence, space and commercial test work, from hands-on chamber testing through to lab leadership, qualification planning and standards-driven problem solving. The pages below are some of the tools I have created along that journey: quick checks, visual explanations and calculators shaped by the sort of questions that come up during real EMC test work.</p>
+    <div class="eyebrow">EMC Page Index</div>
+    <h1>EMC tools and current site pages.</h1>
+    <p class="intro">A simple index of the pages created so far. The home page keeps the original dark interactive style; the EMC tools use the light technical squared-paper theme with dark mode available.</p>
 
     <section class="section" aria-label="EMC tools">
       <h2>EMC Tools</h2>
@@ -275,22 +275,65 @@
           <div>
             <small>Tool 03</small>
             <h3>MIL-STD-461 FFT</h3>
-            <p>Visual reproduction of the MIL-STD-461G Appendix A FFT receiver example, showing how dwell time affects capture of low-repetition-rate pulsed emissions.</p>
+            <p>FFT-style calculator page rethemed to match the EMC technical pages.</p>
           </div>
           <span>Open page -></span>
         </a>
 
-        <a class="page-card" href="emc/eut-antenna-positions.html">
+        <a class="page-card" href="emc/emi-receiver-bandwidth-explorer.html">
           <div>
             <small>Tool 04</small>
-            <h3>EUT Antenna Positions</h3>
-            <p>Estimate the number and centre positions needed to illuminate a rectangular EUT with a circular antenna footprint, including practical row-aligned chamber positions.</p>
+            <h3>EMI Receiver Bandwidth</h3>
+            <p>Explore resolution bandwidth, 6 dB bandwidth, impulse bandwidth and detector behaviour for EMC receiver measurements.</p>
           </div>
           <span>Open page -></span>
         </a>
       </div>
     </section>
-</main>
+
+    <section class="section" aria-label="Main site pages">
+      <h2>Main Site Pages</h2>
+      <div class="page-grid">
+        <a class="page-card" href="index.html">
+          <div>
+            <small>Site 01</small>
+            <h3>Home</h3>
+            <p>The original dark interactive portfolio homepage.</p>
+          </div>
+          <span>Open page -></span>
+        </a>
+
+        <a class="page-card" href="fitness.html">
+          <div>
+            <small>Site 02</small>
+            <h3>Fitness Progress</h3>
+            <p>Personal discipline and progress page with charts and tracked performance goals.</p>
+          </div>
+          <span>Open page -></span>
+        </a>
+
+        <a class="page-card" href="environmental.html">
+          <div>
+            <small>Site 03</small>
+            <h3>Environmental Qualification</h3>
+            <p>Space-leaning vibration, thermal and TVAC experience with practical qualification test calculators.</p>
+          </div>
+          <span>Open page -></span>
+        </a>
+
+        <a class="page-card" href="emc.html" aria-current="page">
+          <div>
+            <small>Site 04</small>
+            <h3>EMC Overview</h3>
+            <p>This page: a simple index for the current EMC calculators and site pages.</p>
+          </div>
+          <span>Current page</span>
+        </a>
+      </div>
+    </section>
+
+    <p class="note">GitHub Pages upload note: place all files from this folder at the repository root, including the <code>data</code> folder.</p>
+  </main>
 
   <script>
     const root = document.documentElement;
