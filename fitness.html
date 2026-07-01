@@ -247,12 +247,6 @@
       color: var(--faint);
       font-size: .86rem;
     }
-    .latest-detail {
-      margin: 10px 0 0;
-      color: var(--muted);
-      line-height: 1.45;
-      font-size: .92rem;
-    }
     .chart {
       width: 100%;
       height: 208px;
@@ -300,7 +294,7 @@
       padding: 2px 6px;
     }
     @media (max-width: 860px) {
-      .hero, .metrics-grid { grid-template-columns: 1fr; }
+      .hero, .metrics-grid, .note-grid { grid-template-columns: 1fr; }
       .summary-panel { order: -1; }
       .section-head { display: block; }
       .section-head p { margin-top: 12px; }
@@ -313,6 +307,10 @@
       .metric-top { display: block; }
       .current { text-align: left; margin-top: 16px; }
       .theme-toggle { left: 14px; bottom: 14px; }
+    }
+
+    .hero {
+      grid-template-columns: 1fr;
     }
   </style>
 </head>
@@ -332,15 +330,6 @@
         <h1>Discipline, measured over time.</h1>
         <p class="hero-copy">This page tracks the training markers that matter for Spartan-style performance: pulling strength, conditioning, grip control and repeatable effort. The aim is not just a better result, but a more disciplined training process.</p>
       </div>
-      <aside class="summary-panel">
-        <h2>Current Focus</h2>
-        <p>Build back stronger with consistent strength work, controlled conditioning and enough recovery to keep the next block moving forward.</p>
-        <div class="signal" aria-hidden="true">
-          <svg viewBox="0 0 600 86" preserveAspectRatio="none">
-            <path d="M0 52 C70 52 72 52 86 52 C94 52 98 20 106 20 C116 20 120 68 132 68 C146 68 150 42 162 42 C194 42 196 42 226 42 C246 42 250 56 270 56 C292 56 296 30 316 30 C340 30 342 52 366 52 C420 52 430 52 480 52 C498 52 504 38 520 38 C544 38 550 52 600 52" />
-          </svg>
-        </div>
-      </aside>
     </section>
 
     <section aria-labelledby="progress-heading">
@@ -349,117 +338,20 @@
           <div class="eyebrow">Recorded Results</div>
           <h2 id="progress-heading">Training markers</h2>
         </div>
-        <p>These charts use logged exercise results from recent Spartan-focused training blocks, keeping the public page based on real sessions rather than demo data.</p>
       </div>
       <div class="metrics-grid" id="metrics"></div>
     </section>
+
   </main>
 
   <script>
     const fallbackData = {
-          "metrics": [
-                {
-                      "key": "pullups",
-                      "label": "Pull-ups",
-                      "unit": "reps",
-                      "description": "Pulling strength marker for walls, ropes and obstacle control.",
-                      "values": [
-                            {
-                                  "date": "2026-06-13",
-                                  "value": 6,
-                                  "display": "6 reps",
-                                  "detail": "Sets: 6, 4, 3, 3. Total 16."
-                            },
-                            {
-                                  "date": "2026-06-23",
-                                  "value": 10,
-                                  "display": "10 reps",
-                                  "detail": "Bonus set after leg session."
-                            },
-                            {
-                                  "date": "2026-06-24",
-                                  "value": 8,
-                                  "display": "8 reps",
-                                  "detail": "Sets: 8, 6, 3. Total 17. Done after row in heat."
-                            }
-                      ]
-                },
-                {
-                      "key": "burpees30",
-                      "label": "30 burpees",
-                      "unit": "min",
-                      "lowerIsBetter": true,
-                      "description": "Conditioning marker for repeated effort under fatigue.",
-                      "values": [
-                            {
-                                  "date": "2026-06-13",
-                                  "value": 3.92,
-                                  "display": "3:55",
-                                  "detail": "30 burpees split as 3 sets of 10."
-                            }
-                      ]
-                },
-                {
-                      "key": "latpulldown",
-                      "label": "Lat pulldown",
-                      "unit": "kg",
-                      "description": "Back-strength support work for pulling and climbing capacity.",
-                      "values": [
-                            {
-                                  "date": "2026-06-13",
-                                  "value": 50,
-                                  "display": "50kg x 10",
-                                  "detail": "Then 45kg x 10 x 2."
-                            },
-                            {
-                                  "date": "2026-06-24",
-                                  "value": 45,
-                                  "display": "45kg x 10",
-                                  "detail": "3 sets of 10."
-                            }
-                      ]
-                },
-                {
-                      "key": "deadhang",
-                      "label": "Dead hang",
-                      "unit": "sec",
-                      "description": "Grip endurance marker for hanging obstacles and fatigue resistance.",
-                      "values": [
-                            {
-                                  "date": "2026-06-13",
-                                  "value": 30,
-                                  "display": "30 sec",
-                                  "detail": "3 sets reaching 30 seconds."
-                            },
-                            {
-                                  "date": "2026-06-24",
-                                  "value": 40,
-                                  "display": "40 sec",
-                                  "detail": "Sets: 40s, 35s, 30s. Total 105 seconds."
-                            }
-                      ]
-                },
-                {
-                      "key": "hanginglegraises",
-                      "label": "Hanging leg raises",
-                      "unit": "reps",
-                      "description": "Core and hanging-control marker, especially when grip is already tired.",
-                      "values": [
-                            {
-                                  "date": "2026-06-13",
-                                  "value": 12,
-                                  "display": "12 reps",
-                                  "detail": "3 sets of 12."
-                            },
-                            {
-                                  "date": "2026-06-24",
-                                  "value": 10,
-                                  "display": "10 reps",
-                                  "detail": "Sets: 10, 6, 10. Grip was limiting."
-                            }
-                      ]
-                }
-          ]
+      metrics: [
+        { key: "pullups", label: "Pull-ups", unit: "reps", goal: 12, description: "Strict pull-up progress toward stronger obstacle control.", values: [{ date: "2026-04-01", value: 5 }, { date: "2026-04-20", value: 6 }, { date: "2026-05-10", value: 7 }, { date: "2026-06-08", value: 6 }] },
+        { key: "burpees30", label: "30 burpees", unit: "min", goal: 3.0, lowerIsBetter: true, description: "Conditioning marker for fast recovery under fatigue.", values: [{ date: "2026-04-01", value: 4.8 }, { date: "2026-04-20", value: 4.4 }, { date: "2026-05-10", value: 4.15 }, { date: "2026-06-08", value: 3.92 }] },
+        { key: "latpulldown", label: "Lat pulldown", unit: "kg x 10", goal: 60, description: "Back strength to support climbing and carries.", values: [{ date: "2026-04-01", value: 40 }, { date: "2026-04-20", value: 45 }, { date: "2026-05-10", value: 50 }, { date: "2026-06-08", value: 50 }] },
+        { key: "hangraise", label: "Hanging raises", unit: "sec", goal: 45, description: "Grip and trunk control under hanging fatigue.", values: [{ date: "2026-04-01", value: 20 }, { date: "2026-04-20", value: 24 }, { date: "2026-05-10", value: 28 }, { date: "2026-06-08", value: 30 }] }
+      ]
     };
 
     const root = document.documentElement;
@@ -483,15 +375,9 @@
       return new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
     }
 
-    function displayValue(point, metric) {
-      if (point && point.display) return point.display;
-      const value = point && typeof point.value === "number" ? point.value : point;
+    function formatValue(metric, value) {
       if (metric.unit === "min") return value.toFixed(2).replace(/\.00$/, "") + " min";
       return value + " " + metric.unit;
-    }
-
-    function formatValue(metric, value) {
-      return displayValue({ value }, metric);
     }
 
     function chartSvg(metric) {
@@ -528,11 +414,7 @@
           ${goalY ? `<line class="goal" x1="${left}" y1="${goalY}" x2="${width - right}" y2="${goalY}"></line><text x="${width - 84}" y="${goalY - 7}">goal ${metric.goal}</text>` : ""}
           <path class="area" d="${area}"></path>
           <path class="line" d="${line}"></path>
-          ${points.map((point, index) => {
-            const item = values[index];
-            const detail = item.detail ? ` — ${item.detail}` : "";
-            return `<circle class="dot" cx="${point[0]}" cy="${point[1]}" r="5"><title>${niceDate(item.date)}: ${displayValue(item, metric)}${detail}</title></circle>`;
-          }).join("")}
+          ${points.map((point, index) => `<circle class="dot" cx="${point[0]}" cy="${point[1]}" r="5"><title>${niceDate(values[index].date)}: ${formatValue(metric, values[index].value)}</title></circle>`).join("")}
           <text x="${left}" y="${height - 9}">${niceDate(values[0].date)}</text>
           <text text-anchor="end" x="${width - right}" y="${height - 9}">${niceDate(values[values.length - 1].date)}</text>
         </svg>
@@ -551,11 +433,10 @@
                 <p>${metric.description}</p>
               </div>
               <div class="current">
-                <strong>${displayValue(latest, metric)}</strong>
-                <span>Latest result</span>
+                <strong>${formatValue(metric, latest.value)}</strong>
+                <span>Current best</span>
               </div>
             </div>
-            ${latest.detail ? `<p class="latest-detail">${latest.detail}</p>` : ""}
             ${chartSvg(metric)}
           </article>
         `;

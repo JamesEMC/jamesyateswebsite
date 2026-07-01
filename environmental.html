@@ -288,6 +288,19 @@
       .shell { width: min(100% - 28px, 1120px); padding-top: 78px; }
       .theme-toggle { left: 14px; bottom: 14px; }
     }
+
+    .overview,
+    .lesson {
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    .overview p,
+    .lesson p {
+      max-width: 1060px;
+    }
   </style>
 </head>
 <body>
@@ -357,11 +370,29 @@
     <section class="section" aria-label="Environmental test calculators">
       <h2>Environmental Test Tools</h2>
       <div class="tool-grid">
-        <a class="tool-card" href="environmental/environmental-test-calculators.html">
+        <a class="tool-card" href="environmental/environmental-test-calculators.html#shaker">
           <div>
             <small>Tool 01</small>
-            <h3>Qualification Test Calculators</h3>
-            <p>Shaker sizing, random vibration gRMS and thermal cycle duration in one practical page.</p>
+            <h3>Shaker Sizing</h3>
+            <p>Estimate required shaker force from payload, fixture mass, acceleration and margin.</p>
+          </div>
+          <span>Open page -></span>
+        </a>
+
+        <a class="tool-card" href="environmental/environmental-test-calculators.html#psd">
+          <div>
+            <small>Tool 02</small>
+            <h3>Random Vibration gRMS</h3>
+            <p>Integrate PSD breakpoints to estimate the overall random vibration severity.</p>
+          </div>
+          <span>Open page -></span>
+        </a>
+
+        <a class="tool-card" href="environmental/environmental-test-calculators.html#thermal">
+          <div>
+            <small>Tool 03</small>
+            <h3>Thermal Cycle Duration</h3>
+            <p>Estimate chamber time from hot/cold dwell, ramp rate, cycle count and overhead.</p>
           </div>
           <span>Open page -></span>
         </a>
