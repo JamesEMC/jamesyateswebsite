@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Environmental qualification calculators for vibration and thermal cycling.">
+  <title>Environmental Test Calculators</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f9fc;
+      --panel: #ffffff;
+      --panel-soft: rgba(255, 255, 255, .92);
+      --text: #071522;
+      --muted: #536879;
+      --faint: #7e93a4;
+      --line: #c9dce7;
+      --strong-line: #8eb4c7;
+      --accent: #007fa3;
+      --accent-2: #00a9d2;
+      --danger: #a73e1d;
+      --amber: #9a6800;
+      --green: #197a4e;
+      --shadow: 0 22px 60px rgba(20, 55, 80, .14);
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111d;
+      --panel: #0a1a2a;
+      --panel-soft: rgba(10, 28, 45, .86);
+      --text: #f4f8fd;
+      --muted: #a9bccf;
+      --faint: #7890a3;
+      --line: rgba(139, 239, 255, .22);
+      --strong-line: rgba(139, 239, 255, .46);
+      --accent: #54dff4;
+      --accent-2: #8befff;
+      --danger: #ff946e;
+      --amber: #ffd27a;
+      --green: #85e3b7;
+      --shadow: 0 22px 60px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(0, 127, 163, .055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 127, 163, .055) 1px, transparent 1px),
+        radial-gradient(circle at 12% 10%, rgba(0, 169, 210, .18), transparent 30rem),
+        radial-gradient(circle at 88% 18%, rgba(0, 127, 163, .12), transparent 28rem),
+        linear-gradient(145deg, #f8fcff, var(--bg));
+      background-size: 34px 34px, 34px 34px, auto, auto, auto;
+    }
+
+    [data-theme="dark"] body {
+      background:
+        linear-gradient(rgba(139, 239, 255, .05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 239, 255, .04) 1px, transparent 1px),
+        radial-gradient(circle at 12% 10%, rgba(84, 223, 244, .13), transparent 30rem),
+        radial-gradient(circle at 88% 18%, rgba(139, 239, 255, .08), transparent 28rem),
+        linear-gradient(145deg, #07111d, #0b1d2f);
+      background-size: 34px 34px, 34px 34px, auto, auto, auto;
+    }
+
+    .brand {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      z-index: 30;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 40;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel-soft);
+      color: var(--text);
+      padding: 7px 11px;
+      font-size: .86rem;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .toggle-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 0 4px rgba(0, 169, 210, .13);
+    }
+
+    .shell {
+      width: min(1420px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .breadcrumb a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .breadcrumb span {
+      margin: 0 9px;
+      color: var(--faint);
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font: 700 .72rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 860px;
+      font-size: clamp(1.55rem, 3vw, 2.5rem);
+      line-height: 1.02;
+      letter-spacing: -.035em;
+    }
+
+    .intro {
+      max-width: 940px;
+      margin: 10px 0 18px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: .98rem;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0 14px;
+    }
+
+    .tab {
+      border: 1px solid var(--strong-line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--accent);
+      padding: 9px 13px;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .tab[aria-selected="true"] {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 169, 210, .18);
+    }
+
+    .calculator {
+      display: none;
+    }
+
+    .calculator.is-active {
+      display: block;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 430px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-soft);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 1rem;
+      letter-spacing: .02em;
+    }
+
+    .panel p {
+      color: var(--muted);
+      line-height: 1.45;
+      margin: 0 0 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 750;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--strong-line);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 8px 10px;
+      font: inherit;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input:focus,
+    select:focus {
+      outline: 3px solid rgba(0, 169, 210, .22);
+      border-color: var(--accent);
+    }
+
+    button {
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--accent);
+      padding: 9px 13px;
+      font: inherit;
+      font-size: .88rem;
+      font-weight: 750;
+      line-height: 1.1;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: rgba(0, 169, 210, .09);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .result {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 12px;
+      min-height: 88px;
+    }
+
+    .result small {
+      display: block;
+      color: var(--faint);
+      font: 700 .7rem/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .result strong {
+      display: block;
+      color: var(--text);
+      font-size: clamp(1.35rem, 2vw, 1.85rem);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result span {
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .note,
+    .formula {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+      line-height: 1.5;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: .9rem;
+    }
+
+    .formula code {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .status {
+      margin-top: 12px;
+      border-left: 4px solid var(--accent);
+      background: var(--panel);
+      color: var(--muted);
+      padding: 11px 12px;
+      line-height: 1.45;
+      border-radius: 6px;
+    }
+
+    .status.warn { border-left-color: var(--amber); }
+    .status.fail { border-left-color: var(--danger); }
+    .status.good { border-left-color: var(--green); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: .9rem;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 8px;
+      vertical-align: middle;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(0, 169, 210, .08);
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    td input,
+    td select {
+      min-height: 34px;
+      padding: 6px 8px;
+    }
+
+    .small-button {
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: .8rem;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    .preset-button {
+      display: grid;
+      gap: 4px;
+      border-radius: 8px;
+      text-align: left;
+      padding: 10px 12px;
+    }
+
+    .preset-button strong {
+      color: var(--text);
+      font-size: .92rem;
+    }
+
+    .preset-button span {
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.35;
+    }
+
+    .summary-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: .9rem;
+    }
+
+    .explainer {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-soft);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .explainer h2 {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 1rem;
+      letter-spacing: .02em;
+    }
+
+    .explainer-intro {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: .94rem;
+    }
+
+    .explainer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .explainer-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 12px;
+    }
+
+    .explainer-card h3 {
+      margin: 0 0 8px;
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.15;
+    }
+
+    .explainer-card p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: .88rem;
+    }
+
+    .explainer-card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .chart-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+      min-height: 330px;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .svg-axis {
+      stroke: var(--strong-line);
+      stroke-width: 1.2;
+    }
+
+    .svg-grid {
+      stroke: var(--line);
+      stroke-width: 1;
+    }
+
+    .svg-line {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 3;
+    }
+
+    .svg-fill {
+      fill: rgba(0, 169, 210, .13);
+    }
+
+    .svg-label {
+      fill: var(--muted);
+      font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .results-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .explainer-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .brand { top: 14px; right: 14px; font-size: .7rem; }
+      .shell { width: min(100% - 20px, 1420px); padding-top: 52px; }
+      .theme-toggle { left: 14px; bottom: 14px; }
+      .form-grid,
+      .results-grid { grid-template-columns: 1fr; }
+      .explainer-grid { grid-template-columns: 1fr; }
+      th,
+      td { padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="brand">James Yates</div>
+  <button class="theme-toggle" type="button" aria-label="Toggle colour theme">
+    <span class="toggle-dot" aria-hidden="true"></span>
+    <span class="toggle-text">Dark mode</span>
+  </button>
+
+  <main class="shell">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../environmental.html">Environmental Qualification</a><span>/</span>Calculators</nav>
+
+    <p class="eyebrow">Environmental Test Tools</p>
+    <h1>Vibration and thermal calculators.</h1>
+    <p class="intro">These are first-pass planning tools for environmental qualification work. They are intended to help size the problem, spot missing setup items and support engineering discussion before the formal procedure, facility data and customer requirements take over.</p>
+
+    <div class="tabs" role="tablist" aria-label="Environmental calculator selection">
+      <button class="tab" type="button" role="tab" aria-selected="true" data-target="shaker">Shaker Sizing</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-target="psd">Random Vibration gRMS</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-target="thermal">Thermal Cycle Duration</button>
+    </div>
+
+    <section class="calculator is-active" id="shaker" aria-label="Shaker sizing calculator">
+      <div class="layout">
+        <div class="panel">
+          <h2>Inputs</h2>
+          <p>Estimate the shaker force needed to move the combined DUT and fixture mass at the required acceleration.</p>
+          <div class="form-grid">
+            <label>DUT mass, kg
+              <input id="dutMass" type="number" value="18" min="0" step="0.1">
+            </label>
+            <label>Fixture mass, kg
+              <input id="fixtureMass" type="number" value="42" min="0" step="0.1">
+            </label>
+            <label>Adapter/cable allowance, kg
+              <input id="allowanceMass" type="number" value="5" min="0" step="0.1">
+            </label>
+            <label>Acceleration
+              <input id="acceleration" type="number" value="12" min="0" step="0.1">
+            </label>
+            <label>Acceleration unit
+              <select id="accelUnit">
+                <option value="g">g</option>
+                <option value="ms2">m/s^2</option>
+              </select>
+            </label>
+            <label>Design margin
+              <input id="forceMargin" type="number" value="25" min="0" step="1">
+            </label>
+            <label class="full">Available shaker force, kN
+              <input id="availableForce" type="number" value="35" min="0" step="0.1">
+            </label>
+          </div>
+          <div class="formula"><code>force = total moving mass x acceleration</code>. Treat this as a first-pass check. Real shaker selection also depends on displacement, velocity, frequency range, armature limits, fixture dynamics and control strategy.</div>
+        </div>
+
+        <div class="panel">
+          <h2>Required Force</h2>
+          <div class="results-grid">
+            <div class="result"><small>Total mass</small><strong id="totalMassOut">0</strong><span>kg</span></div>
+            <div class="result"><small>Acceleration</small><strong id="accelOut">0</strong><span>m/s^2</span></div>
+            <div class="result"><small>Required force</small><strong id="forceKnOut">0</strong><span>kN including margin</span></div>
+            <div class="result"><small>Imperial</small><strong id="forceLbfOut">0</strong><span>lbf including margin</span></div>
+          </div>
+          <div class="status" id="shakerStatus">Enter the test mass and acceleration to estimate shaker force.</div>
+          <div class="note">Include the fixture, adapters, expander head interface, mounting hardware and any cable mass that is driven with the item. Under-counting support hardware is a common way to make shaker sizing look easier than it is.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="calculator" id="psd" aria-label="Random vibration gRMS calculator">
+      <div class="layout">
+        <div class="panel">
+          <h2>PSD Breakpoints</h2>
+          <p>Enter frequency and acceleration spectral density breakpoints. The tool integrates the log-log profile to estimate overall gRMS.</p>
+          <div class="preset-grid" aria-label="GEVS preset profiles">
+            <button class="preset-button" type="button" data-preset="gevsQual">
+              <strong>GEVS component qualification</strong>
+              <span>ELV component 22.7 kg / 50 lb or less, generalized random vibration profile.</span>
+            </button>
+            <button class="preset-button" type="button" data-preset="gevsAccept">
+              <strong>GEVS component acceptance</strong>
+              <span>ELV component 22.7 kg / 50 lb or less, generalized random vibration profile.</span>
+            </button>
+            <button class="preset-button" type="button" data-preset="gevsWork">
+              <strong>GEVS minimum workmanship</strong>
+              <span>Electrical/electronic/electromechanical components 45.4 kg / 100 lb or less.</span>
+            </button>
+            <button class="preset-button" type="button" data-preset="gevsHeavyWork">
+              <strong>GEVS heavy workmanship</strong>
+              <span>Components greater than 182 kg / 400 lb, flat minimum workmanship spectrum.</span>
+            </button>
+          </div>
+          <table aria-label="PSD breakpoints">
+            <thead>
+              <tr>
+                <th>Frequency, Hz</th>
+                <th>PSD, g^2/Hz</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="psdRows"></tbody>
+          </table>
+          <div class="button-row">
+            <button type="button" id="addPsdRow">Add row</button>
+            <button type="button" id="resetPsdRows">Reset workmanship example</button>
+          </div>
+          <div class="formula">Area under the PSD curve gives <code>gRMS^2</code>. Overall <code>gRMS = sqrt(area)</code>. Breakpoints are sorted by frequency before calculation.</div>
+          <div class="note">The GEVS presets are taken from GSFC-STD-7000B Tables 2.4-3 and 2.4-4. They are included as learning and first-pass planning profiles; real programmes still need the approved project requirement and tailoring.</div>
+        </div>
+
+        <div class="panel">
+          <h2>Profile Result</h2>
+          <div class="results-grid">
+            <div class="result"><small>Overall</small><strong id="grmsOut">0</strong><span>gRMS</span></div>
+            <div class="result"><small>Area</small><strong id="areaOut">0</strong><span>g^2</span></div>
+            <div class="result"><small>Frequency span</small><strong id="freqSpanOut">0</strong><span>Hz</span></div>
+            <div class="result"><small>Segments</small><strong id="segmentOut">0</strong><span>integrated</span></div>
+          </div>
+          <div class="chart-box" id="psdChart" aria-label="PSD chart"></div>
+          <div class="note">This is useful when a random vibration requirement is given as a list of breakpoints. It does not replace facility software or the approved vibration control profile.</div>
+          <div class="note">
+            <strong>gRMS summary.</strong> The PSD plot shows where the vibration energy sits across frequency. The gRMS value is the square root of the area under that PSD curve, so it gives one overall severity number for the full random vibration profile.
+            <ul class="summary-list">
+              <li>Higher gRMS usually means a more severe overall random vibration test.</li>
+              <li>Two profiles can have the same gRMS but excite hardware differently if the energy is concentrated at different frequencies.</li>
+              <li>Use gRMS for quick comparison and shaker sizing, but always inspect the PSD shape and resonance behaviour.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <section class="explainer" aria-label="Random vibration test type explanation">
+        <h2>What the different random vibration tests mean</h2>
+        <p class="explainer-intro">The same PSD calculator can be used for several different verification jobs. The important difference is not the maths; it is the purpose of the test, the hardware being tested and the level/duration selected by the programme.</p>
+        <div class="explainer-grid">
+          <article class="explainer-card">
+            <h3>Flight limit level</h3>
+            <p>This is the expected flight environment, often called the maximum expected level. It is usually predicted from launcher data, analysis, previous measurements or payload-level testing.</p>
+            <p><strong>Use case:</strong> baseline environment for deriving qualification, acceptance or protoflight levels.</p>
+          </article>
+
+          <article class="explainer-card">
+            <h3>Qualification test</h3>
+            <p>A higher-severity test used to show the design has margin over the expected flight environment. It is often run on a qualification model or representative hardware rather than every flight unit.</p>
+            <p><strong>Use case:</strong> proving a new payload electronics box, bracket or subsystem design before it is accepted for flight build.</p>
+          </article>
+
+          <article class="explainer-card">
+            <h3>Acceptance test</h3>
+            <p>A test applied to flight hardware to confirm that the built item is acceptable for use. It is normally less severe than qualification because the aim is to screen the item, not consume unnecessary life.</p>
+            <p><strong>Use case:</strong> testing each flight up/down converter or avionics unit before delivery to the spacecraft integrator.</p>
+          </article>
+
+          <article class="explainer-card">
+            <h3>Protoflight test</h3>
+            <p>A combined approach used when the same item is both the qualification article and the flight article. It usually applies qualification-style severity with carefully controlled duration and risk.</p>
+            <p><strong>Use case:</strong> small satellite or one-off space hardware where building a separate qualification model is not practical.</p>
+          </article>
+
+          <article class="explainer-card">
+            <h3>Workmanship test</h3>
+            <p>A screening test intended to expose build defects such as poor soldering, loose hardware, weak bonding, incorrect assembly or marginal internal connections.</p>
+            <p><strong>Use case:</strong> applying a minimum random vibration screen to electronic, electromechanical or reworked hardware when detailed flight environment data is limited.</p>
+          </article>
+
+          <article class="explainer-card">
+            <h3>Retest or reflight test</h3>
+            <p>A targeted repeat test considered after rework, disassembly, storage or previous flight exposure. The aim is usually to confirm workmanship and that the item is still suitable for use.</p>
+            <p><strong>Use case:</strong> retesting a repaired unit, reassembled subsystem or hardware intended to fly again after modification.</p>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <section class="calculator" id="thermal" aria-label="Thermal cycle duration calculator">
+      <div class="layout">
+        <div class="panel">
+          <h2>Inputs</h2>
+          <p>Estimate total chamber time for repeated hot/cold thermal cycling.</p>
+          <div class="form-grid">
+            <label>Hot plateau, degC
+              <input id="hotTemp" type="number" value="70" step="1">
+            </label>
+            <label>Cold plateau, degC
+              <input id="coldTemp" type="number" value="-40" step="1">
+            </label>
+            <label>Ramp rate, degC/min
+              <input id="rampRate" type="number" value="2" min="0.01" step="0.1">
+            </label>
+            <label>Hot dwell, hours
+              <input id="hotDwell" type="number" value="2" min="0" step="0.1">
+            </label>
+            <label>Cold dwell, hours
+              <input id="coldDwell" type="number" value="2" min="0" step="0.1">
+            </label>
+            <label>Cycles
+              <input id="cycleCount" type="number" value="8" min="1" step="1">
+            </label>
+            <label>Ambient start, degC
+              <input id="ambientTemp" type="number" value="20" step="1">
+            </label>
+            <label>Setup/overhead, hours
+              <input id="thermalOverhead" type="number" value="4" min="0" step="0.5">
+            </label>
+          </div>
+          <div class="formula">Cycle time is estimated as two ramps between hot and cold plus hot and cold dwell. Optional overhead covers setup, stabilisation allowance, functional checks and handover time.</div>
+        </div>
+
+        <div class="panel">
+          <h2>Estimated Duration</h2>
+          <div class="results-grid">
+            <div class="result"><small>One cycle</small><strong id="oneCycleOut">0</strong><span>hours</span></div>
+            <div class="result"><small>Ramping</small><strong id="rampTimeOut">0</strong><span>hours total</span></div>
+            <div class="result"><small>Dwell</small><strong id="dwellTimeOut">0</strong><span>hours total</span></div>
+            <div class="result"><small>Total</small><strong id="thermalTotalOut">0</strong><span id="thermalDaysOut">hours</span></div>
+          </div>
+          <div class="status" id="thermalStatus">Enter the profile to estimate total chamber duration.</div>
+          <div class="note">The dwell clock normally depends on the test item reaching the required sensor condition, not just the chamber air or shroud temperature. Large thermal mass, poor conduction paths and vacuum operation can make the real profile longer.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const root = document.documentElement;
+    const toggle = document.querySelector(".theme-toggle");
+    const toggleText = document.querySelector(".toggle-text");
+    const storedTheme = localStorage.getItem("jy-theme");
+    if (storedTheme === "dark") root.dataset.theme = "dark";
+    updateToggleText();
+
+    toggle.addEventListener("click", () => {
+      root.dataset.theme = root.dataset.theme === "dark" ? "" : "dark";
+      localStorage.setItem("jy-theme", root.dataset.theme || "light");
+      updateToggleText();
+      calculatePsd();
+    });
+
+    function updateToggleText() {
+      toggleText.textContent = root.dataset.theme === "dark" ? "Light mode" : "Dark mode";
+    }
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach((item) => item.setAttribute("aria-selected", "false"));
+        document.querySelectorAll(".calculator").forEach((item) => item.classList.remove("is-active"));
+        tab.setAttribute("aria-selected", "true");
+        document.getElementById(tab.dataset.target).classList.add("is-active");
+        if (tab.dataset.target === "psd") calculatePsd();
+      });
+    });
+
+    const numberFormat = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 2 });
+    const compactFormat = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1 });
+
+    function val(id) {
+      return Number(document.getElementById(id).value) || 0;
+    }
+
+    function setText(id, value) {
+      document.getElementById(id).textContent = value;
+    }
+
+    function calculateShaker() {
+      const totalMass = val("dutMass") + val("fixtureMass") + val("allowanceMass");
+      const accelMs2 = document.getElementById("accelUnit").value === "g" ? val("acceleration") * 9.80665 : val("acceleration");
+      const forceN = totalMass * accelMs2;
+      const marginFactor = 1 + val("forceMargin") / 100;
+      const forceWithMarginN = forceN * marginFactor;
+      const forceKn = forceWithMarginN / 1000;
+      const forceLbf = forceWithMarginN * 0.224809;
+      const availableKn = val("availableForce");
+
+      setText("totalMassOut", compactFormat.format(totalMass));
+      setText("accelOut", compactFormat.format(accelMs2));
+      setText("forceKnOut", compactFormat.format(forceKn));
+      setText("forceLbfOut", numberFormat.format(forceLbf));
+
+      const status = document.getElementById("shakerStatus");
+      status.className = "status";
+      if (!availableKn) {
+        status.textContent = "No available shaker force entered. Required force is shown with the selected margin.";
+      } else if (forceKn <= availableKn * 0.75) {
+        status.classList.add("good");
+        status.textContent = "First-pass force check looks comfortable against the entered shaker rating. Still check displacement, velocity, frequency range and fixture dynamics.";
+      } else if (forceKn <= availableKn) {
+        status.classList.add("warn");
+        status.textContent = "First-pass force check is close to the entered shaker rating. This needs a careful facility capability check.";
+      } else {
+        status.classList.add("fail");
+        status.textContent = "Required force exceeds the entered shaker rating. Reduce moving mass, reduce level, change fixture strategy or use a larger shaker.";
+      }
+    }
+
+    ["dutMass", "fixtureMass", "allowanceMass", "acceleration", "accelUnit", "forceMargin", "availableForce"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", calculateShaker);
+    });
+
+    const psdPresets = {
+      gevsQual: [
+        { f: 20, p: 0.026 },
+        { f: 50, p: 0.16 },
+        { f: 800, p: 0.16 },
+        { f: 2000, p: 0.026 }
+      ],
+      gevsAccept: [
+        { f: 20, p: 0.013 },
+        { f: 50, p: 0.08 },
+        { f: 800, p: 0.08 },
+        { f: 2000, p: 0.013 }
+      ],
+      gevsWork: [
+        { f: 20, p: 0.01 },
+        { f: 80, p: 0.04 },
+        { f: 500, p: 0.04 },
+        { f: 2000, p: 0.01 }
+      ],
+      gevsHeavyWork: [
+        { f: 20, p: 0.01 },
+        { f: 2000, p: 0.01 }
+      ]
+    };
+
+    let psdData = psdPresets.gevsWork.map((row) => ({ ...row }));
+
+    function renderPsdRows() {
+      const body = document.getElementById("psdRows");
+      body.innerHTML = "";
+      psdData.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input type="number" min="0.001" step="1" value="${row.f}" data-psd-index="${index}" data-field="f"></td>
+          <td><input type="number" min="0.000001" step="0.001" value="${row.p}" data-psd-index="${index}" data-field="p"></td>
+          <td><button class="small-button" type="button" data-remove-psd="${index}">Remove</button></td>
+        `;
+        body.appendChild(tr);
+      });
+      calculatePsd();
+    }
+
+    function readPsdRows() {
+      document.querySelectorAll("[data-psd-index]").forEach((input) => {
+        const index = Number(input.dataset.psdIndex);
+        const field = input.dataset.field;
+        psdData[index][field] = Number(input.value) || 0;
+      });
+    }
+
+    function integrateSegment(f1, p1, f2, p2) {
+      if (f2 <= f1 || p1 <= 0 || p2 <= 0) return 0;
+      const ratio = f2 / f1;
+      const n = Math.log(p2 / p1) / Math.log(ratio);
+      if (Math.abs(n + 1) < 1e-9) return p1 * f1 * Math.log(ratio);
+      return p1 * f1 * (Math.pow(ratio, n + 1) - 1) / (n + 1);
+    }
+
+    function calculatePsd() {
+      readPsdRows();
+      const rows = psdData
+        .filter((row) => row.f > 0 && row.p > 0)
+        .sort((a, b) => a.f - b.f);
+
+      let area = 0;
+      for (let i = 0; i < rows.length - 1; i++) {
+        area += integrateSegment(rows[i].f, rows[i].p, rows[i + 1].f, rows[i + 1].p);
+      }
+
+      const grms = Math.sqrt(Math.max(area, 0));
+      setText("grmsOut", compactFormat.format(grms));
+      setText("areaOut", compactFormat.format(area));
+      setText("freqSpanOut", rows.length ? `${compactFormat.format(rows[0].f)}-${compactFormat.format(rows[rows.length - 1].f)}` : "0");
+      setText("segmentOut", Math.max(rows.length - 1, 0));
+      drawPsdChart(rows);
+    }
+
+    function drawPsdChart(rows) {
+      const box = document.getElementById("psdChart");
+      const width = 840;
+      const height = 360;
+      const pad = 52;
+
+      if (rows.length < 2) {
+        box.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="PSD chart"><text class="svg-label" x="52" y="180">Enter at least two valid breakpoints.</text></svg>`;
+        return;
+      }
+
+      const minF = rows[0].f;
+      const maxF = rows[rows.length - 1].f;
+      const minP = Math.min(...rows.map((row) => row.p)) / 1.8;
+      const maxP = Math.max(...rows.map((row) => row.p)) * 1.8;
+      const logF1 = Math.log10(minF);
+      const logF2 = Math.log10(maxF);
+      const logP1 = Math.log10(minP);
+      const logP2 = Math.log10(maxP);
+
+      const x = (f) => pad + ((Math.log10(f) - logF1) / (logF2 - logF1 || 1)) * (width - pad * 1.55);
+      const y = (p) => height - pad - ((Math.log10(p) - logP1) / (logP2 - logP1 || 1)) * (height - pad * 1.65);
+      const points = rows.map((row) => `${x(row.f).toFixed(1)},${y(row.p).toFixed(1)}`).join(" ");
+      const fillPoints = `${x(minF).toFixed(1)},${(height - pad).toFixed(1)} ${points} ${x(maxF).toFixed(1)},${(height - pad).toFixed(1)}`;
+      const yTicks = [minP, Math.sqrt(minP * maxP), maxP];
+      const xTicks = [minF, Math.sqrt(minF * maxF), maxF];
+
+      const grid = [
+        ...xTicks.map((tick) => `<line class="svg-grid" x1="${x(tick)}" y1="${pad / 2}" x2="${x(tick)}" y2="${height - pad}"></line><text class="svg-label" x="${x(tick) - 20}" y="${height - 18}">${compactFormat.format(tick)}</text>`),
+        ...yTicks.map((tick) => `<line class="svg-grid" x1="${pad}" y1="${y(tick)}" x2="${width - pad / 2}" y2="${y(tick)}"></line><text class="svg-label" x="8" y="${y(tick) + 4}">${tick.toPrecision(2)}</text>`)
+      ].join("");
+
+      box.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Random vibration PSD plot">
+          ${grid}
+          <line class="svg-axis" x1="${pad}" y1="${height - pad}" x2="${width - pad / 2}" y2="${height - pad}"></line>
+          <line class="svg-axis" x1="${pad}" y1="${pad / 2}" x2="${pad}" y2="${height - pad}"></line>
+          <polygon class="svg-fill" points="${fillPoints}"></polygon>
+          <polyline class="svg-line" points="${points}"></polyline>
+          <text class="svg-label" x="${width / 2 - 70}" y="${height - 4}">Frequency, Hz</text>
+          <text class="svg-label" x="8" y="18">PSD, g^2/Hz</text>
+        </svg>
+      `;
+    }
+
+    document.getElementById("psdRows").addEventListener("input", calculatePsd);
+    document.getElementById("psdRows").addEventListener("click", (event) => {
+      const index = event.target.dataset.removePsd;
+      if (index === undefined) return;
+      psdData.splice(Number(index), 1);
+      renderPsdRows();
+    });
+    document.getElementById("addPsdRow").addEventListener("click", () => {
+      readPsdRows();
+      const last = psdData[psdData.length - 1] || { f: 100, p: 0.01 };
+      psdData.push({ f: last.f * 2, p: last.p });
+      renderPsdRows();
+    });
+    document.getElementById("resetPsdRows").addEventListener("click", () => {
+      psdData = psdPresets.gevsWork.map((row) => ({ ...row }));
+      renderPsdRows();
+    });
+
+    document.querySelectorAll("[data-preset]").forEach((button) => {
+      button.addEventListener("click", () => {
+        psdData = psdPresets[button.dataset.preset].map((row) => ({ ...row }));
+        renderPsdRows();
+      });
+    });
+
+    function calculateThermal() {
+      const hot = val("hotTemp");
+      const cold = val("coldTemp");
+      const rampRate = Math.max(val("rampRate"), 0.0001);
+      const hotDwell = val("hotDwell");
+      const coldDwell = val("coldDwell");
+      const cycles = Math.max(Math.floor(val("cycleCount")), 1);
+      const ambient = val("ambientTemp");
+      const overhead = val("thermalOverhead");
+
+      const transitionHours = Math.abs(hot - cold) / rampRate / 60;
+      const oneCycle = transitionHours * 2 + hotDwell + coldDwell;
+      const initialRamp = Math.min(Math.abs(ambient - hot), Math.abs(ambient - cold)) / rampRate / 60;
+      const rampTotal = transitionHours * 2 * cycles + initialRamp;
+      const dwellTotal = (hotDwell + coldDwell) * cycles;
+      const total = rampTotal + dwellTotal + overhead;
+
+      setText("oneCycleOut", compactFormat.format(oneCycle));
+      setText("rampTimeOut", compactFormat.format(rampTotal));
+      setText("dwellTimeOut", compactFormat.format(dwellTotal));
+      setText("thermalTotalOut", compactFormat.format(total));
+      setText("thermalDaysOut", `hours, about ${compactFormat.format(total / 24)} days`);
+
+      const status = document.getElementById("thermalStatus");
+      status.className = "status";
+      if (total > 168) {
+        status.classList.add("warn");
+        status.textContent = "This profile is more than a week of chamber time. Facility booking, witness availability and functional test coverage need careful planning.";
+      } else if (total > 48) {
+        status.textContent = "This is a multi-day profile. Check whether dwell starts at chamber condition or test-item sensor stabilisation.";
+      } else {
+        status.classList.add("good");
+        status.textContent = "This is a relatively short profile, assuming the item reaches temperature quickly and the chamber can sustain the entered ramp rate.";
+      }
+    }
+
+    ["hotTemp", "coldTemp", "rampRate", "hotDwell", "coldDwell", "cycleCount", "ambientTemp", "thermalOverhead"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", calculateThermal);
+    });
+
+    renderPsdRows();
+
+    function activateCalculatorFromHash() {
+      const target = (window.location.hash || "#shaker").replace("#", "");
+      const button = document.querySelector(`.tab[data-target="${target}"]`);
+      if (button) button.click();
+    }
+
+    window.addEventListener("hashchange", activateCalculatorFromHash);
+    window.addEventListener("load", activateCalculatorFromHash);
+
+    calculateShaker();
+    calculateThermal();
+  </script>
+</body>
+</html>
