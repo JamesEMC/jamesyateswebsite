@@ -1,324 +1,111 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="James Yates EMC engineering experience and practical EMC calculators.">
-  <title>James Yates | EMC Tools</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #f5fbff;
-      --bg-2: #eaf5fb;
-      --panel: rgba(255, 255, 255, .9);
-      --panel-solid: #ffffff;
-      --text: #071522;
-      --muted: #526678;
-      --faint: #7890a3;
-      --line: #c8dce8;
-      --line-strong: #8fb7c9;
-      --accent: #007fa3;
-      --accent-bright: #00a9d2;
-      --shadow: 0 24px 70px rgba(20, 55, 80, .14);
-    }
-
-    [data-theme="dark"] {
-      color-scheme: dark;
-      --bg: #07111d;
-      --bg-2: #0b1d2f;
-      --panel: rgba(10, 28, 45, .84);
-      --panel-solid: #0a1a2a;
-      --text: #f4f8fd;
-      --muted: #a9bccf;
-      --faint: #7890a3;
-      --line: rgba(139, 239, 255, .22);
-      --line-strong: rgba(139, 239, 255, .46);
-      --accent: #54dff4;
-      --accent-bright: #8befff;
-      --shadow: 0 24px 70px rgba(0, 0, 0, .28);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        linear-gradient(rgba(0, 127, 163, .055) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 127, 163, .055) 1px, transparent 1px),
-        radial-gradient(circle at 14% 12%, rgba(0, 169, 210, .16), transparent 32rem),
-        radial-gradient(circle at 86% 24%, rgba(22, 108, 168, .12), transparent 30rem),
-        linear-gradient(145deg, var(--bg), var(--bg-2));
-      background-size: 34px 34px, 34px 34px, auto, auto, auto;
-    }
-
-    .brand {
-      position: fixed;
-      top: 18px;
-      right: 24px;
-      z-index: 30;
-      letter-spacing: .28em;
-      text-transform: uppercase;
-      font-size: .76rem;
-      color: var(--muted);
-    }
-
-    .theme-toggle {
-      position: fixed;
-      left: 18px;
-      bottom: 18px;
-      z-index: 40;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--panel);
-      color: var(--text);
-      padding: 8px 12px;
-      box-shadow: var(--shadow);
-      cursor: pointer;
-      font: inherit;
-      font-size: .88rem;
-    }
-
-    .toggle-dot {
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
-      box-shadow: 0 0 0 4px rgba(0, 169, 210, .13);
-    }
-
-    .shell {
-      width: min(1120px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 86px 0 70px;
-    }
-
-    .breadcrumb {
-      color: var(--muted);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: .82rem;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      margin-bottom: 32px;
-    }
-
-    .breadcrumb a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .breadcrumb a:hover {
-      text-decoration: underline;
-      text-underline-offset: 4px;
-    }
-
-    .breadcrumb span {
-      margin: 0 10px;
-      color: var(--faint);
-    }
-
-    .eyebrow {
-      color: var(--accent);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      font-size: .78rem;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      margin: 0;
-      max-width: 780px;
-      font-size: clamp(2.35rem, 5.2vw, 4.9rem);
-      line-height: .95;
-      letter-spacing: -.045em;
-    }
-
-    .intro {
-      max-width: 760px;
-      margin: 18px 0 34px;
-      color: var(--muted);
-      line-height: 1.65;
-      font-size: 1.02rem;
-    }
-
-    .section {
-      margin-top: 24px;
-    }
-
-    .section h2 {
-      margin: 0 0 12px;
-      color: var(--accent);
-      font-size: .94rem;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-
-    .page-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .page-card {
-      display: flex;
-      min-height: 178px;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 18px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: linear-gradient(150deg, var(--panel-solid), rgba(0, 169, 210, .06));
-      box-shadow: var(--shadow);
-      padding: 18px;
-      color: inherit;
-      text-decoration: none;
-      transition: transform .18s ease, border-color .18s ease, background .18s ease;
-    }
-
-    .page-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--line-strong);
-      background: linear-gradient(150deg, var(--panel-solid), rgba(0, 169, 210, .12));
-    }
-
-    .page-card small {
-      color: var(--accent);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      font-weight: 800;
-    }
-
-    .page-card h3 {
-      margin: 8px 0 8px;
-      font-size: 1.35rem;
-      line-height: 1.1;
-    }
-
-    .page-card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.48;
-      font-size: .92rem;
-    }
-
-    .page-card span {
-      color: var(--accent);
-      font-weight: 800;
-    }
-
-    .note {
-      margin-top: 22px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      color: var(--muted);
-      line-height: 1.55;
-      padding: 15px 16px;
-      font-size: .92rem;
-    }
-
-    @media (max-width: 900px) {
-      .page-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 640px) {
-      .brand { top: 14px; right: 14px; font-size: .7rem; }
-      .shell { width: min(100% - 28px, 1120px); padding-top: 78px; }
-      .page-grid { grid-template-columns: 1fr; }
-      .theme-toggle { left: 14px; bottom: 14px; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMC — James Yates</title>
+<meta name="description" content="EMC calculators and plain-language explainers: RF units, field strength, receiver bandwidth, grounding and bonding — built from twenty years of real test work.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/v2.css">
+<style>
+.sec-hero { padding: 76px 0 26px; }
+.sec-hero h1 { font-size: clamp(2.4rem, 5vw, 4rem); }
+.sec-hero .lede { margin-top: 22px; }
+.tool-index { border-top: 1px solid var(--line-strong); margin-top: 26px; }
+.ti {
+  display: grid; grid-template-columns: 76px 1fr auto; gap: 26px; align-items: center;
+  padding: 26px 0; border-bottom: 1px solid var(--line);
+  color: inherit; text-decoration: none;
+}
+.ti .num { font-family: var(--serif); font-style: italic; font-size: 1.25rem; color: var(--line-strong); transition: color .3s; }
+.ti h3 { margin: 0 0 3px; font-size: 1.35rem; transition: transform .3s cubic-bezier(.22,.9,.24,1); }
+.ti p { margin: 0; color: var(--muted); font-size: .93rem; max-width: 60ch; }
+.ti .go { font: 500 .76rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--copper-deep); opacity: 0; transform: translateX(-8px); transition: opacity .3s, transform .3s; white-space: nowrap; }
+.ti:hover .num { color: var(--copper); }
+.ti:hover h3 { transform: translateX(6px); }
+.ti:hover .go { opacity: 1; transform: none; }
+@media (max-width: 720px){ .ti { grid-template-columns: 48px 1fr; } .ti .go { display: none; } }
+.prose { max-width: 72ch; }
+.prose p { color: var(--ink-soft); }
+.cols3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.wcard { border: 1px solid var(--line-strong); background: #fff; padding: 26px; }
+.wcard p { color: var(--muted); font-size: .93rem; }
+.wcard ul { margin: 12px 0 0; padding-left: 18px; color: var(--muted); font-size: .9rem; }
+.wcard ul li { margin: 4px 0; }
+</style>
 </head>
 <body>
-  <div class="brand">James Yates</div>
-  <button class="theme-toggle" type="button" aria-label="Toggle colour theme">
-    <span class="toggle-dot" aria-hidden="true"></span>
-    <span class="toggle-text">Dark mode</span>
-  </button>
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="emc.html" aria-current="page">EMC</a>
+      <a href="antenna.html">Antennas</a>
+      <a href="radar.html">Radar</a>
+      <a href="environmental.html">Space</a>
+      <a href="leadership.html">Leadership</a>
+      <a href="fitness.html">Personal</a>
+    </nav>
+  </div>
+</header>
+<main>
 
-  <main class="shell">
-    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span>EMC</nav>
+  <div class="sec-hero">
+    <div class="wrap">
+      <p class="eyebrow">01 — EMC Engineering</p>
+      <h1 class="reveal in">Tools built on the <em>test floor.</em></h1>
+      <p class="lede reveal in">More than twenty years of EMC across commercial, aerospace, defence and space: emissions and susceptibility, receiver setup, standards interpretation, measurement uncertainty, and fault-finding under programme pressure. These are the calculators and explainers that career produced.</p>
+    </div>
+  </div>
 
-    <div class="eyebrow">EMC Engineering</div>
-    <h1>Practical EMC tools from real test work.</h1>
-    <p class="intro">My EMC experience has been built over more than 20 years across commercial, aerospace, defence and space test environments. It has included hands-on conducted and radiated emissions, susceptibility testing, power input work, antenna use, receiver setup, standards interpretation, uncertainty, lab management and practical fault-finding under programme pressure.</p>
-    <p class="intro">That background has taken me through commercial EMC test work, Airbus spacecraft and payload environments, Element and EVT lab leadership, Mangata spacecraft test planning and my current Lead EMC Engineer role at Leonardo. The pages below are tools I have created along that journey to make common EMC calculations, setup decisions and teaching points easier to understand and repeat.</p>
-
-    <section class="section" aria-label="EMC tools">
-      <h2>EMC Tools</h2>
-      <div class="page-grid">
-        <a class="page-card" href="emc/rf-unit-converter.html">
-          <div>
-            <small>Tool 01</small>
-            <h3>RF Unit Converter</h3>
-            <p>Convert between dBµV, dBmV, dBV, voltage, current and power units with a 50 ohm default impedance.</p>
-          </div>
-          <span>Open page -></span>
-        </a>
-
-        <a class="page-card" href="emc/field-strength-calculator.html">
-          <div>
-            <small>Tool 02</small>
-            <h3>Field Strength Calculator</h3>
-            <p>Plane-wave units, EIRP/ERP, power density and standards placement helpers for RE103, RS103 and Section 20.</p>
-          </div>
-          <span>Open page -></span>
-        </a>
-
-        <a class="page-card" href="emc/milstd461-fft.html">
-          <div>
-            <small>Tool 03</small>
-            <h3>MIL-STD-461 FFT</h3>
-            <p>FFT-style calculator page rethemed to match the EMC technical pages.</p>
-          </div>
-          <span>Open page -></span>
-        </a>
-
-        <a class="page-card" href="emc/emi-receiver-bandwidth-explorer.html">
-          <div>
-            <small>Tool 04</small>
-            <h3>EMI Receiver Bandwidth</h3>
-            <p>Explore resolution bandwidth, 6 dB bandwidth, impulse bandwidth and detector behaviour for EMC receiver measurements.</p>
-          </div>
-          <span>Open page -></span>
-        </a>
-
-        <a class="page-card" href="emc/eut-antenna-positions.html">
-          <div>
-            <small>Tool 05</small>
-            <h3>EUT Antenna Positions</h3>
-            <p>Estimate practical antenna centre positions for illuminating a rectangular EUT with a circular footprint.</p>
-          </div>
-          <span>Open page -></span>
-        </a>
+  <section class="tight">
+    <div class="wrap">
+      <p class="eyebrow reveal">Calculators &amp; explainers</p>
+      <div class="tool-index">
+        <a class="ti reveal" href="emc/rf-unit-converter.html"><span class="num">01</span><span><h3>RF Unit Converter</h3><p>dBµV, dBmV, dBV, voltage, current and power — converted around a 50 Ω default.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="emc/field-strength-calculator.html"><span class="num">02</span><span><h3>Field Strength Calculator</h3><p>One value in, every field unit out — plus the far-field link between power, gain, distance and field.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="emc/standards-placement.html"><span class="num">03</span><span><h3>Standards Placement Checks</h3><p>Your geometry checked against RE103 distance rules, RS103 coverage and positions, and DO-160 §20.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="emc/milstd461-fft.html"><span class="num">04</span><span><h3>MIL-STD-461 FFT Receiver</h3><p>How FFT-based receivers meet MIL-STD-461 scan requirements — see a pulsed signal vanish when the dwell is too short.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="emc/emi-receiver-bandwidth-explorer.html"><span class="num">05</span><span><h3>EMI Receiver Bandwidth</h3><p>Resolution bandwidth, impulse bandwidth and detector behaviour for EMC receiver measurements.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="emc/eut-antenna-positions.html"><span class="num">06</span><span><h3>EUT Antenna Positions</h3><p>Practical antenna centre positions for illuminating a rectangular EUT with a circular footprint.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="emc/grounding-and-bonding.html"><span class="num">07</span><span><h3>Grounding &amp; Bonding Explained</h3><p>Star vs mesh earthing, common-impedance coupling and parallel earthing conductors — the whiteboard version.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="emc/bond-strap-impedance.html"><span class="num">08</span><span><h3>Bond Strap Impedance</h3><p>Why a 2.5 mΩ bond can present tens of ohms at RF — with a live impedance-vs-frequency chart.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="emc/skin-depth.html"><span class="num">09</span><span><h3>Skin Depth Calculator</h3><p>How deep RF current penetrates copper, steel and platings — with a to-scale cross-section.</p></span><span class="go">Open →</span></a>
       </div>
-    </section>
+    </div>
+  </section>
+
+  <section class="dark">
+    <div class="wrap">
+      <p class="eyebrow reveal">The point of all of it</p>
+      <blockquote class="pull reveal">A good measurement is one you can <strong>defend</strong> — the number is just the last step.</blockquote>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap prose">
+      <p class="eyebrow reveal">Where it comes from</p>
+      <h2 class="reveal">The road through EMC.</h2>
+      <p class="reveal">Airbus came first: table-top EMC testing of satellite and ground station equipment to MIL-STD-based internal plans. Then eleven years at Element, where I learned commercial EMC test work and the complete range of tests around it, at high throughput — the environment where you learn what standards really mean by getting them wrong under supervision, and climb from technician to laboratory manager while you do. Back to Airbus with a more holistic approach, testing and analysing spacecraft and payload hardware to MIL-STD-461 and ESA requirements. Then facility definition at Mangata as Director of Environmental Test, aerospace and defence business management at Eurofins, and now Lead EMC Engineer at Leonardo, supporting radar and combat air programmes.</p>
+      <p class="reveal">Every tool in this section exists because a real job needed it — to make a calculation faster, a setup decision clearer, or a teaching point stick.</p>
+    </div>
+  </section>
+
 </main>
-
-  <script>
-    const root = document.documentElement;
-    const toggle = document.querySelector(".theme-toggle");
-    const toggleText = document.querySelector(".toggle-text");
-    const storedTheme = localStorage.getItem("jy-theme");
-    if (storedTheme === "dark") root.dataset.theme = "dark";
-    updateToggleText();
-
-    toggle.addEventListener("click", () => {
-      root.dataset.theme = root.dataset.theme === "dark" ? "" : "dark";
-      localStorage.setItem("jy-theme", root.dataset.theme || "light");
-      updateToggleText();
-    });
-
-    function updateToggleText() {
-      toggleText.textContent = root.dataset.theme === "dark" ? "Light mode" : "Dark mode";
-    }
-  </script>
+<footer class="ftr">
+  <div class="bar">
+    <span>© James Yates — jamesyates.co.uk</span>
+    <span>Tools and content are provided as-is for education and planning — verify against the applicable standard and your own judgement before formal use.</span>
+  </div>
+</footer>
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
 </body>
 </html>

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Radar Range Equation | James Yates</title>
+<meta name="description" content="Interactive radar range equation calculator with a plain-language explanation of every term and a live received-power chart showing the R-to-the-fourth law.">
+<link rel="stylesheet" href="../assets/v2.css">
+<link rel="stylesheet" href="../assets/v2-tools.css">
+<style>
+.chart-wrap text { font: 11px "IBM Plex Mono", monospace; fill: #7e8f9a; }
+.chart-wrap .axis { stroke: #3a5260; stroke-width: 1; }
+.chart-wrap .gridline { stroke: #23343f; stroke-width: 1; }
+.chart-wrap .pr-line { fill: none; stroke: #22d3e6; stroke-width: 2.4; }
+.chart-wrap .min-line { stroke: #e8a845; stroke-width: 1.6; stroke-dasharray: 6 5; }
+.chart-wrap .hit { fill: #e8a845; }
+.chart-wrap .hit-label { fill: #e8a845; font-weight: 600; }
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="../index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="../emc.html">EMC</a>
+      <a href="../antenna.html">Antennas</a>
+      <a href="../radar.html" aria-current="page">Radar</a>
+      <a href="../environmental.html">Space</a>
+      <a href="../leadership.html">Leadership</a>
+      <a href="../fitness.html">Personal</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../radar.html">Radar</a><span>/</span>Range Equation</nav>
+
+  <p class="kicker">Radar Tool</p>
+  <h1>Radar range equation</h1>
+  <p class="intro">How far can a radar actually see? This tool predicts the maximum detection range from the radar's power, antenna, frequency and the size of the target — and shows why doubling the range is so much harder than it sounds.</p>
+
+  <section class="section explain">
+    <h2>The equation in plain language</h2>
+    <div class="formula"><span class="eq">R<sub>max</sub> &nbsp;=&nbsp; <span class="rad"><sup>4</sup>√</span><span class="vinc"><span class="frac"><span>P<sub>t</sub> · G² · λ² · σ</span><span>(4π)³ · P<sub>min</sub> · L</span></span></span></span></div>
+    <p>And yes — that outer fourth root is real. The echo's power falls with R⁴ on the way out and back, so undoing it to find the range means taking the fourth root of everything else.</p>
+    <p>Each symbol is one link in the chain between the transmitter and the faint echo:</p>
+    <p><strong>P<sub>t</sub></strong> is the transmit power — how loudly the radar shouts. <strong>G</strong> is antenna gain: how well the antenna focuses that shout into a beam (it appears squared because the same antenna focuses the transmission <em>and</em> collects the echo). <strong>λ</strong> is the wavelength, set by the operating frequency. <strong>σ</strong> (sigma) is the target's <em>radar cross-section</em> — effectively how big and reflective the target looks to radio waves, measured in square metres. <strong>P<sub>min</sub></strong> is the weakest echo the receiver can still detect, and <strong>L</strong> collects real-world losses in cables, the atmosphere and processing.</p>
+    <p class="aside">The whole thing is raised to the power of a quarter. That's the R⁴ law biting: to double detection range you need <em>sixteen times</em> more transmit power, all else being equal. It's why radar engineering is a game of decibels scraped together from every part of the system, not just a bigger transmitter.</p>
+  </section>
+
+  <div class="tool-layout">
+    <div class="panel" aria-label="Inputs">
+      <h2>Inputs</h2>
+      <div class="field">
+        <label for="pt">Transmit power P<sub>t</sub> (kW)</label>
+        <input type="number" id="pt" value="100" min="0.001" step="any">
+        <small>Peak pulse power. Airport surveillance radars are typically tens of kW to low MW.</small>
+      </div>
+      <div class="field">
+        <label for="gain">Antenna gain G (dBi)</label>
+        <input type="number" id="gain" value="34" step="any">
+        <small>A large rotating dish is typically 30–40 dBi.</small>
+      </div>
+      <div class="field">
+        <label for="freq">Frequency (GHz)</label>
+        <input type="number" id="freq" value="3" min="0.001" step="any">
+        <small>S-band ≈ 3 GHz, X-band ≈ 10 GHz.</small>
+      </div>
+      <div class="field">
+        <label for="rcsPreset">Target radar cross-section σ</label>
+        <select id="rcsPreset">
+          <option value="0.01">Small bird — 0.01 m²</option>
+          <option value="1" selected>Person — 1 m²</option>
+          <option value="2">Small fighter — 2 m²</option>
+          <option value="10">Light aircraft — 10 m²</option>
+          <option value="100">Airliner / car — 100 m²</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input type="number" id="rcs" value="1" min="0.000001" step="any" style="margin-top:6px">
+      </div>
+      <div class="field">
+        <label for="pmin">Minimum detectable signal P<sub>min</sub> (dBm)</label>
+        <input type="number" id="pmin" value="-110" step="any">
+        <small>Set by receiver noise. −110 dBm is a reasonable classroom value.</small>
+      </div>
+      <div class="field">
+        <label for="loss">System losses L (dB)</label>
+        <input type="number" id="loss" value="6" min="0" step="any">
+        <small>Cables, radome, atmosphere, processing. 4–8 dB is typical.</small>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" aria-label="Results">
+        <h2>Result</h2>
+        <div class="results">
+          <div class="result-row"><span class="rlabel">Maximum detection range</span><span class="rvalue big" id="rmax">—</span></div>
+          <div class="result-row"><span class="rlabel">Wavelength λ</span><span class="rvalue" id="lambda">—</span></div>
+          <div class="result-row"><span class="rlabel">Echo power at that range</span><span class="rvalue" id="atRange">—</span></div>
+          <div class="result-row"><span class="rlabel">Echo power at half that range</span><span class="rvalue" id="atHalf">—</span></div>
+        </div>
+      </div>
+
+      <div class="viz chart-wrap" aria-label="Received echo power against range">
+        <svg id="chart" viewBox="0 0 720 340"></svg>
+      </div>
+      <p class="explain aside" style="margin-top:10px">The cyan curve is the echo power arriving back at the receiver as the target moves further away — a straight line on this log–log style plot because of the R⁴ law (−12 dB every time range doubles). Where it crosses the amber P<sub>min</sub> line, the echo disappears into the noise: that crossing <em>is</em> the maximum range.</p>
+    </div>
+  </div>
+
+  <p class="note">This is the simplest form of the range equation — single pulse, no integration gain, no clutter, no fluctuation statistics. Real detection range analysis adds all of those, but the shape of the problem stays exactly as shown here.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="bar">
+    <span>© James Yates · jamesyates.co.uk</span>
+    <span>Provided as-is for education — verify against the applicable standard.</span><a href="../radar.html">Back to Radar</a>
+  </div>
+</footer>
+
+<script>
+document.documentElement.dataset.theme = "";
+
+const c = 299792458;
+const $ = id => document.getElementById(id);
+const inputs = ["pt","gain","freq","rcs","pmin","loss"].map($);
+const preset = $("rcsPreset");
+
+preset.addEventListener("change", () => {
+  if (preset.value !== "custom") $("rcs").value = preset.value;
+  calc();
+});
+$("rcs").addEventListener("input", () => {
+  const match = [...preset.options].find(o => o.value === $("rcs").value);
+  preset.value = match ? match.value : "custom";
+});
+inputs.forEach(el => el.addEventListener("input", calc));
+
+function fmtRange(m){
+  if (!isFinite(m)) return "—";
+  if (m >= 1000) return (m/1000).toPrecision(3) + " km";
+  return m.toPrecision(3) + " m";
+}
+
+function receivedPowerDbm(R, p){
+  // Pr = Pt G^2 λ^2 σ / ((4π)^3 R^4 L)
+  const pr = p.pt * p.g * p.g * p.lambda * p.lambda * p.rcs /
+             (Math.pow(4*Math.PI, 3) * Math.pow(R, 4) * p.loss);
+  return 10 * Math.log10(pr * 1000);
+}
+
+function calc(){
+  const p = {
+    pt: parseFloat($("pt").value) * 1000,
+    g: Math.pow(10, parseFloat($("gain").value) / 10),
+    lambda: c / (parseFloat($("freq").value) * 1e9),
+    rcs: parseFloat($("rcs").value),
+    pminW: Math.pow(10, (parseFloat($("pmin").value) - 30) / 10),
+    loss: Math.pow(10, parseFloat($("loss").value) / 10)
+  };
+  if ([p.pt, p.g, p.lambda, p.rcs, p.pminW, p.loss].some(v => !isFinite(v) || v <= 0)) return;
+
+  const rmax = Math.pow(
+    p.pt * p.g * p.g * p.lambda * p.lambda * p.rcs /
+    (Math.pow(4*Math.PI, 3) * p.pminW * p.loss), 0.25);
+
+  $("rmax").textContent = fmtRange(rmax);
+  $("lambda").textContent = (p.lambda * 100).toPrecision(3) + " cm";
+  $("atRange").textContent = receivedPowerDbm(rmax, p).toFixed(1) + " dBm";
+  $("atHalf").textContent = receivedPowerDbm(rmax/2, p).toFixed(1) + " dBm (+12 dB)";
+  drawChart(rmax, p);
+}
+
+function drawChart(rmax, p){
+  const W = 720, H = 340, L = 62, R = 20, T = 18, B = 44;
+  const iw = W - L - R, ih = H - T - B;
+  const rLo = rmax / 100, rHi = rmax * 4;
+  const pminDbm = parseFloat($("pmin").value);
+  const yLo = pminDbm - 30, yHi = receivedPowerDbm(rLo, p) + 10;
+  const x = r => L + iw * (Math.log10(r) - Math.log10(rLo)) / (Math.log10(rHi) - Math.log10(rLo));
+  const y = db => T + ih * (yHi - db) / (yHi - yLo);
+
+  let s = "";
+  // grid: decade lines in range
+  for (let d = Math.ceil(Math.log10(rLo)); d <= Math.floor(Math.log10(rHi)); d++){
+    const r = Math.pow(10, d);
+    s += `<line class="gridline" x1="${x(r)}" y1="${T}" x2="${x(r)}" y2="${H-B}"/>`;
+    s += `<text x="${x(r)}" y="${H-B+16}" text-anchor="middle">${fmtRange(r)}</text>`;
+  }
+  for (let db = Math.ceil(yLo/20)*20; db <= yHi; db += 20){
+    s += `<line class="gridline" x1="${L}" y1="${y(db)}" x2="${W-R}" y2="${y(db)}"/>`;
+    s += `<text x="${L-6}" y="${y(db)+4}" text-anchor="end">${db}</text>`;
+  }
+  s += `<line class="axis" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/>`;
+  s += `<line class="axis" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/>`;
+  s += `<text x="${L-46}" y="${T-4}">dBm</text>`;
+  s += `<text x="${W-R}" y="${H-6}" text-anchor="end">range →</text>`;
+
+  // curve
+  let d = "";
+  for (let i = 0; i <= 200; i++){
+    const r = rLo * Math.pow(rHi/rLo, i/200);
+    const db = receivedPowerDbm(r, p);
+    const yy = Math.max(T, Math.min(H-B, y(db)));
+    d += (i ? "L" : "M") + `${x(r).toFixed(1)} ${yy.toFixed(1)} `;
+  }
+  s += `<path class="pr-line" d="${d}"/>`;
+  s += `<line class="min-line" x1="${L}" y1="${y(pminDbm)}" x2="${W-R}" y2="${y(pminDbm)}"/>`;
+  s += `<text class="hit-label" x="${L+8}" y="${y(pminDbm)-6}">P min ${pminDbm} dBm</text>`;
+  if (rmax > rLo && rmax < rHi){
+    s += `<circle class="hit" cx="${x(rmax)}" cy="${y(pminDbm)}" r="5"/>`;
+    s += `<text class="hit-label" x="${x(rmax)}" y="${y(pminDbm)+20}" text-anchor="middle">R max</text>`;
+  }
+  $("chart").innerHTML = s;
+}
+
+calc();
+</script>
+</body>
+</html>

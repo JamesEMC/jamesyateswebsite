@@ -1,298 +1,233 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>James Yates | Home</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>James Yates — EMC & Environmental Test Engineering</title>
+<meta name="description" content="Twenty years of making hardware prove itself. Tools, calculators and plain-language explainers for EMC, antennas, radar and space qualification testing.">
+<meta property="og:title" content="James Yates — EMC & Environmental Test Engineering">
+<meta property="og:description" content="Tools and plain-language explainers from a career across satellites, combat aircraft and everything between.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jamesyates.co.uk/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f7f5f0'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%231a1a17' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%23a3572a' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%231a1a17'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/v2.css">
 <style>
-:root{--cyan:#28d7ff;--cyan-soft:#9bf0ff;--text:#f4f8fd}
-*{box-sizing:border-box} html,body{height:100%}
-body{margin:0;overflow:auto;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 50% 42%,rgba(40,215,255,.10),transparent 24%),radial-gradient(circle at 72% 80%,rgba(40,215,255,.05),transparent 26%),linear-gradient(135deg,#02070f,#06131f 52%,#02070f)}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.44;background:linear-gradient(rgba(120,226,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,226,255,.04) 1px,transparent 1px);background-size:82px 82px;mask-image:radial-gradient(circle at 50% 50%,black 0,transparent 78%)}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.24;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 6px)}
-.brand{position:fixed;top:24px;right:28px;z-index:50;font-size:1.08rem;font-weight:700;letter-spacing:.34em;text-transform:uppercase;color:rgba(244,248,253,.94);text-align:right}
-.brand::after{content:"";display:block;margin-top:12px;margin-left:auto;width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--cyan));box-shadow:0 0 16px rgba(40,215,255,.45)}
-.stage{position:relative;width:min(1500px,calc(100% - 40px));height:100vh;margin:0 auto}
-.thumb-row{position:absolute;left:50%;top:18%;transform:translateX(-50%);width:min(1280px,100%);display:grid;grid-template-columns:repeat(6,1fr);gap:20px;align-items:end;padding:0 16px;z-index:8}
-.thumb{position:relative;height:164px;display:grid;place-items:center;cursor:pointer;transition:transform .25s ease,filter .25s ease,opacity .25s ease;opacity:.84}
-.thumb:hover,.thumb.active{opacity:1;transform:translateY(-8px) scale(1.05);filter:brightness(1.08) saturate(1.06)}
-.thumb[data-url]::after{content:"↗";position:absolute;right:12px;top:10px;color:rgba(155,240,255,.78);font-size:1rem;opacity:.0;transition:opacity .18s ease;text-shadow:0 0 14px rgba(40,215,255,.6)}.thumb[data-url]:hover::after,.thumb[data-url].active::after{opacity:.9}.thumb img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 20px rgba(40,215,255,.16)) drop-shadow(0 0 42px rgba(40,215,255,.08));pointer-events:none}
-.ripple-zone{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:280px;z-index:2;cursor:crosshair;touch-action:none}
-svg{width:100%;height:100%;display:block}.base-line{fill:none;stroke:rgba(140,235,255,.58);stroke-width:2.2;filter:drop-shadow(0 0 10px rgba(40,215,255,.35))}.noise-line{fill:none;stroke:rgba(90,205,235,.26);stroke-width:1.2}.spike-line{fill:none;stroke:var(--cyan);stroke-width:3;filter:drop-shadow(0 0 15px rgba(40,215,255,.9))}.guide{stroke:rgba(151,239,255,.26);stroke-width:1.4;stroke-dasharray:8 8}.marker-dot{fill:var(--cyan);filter:drop-shadow(0 0 10px rgba(40,215,255,.9))}
-.marker-label{position:absolute;z-index:10;left:0;top:0;transform:translateX(-50%);padding:10px 18px;border-radius:999px;background:rgba(3,12,22,.72);border:1px solid rgba(151,239,255,.34);color:var(--cyan-soft);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;letter-spacing:2.8px;text-transform:uppercase;white-space:nowrap;box-shadow:0 0 20px rgba(40,215,255,.12);backdrop-filter:blur(4px)}
-.marker-label.is-link{cursor:pointer;border-color:rgba(155,240,255,.68);box-shadow:0 0 24px rgba(40,215,255,.2)}
-.marker-label.is-link:hover{background:rgba(7,24,38,.88);color:#fff}
-.site-directory{position:relative;width:min(1180px,calc(100% - 40px));margin:0 auto;padding:72px 0 96px}
-.directory-eyebrow{margin:0 0 12px;color:var(--cyan-soft);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.82rem;letter-spacing:.18em;text-transform:uppercase}
-.site-directory h1{max-width:780px;margin:0 0 16px;font-size:clamp(2rem,4vw,4.2rem);line-height:.98;letter-spacing:-.045em}
-.directory-intro{max-width:760px;margin:0;color:rgba(244,248,253,.68);font-size:1rem;line-height:1.7}
-.root-node{width:max-content;max-width:100%;margin:46px auto 34px;padding:14px 22px;border:1px solid rgba(151,239,255,.34);border-radius:999px;background:rgba(3,12,22,.62);color:var(--cyan-soft);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86rem;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 0 24px rgba(40,215,255,.12)}
-.directory-map{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.directory-map::before{content:"";position:absolute;left:8%;right:8%;top:-17px;height:1px;background:linear-gradient(90deg,transparent,rgba(151,239,255,.36),transparent)}
-.branch{position:relative;padding:18px;border:1px solid rgba(151,239,255,.22);border-radius:8px;background:rgba(3,12,22,.58);box-shadow:0 18px 52px rgba(0,0,0,.22)}
-.branch::before{content:"";position:absolute;top:-17px;left:50%;width:1px;height:17px;background:rgba(151,239,255,.36)}
-.branch h2{margin:0 0 8px;font-size:1rem;line-height:1.25}
-.branch h2 a{color:#fff;text-decoration:none}
-.branch h2 a:hover{text-decoration:underline;text-underline-offset:4px}
-.branch p{margin:0 0 14px;color:rgba(244,248,253,.58);font-size:.84rem;line-height:1.45}
-.leaf-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
-.leaf-list a,.leaf-list span{display:block;padding:9px 10px;border:1px solid rgba(151,239,255,.16);border-radius:6px;background:rgba(151,239,255,.055);color:rgba(244,248,253,.82);text-decoration:none;font-size:.84rem;line-height:1.35}
-.leaf-list a:hover{border-color:rgba(155,240,255,.58);color:#fff;background:rgba(40,215,255,.12)}
-.leaf-list span{color:rgba(244,248,253,.42)}
-@media (max-width:1100px){.thumb-row{grid-template-columns:repeat(3,1fr);row-gap:28px;top:12%;width:min(840px,100%)}.thumb{height:132px}.ripple-zone{top:64%;height:260px}}
-@media (max-width:980px){.directory-map{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:680px){body{overflow:auto}.stage{height:920px}.brand{top:14px;right:14px;font-size:.94rem;letter-spacing:.24em}.thumb-row{grid-template-columns:repeat(2,1fr);gap:22px;top:9%;width:min(540px,100%)}.thumb{height:122px}.ripple-zone{top:70%;height:240px}.marker-label{font-size:12px;letter-spacing:1.8px;padding:8px 14px}}
-@media (max-width:680px){body{overflow:auto}.stage{height:820px;width:min(100%,calc(100% - 20px))}.brand{top:14px;right:14px;font-size:.94rem;letter-spacing:.24em}.thumb-row{grid-template-columns:repeat(2,1fr);gap:12px 18px;top:8%;width:min(520px,100%);padding:0 8px}.thumb{height:104px}.ripple-zone{top:64%;height:230px;left:-8px;right:-8px}.marker-label{font-size:12px;letter-spacing:1.7px;padding:8px 13px;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis}.hint{bottom:18px;font-size:.74rem;width:calc(100% - 24px);text-align:center;white-space:normal}.site-directory{width:min(100%,calc(100% - 28px));padding:42px 0 72px}.directory-map{grid-template-columns:1fr}.directory-map::before,.branch::before{display:none}.site-directory h1{font-size:2rem}}
+.hero .art.horn { right: 0; top: 54%; width: min(620px, 66vw); opacity: .34; }
+#hornArt .grid { stroke: currentColor; opacity: .28; }
+#hornArt .ghost { stroke: currentColor; fill: none; }
+#hornArt .live { stroke: var(--copper-deep); fill: none; stroke-width: 1.6; }
+#hornArt text { font: 11px "IBM Plex Mono", monospace; fill: currentColor; opacity: .6; }
+@media (max-width: 720px){ .hero .art.horn { opacity: .16; right: -30%; } }
 </style>
 </head>
 <body>
-<div class="brand">James Yates</div>
-<main class="stage" id="stage">
-  <div class="thumb-row" id="thumbRow">
-    <div class="thumb active" data-index="0" data-label="EMC" data-url="emc.html"><img src="assets/home/emc.webp" width="900" height="675" decoding="async" alt="EMC"></div>
-    <div class="thumb" data-index="1" data-label="Antennas" data-url="antenna.html"><img src="assets/home/antennas.webp" width="900" height="675" decoding="async" alt="Antennas"></div>
-    <div class="thumb" data-index="2" data-label="Space Qualification" data-url="environmental.html"><img src="assets/home/space-qualification.webp" width="900" height="675" decoding="async" alt="Space Qualification"></div>
-    <div class="thumb" data-index="3" data-label="Radar"><img src="assets/home/radar.webp" width="900" height="675" decoding="async" alt="Radar"></div>
-    <div class="thumb" data-index="4" data-label="Management / Leadership"><img src="assets/home/management-leadership.webp" width="900" height="675" decoding="async" alt="Management / Leadership"></div>
-    <div class="thumb" data-index="5" data-label="Fitness Journey" data-url="fitness.html"><img src="assets/home/fitness-journey.webp" width="900" height="675" decoding="async" alt="Fitness Journey"></div>
+
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="emc.html">EMC</a>
+      <a href="antenna.html">Antennas</a>
+      <a href="radar.html">Radar</a>
+      <a href="environmental.html">Space</a>
+      <a href="leadership.html">Leadership</a>
+      <a href="fitness.html">Personal</a>
+    </nav>
   </div>
-  <div class="marker-label" id="markerLabel">EMC</div>
-  <div class="ripple-zone">
-    <svg id="rippleSvg" viewBox="0 0 1400 280" preserveAspectRatio="none" aria-hidden="true">
-      <path id="noise1" class="noise-line"></path>
-      <path id="noise2" class="noise-line"></path>
-      <path id="baseLine" class="base-line"></path>
-      <path id="spikeLine" class="spike-line"></path>
-      <line id="guideLine" class="guide" x1="0" y1="0" x2="0" y2="0"></line>
-      <circle id="markerDot" class="marker-dot" cx="0" cy="0" r="5"></circle>
-    </svg>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="art horn" aria-hidden="true"><svg id="hornArt" viewBox="0 0 700 620"></svg></div>
+    <div class="wrap">
+      <div class="inner">
+        <p class="eyebrow">EMC · Environmental Test · Space &amp; Aerospace</p>
+        <h1 class="rise" id="riseHead">Twenty years of making hardware <em>prove itself.</em></h1>
+        <p class="lede reveal d2">I'm James Yates — Lead EMC Engineer at Leonardo, former laboratory director, apprentice-trained on a radar range in West Wales. This site shares the tools, calculators and plain-language explainers I've built across a career testing satellites, combat aircraft systems and everything between.</p>
+      </div>
+    </div>
   </div>
-  <div class="hint" style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);font-size:.82rem;letter-spacing:.08em;color:rgba(244,248,253,.38);white-space:nowrap">Hover, tap or drag the trace to move the signal. Open linked sections from their image or label.</div>
+
+  <section class="tight">
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat reveal"><div class="n">20<em>+</em></div><div class="l">Years in test</div></div>
+        <div class="stat reveal d1"><div class="n">100s</div><div class="l">Test campaigns</div></div>
+        <div class="stat reveal d2"><div class="n">4</div><div class="l">Sectors — space · aero · defence · commercial</div></div>
+        <div class="stat reveal d3"><div class="n">Apprentice <em>→</em> Director</div><div class="l">The long way up</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-label="Standards worked to">
+    <div class="track">
+      <span>MIL-STD-461</span><span>DO-160G</span><span>DEF STAN 59-411</span><span>ECSS / ESA</span><span>EN 55011</span><span>IEC 61000-4-x</span><span>FCC PART 15</span><span>ETSI 301 489</span><span>UKAS ISO 17025</span>
+      <span>MIL-STD-461</span><span>DO-160G</span><span>DEF STAN 59-411</span><span>ECSS / ESA</span><span>EN 55011</span><span>IEC 61000-4-x</span><span>FCC PART 15</span><span>ETSI 301 489</span><span>UKAS ISO 17025</span>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow reveal">The work</p>
+      <h2 class="reveal d1">Six sections. Real tools, plain language.</h2>
+      <p class="lede reveal d2">Every section pairs explanation with something interactive — calculators, visualisers, working demos. Plain language, no jargon walls, grounded in what actually happens on a test floor.</p>
+
+      <div class="index-list">
+        <a class="index-item reveal" href="emc.html">
+          <span class="num">01</span>
+          <span class="body"><h3>EMC</h3><p>Field strength, receiver bandwidth, RF units, grounding &amp; bonding — nine tools from real test work.</p></span>
+          <span class="mini" aria-hidden="true"><svg viewBox="0 0 84 60" fill="none" stroke="currentColor" stroke-width="1.3"><line x1="4" y1="52" x2="80" y2="52"/><line x1="10" y1="52" x2="10" y2="40"/><line x1="18" y1="52" x2="18" y2="28"/><line x1="26" y1="52" x2="26" y2="44"/><line x1="34" y1="52" x2="34" y2="12"/><line x1="42" y1="52" x2="42" y2="36"/><line x1="50" y1="52" x2="50" y2="22"/><line x1="58" y1="52" x2="58" y2="46"/><line x1="66" y1="52" x2="66" y2="32"/><line x1="74" y1="52" x2="74" y2="42"/></svg></span>
+          <span class="go">Enter →</span>
+        </a>
+        <a class="index-item reveal" href="antenna.html">
+          <span class="num">02</span>
+          <span class="body"><h3>Antennas</h3><p>Field regions and guided beamwidth digitising — the practical geometry of antenna test work.</p></span>
+          <span class="mini" aria-hidden="true"><svg viewBox="0 0 84 60" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M8 26 h18 l22 -14 v36 l-22 -14 h-18 z"/><path d="M56 8 a34 34 0 0 1 0 44 M64 16 a24 24 0 0 1 0 28 M72 22 a15 15 0 0 1 0 16"/></svg></span>
+          <span class="go">Enter →</span>
+        </a>
+        <a class="index-item reveal" href="radar.html">
+          <span class="num">03</span>
+          <span class="body"><h3>Radar</h3><p>The range equation, Doppler, PRF trade-offs and a working PPI display — fundamentals from first principles.</p></span>
+          <span class="mini" aria-hidden="true"><svg viewBox="0 0 84 60" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="42" cy="30" r="26"/><circle cx="42" cy="30" r="14"/><line x1="42" y1="30" x2="62" y2="12"/><circle cx="30" cy="22" r="2" fill="currentColor"/><circle cx="52" cy="40" r="2" fill="currentColor"/></svg></span>
+          <span class="go">Enter →</span>
+        </a>
+        <a class="index-item reveal" href="environmental.html">
+          <span class="num">04</span>
+          <span class="body"><h3>Space Qualification</h3><p>Vibration, thermal and TVAC — how spacecraft hardware earns its ride, with test-planning calculators.</p></span>
+          <span class="mini" aria-hidden="true"><svg viewBox="0 0 84 60" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="42" cy="30" r="13"/><ellipse cx="42" cy="30" rx="34" ry="11" transform="rotate(-18 42 30)"/><circle cx="70" cy="19" r="2.4" fill="currentColor"/></svg></span>
+          <span class="go">Enter →</span>
+        </a>
+        <a class="index-item reveal" href="leadership.html">
+          <span class="num">05</span>
+          <span class="body"><h3>Management &amp; Leadership</h3><p>Apprentice to director: how we halved a lab's test turnaround time, building small teams, and accreditation done properly.</p></span>
+          <span class="mini" aria-hidden="true"><svg viewBox="0 0 84 60" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="42" cy="14" r="5"/><circle cx="16" cy="46" r="5"/><circle cx="42" cy="46" r="5"/><circle cx="68" cy="46" r="5"/><line x1="42" y1="19" x2="16" y2="41"/><line x1="42" y1="19" x2="42" y2="41"/><line x1="42" y1="19" x2="68" y2="41"/></svg></span>
+          <span class="go">Enter →</span>
+        </a>
+        <a class="index-item reveal" href="fitness.html">
+          <span class="num">06</span>
+          <span class="body"><h3>Personal</h3><p>Land's End to John o' Groats, Spartan, five years in the Army Reserve and a parachuting habit — the rest of the story.</p></span>
+          <span class="mini" aria-hidden="true"><svg viewBox="0 0 84 60" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 34 h16 l6 -18 l10 32 l8 -22 l5 8 h31"/></svg></span>
+          <span class="go">Enter →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="dark">
+    <div class="wrap">
+      <p class="eyebrow reveal">A belief, tested</p>
+      <blockquote class="pull reveal d1">The fixture, the harness, the procedure and the people are all part of the <strong>evidence.</strong></blockquote>
+      <p class="attrib reveal d2">— A lesson from a cracked vibration fixture, and every campaign since</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap narrow">
+      <p class="eyebrow reveal">Now</p>
+      <h2 class="reveal d1">Leonardo, Edinburgh.</h2>
+      <p class="lede reveal d2">Leading EMC laboratory operations for next-generation radar and combat air programmes — expanding accredited scope, refining test methods, and building the tools that make good measurements easier to repeat. The best of what I learn ends up here.</p>
+      <p class="reveal d3"><a class="text-link" href="leadership.html">Read the career story →</a></p>
+    </div>
+  </section>
 </main>
-<section class="site-directory" aria-label="Site directory">
-  <p class="directory-eyebrow">Site directory</p>
-  <h1>Quick routes through the work.</h1>
-  <p class="directory-intro">Use the image navigation above for the main site, or jump straight to a section or tool from this directory.</p>
-  <div class="root-node">jamesyates.co.uk</div>
-  <div class="directory-map">
-    <article class="branch">
-      <h2><a href="emc.html">EMC</a></h2>
-      <p>Calculators and explainers for EMC test work, RF units and field strength planning.</p>
-      <ul class="leaf-list">
-        <li><a href="emc/rf-unit-converter.html">RF unit converter</a></li>
-        <li><a href="emc/field-strength-calculator.html">Field strength calculator</a></li>
-        <li><a href="emc/milstd461-fft.html">MIL-STD-461 FFT receiver</a></li>
-        <li><a href="emc/emi-receiver-bandwidth-explorer.html">EMI receiver bandwidth</a></li>
-        <li><a href="emc/eut-antenna-positions.html">EUT antenna positions</a></li>
-      </ul>
-    </article>
-    <article class="branch">
-      <h2><a href="antenna.html">Antennas</a></h2>
-      <p>Practical antenna tools for region checks and reading manufacturer beamwidth plots.</p>
-      <ul class="leaf-list">
-        <li><a href="antenna/antenna-region-plotter.html">Antenna region plotter</a></li>
-        <li><a href="antenna/frequency-beamwidth-reader.html">Frequency beamwidth reader</a></li>
-        <li><a href="antenna/polarisation-beam-animator.html">Polarisation beam animator</a></li>
-      </ul>
-    </article>
-    <article class="branch">
-      <h2><a href="environmental.html">Space Qualification</a></h2>
-      <p>Environmental and qualification tools linked to spacecraft and aerospace test planning.</p>
-      <ul class="leaf-list">
-        <li><a href="environmental/environmental-test-calculators.html">Environmental test calculators</a></li>
-        <li><span>More qualification guides planned</span></li>
-      </ul>
-    </article>
-    <article class="branch">
-      <h2><a href="fitness.html">Personal Targets</a></h2>
-      <p>Current objectives, progress tracking and broader personal work as the section develops.</p>
-      <ul class="leaf-list">
-        <li><a href="fitness.html">Targets and progress</a></li>
-        <li><span>Radar page planned</span></li>
-        <li><span>Management / leadership page planned</span></li>
-      </ul>
-    </article>
+
+<footer class="ftr">
+  <div class="bar">
+    <span>© James Yates — jamesyates.co.uk</span>
+    <span>Tools and content are provided as-is for education and planning — verify against the applicable standard and your own judgement before formal use.</span>
   </div>
-</section>
+</footer>
+
 <script>
-const thumbs=[...document.querySelectorAll('.thumb')];
-const stage=document.getElementById('stage');
-const thumbRow=document.getElementById('thumbRow');
-const rippleZone=document.querySelector('.ripple-zone');
-const baseLine=document.getElementById('baseLine');
-const noise1=document.getElementById('noise1');
-const noise2=document.getElementById('noise2');
-const spikeLine=document.getElementById('spikeLine');
-const guideLine=document.getElementById('guideLine');
-const markerDot=document.getElementById('markerDot');
-const markerLabel=document.getElementById('markerLabel');
-const W=1400, midY=154;
-let t=0, activeIndex=0, targetSpikeX=150, currentSpikeX=150, currentAmp=54, targetAmp=54;
-let interactionMode='image';
-
-function thumbCenterX(thumb){
-  const row=thumbRow.getBoundingClientRect();
-  const rect=thumb.getBoundingClientRect();
-  const centerRatio=((rect.left+rect.width/2)-row.left)/row.width;
-  return 60+centerRatio*(W-120);
-}
-
-function findNearestThumbIndexFromSvgX(x){
-  let nearest=0, best=Infinity;
-  thumbs.forEach((thumb,i)=>{
-    const tx = thumbCenterX(thumb);
-    const d = Math.abs(tx-x);
-    if(d<best){ best=d; nearest=i; }
+/* headline word-rise */
+const h = document.getElementById("riseHead");
+if (h && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+  const parts = [];
+  h.childNodes.forEach(node => {
+    if (node.nodeType === 3){
+      node.textContent.split(/\s+/).filter(Boolean).forEach(w => parts.push({ t: w, em: false }));
+    } else if (node.nodeType === 1){
+      node.textContent.split(/\s+/).filter(Boolean).forEach(w => parts.push({ t: w, em: true }));
+    }
   });
-  return nearest;
+  h.innerHTML = parts.map((p, i) => {
+    const inner = p.em ? `<em>${p.t}</em>` : p.t;
+    return `<span class="w"><span style="animation-delay:${(0.08*i).toFixed(2)}s">${inner}</span></span>`;
+  }).join(" ");
 }
 
-function positionHtmlLabel(index, xOverride=null){
-  const row=thumbRow.getBoundingClientRect();
-  const rect=thumbs[index].getBoundingClientRect();
-  const stageRect=stage.getBoundingClientRect();
-  const x = xOverride !== null ? xOverride : (rect.left+rect.width/2)-stageRect.left;
-  const isMobile = window.matchMedia('(max-width:680px)').matches;
-  const y = isMobile
-    ? Math.max(48, row.top-stageRect.top-38)
-    : Math.max(72, row.top-stageRect.top-46);
-  markerLabel.style.left=`${x}px`;
-  markerLabel.style.top=`${y}px`;
-  markerLabel.textContent=thumbs[index].dataset.label;
-  const url = thumbs[index].dataset.url;
-  markerLabel.classList.toggle('is-link', Boolean(url));
-  markerLabel.tabIndex = url ? 0 : -1;
-  markerLabel.setAttribute('role', url ? 'link' : 'status');
-  markerLabel.setAttribute('aria-label', url ? `Open ${thumbs[index].dataset.label}` : thumbs[index].dataset.label);
-}
+/* scroll reveals */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.14 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
-function setActive(index, fromTrace=false, stageX=null, svgX=null){
-  activeIndex=index;
-  thumbs.forEach((thumb,i)=>thumb.classList.toggle('active',i===index));
-  if(fromTrace && svgX !== null){
-    targetSpikeX = svgX;
-    positionHtmlLabel(index, stageX);
-    interactionMode='trace';
-  } else {
-    targetSpikeX = thumbCenterX(thumbs[index]);
-    positionHtmlLabel(index);
-    interactionMode='image';
+/* ---- horn antenna polar pattern: beamwidth breathing with frequency ---- */
+(function(){
+  const svg = document.getElementById("hornArt");
+  if (!svg) return;
+  const CX = 350, CY = 590, R = 540;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function sinc(x){ return x === 0 ? 1 : Math.sin(x)/x; }
+
+  /* polar radiation pattern of a uniform aperture: E = |sinc(pi A sin(theta))|
+     A = aperture size in wavelengths — bigger A (higher frequency) = narrower beam */
+  function patternPath(A){
+    let d = "";
+    for (let i = 0; i <= 240; i++){
+      const th = (-90 + i * 180/240) * Math.PI/180;
+      const E = Math.abs(sinc(Math.PI * A * Math.sin(th)));
+      const dB = 20 * Math.log10(Math.max(E, 1e-4));
+      const rn = Math.max(0, 1 + dB/40);            // -40 dB floor
+      const r = R * rn;
+      const x = CX + r * Math.sin(th);              // boresight up
+      const y = CY - r * Math.cos(th);
+      d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1) + " ";
+    }
+    return d;
   }
-  targetAmp = 88;
-}
 
-function handleTraceMove(evt){
-  const rect = rippleZone.getBoundingClientRect();
-  const ratio = Math.max(0, Math.min(1, (evt.clientX - rect.left) / rect.width));
-  const svgX = 60 + ratio*(W-120);
-  const nearest = findNearestThumbIndexFromSvgX(svgX);
-  const stageRect = stage.getBoundingClientRect();
-  const stageX = evt.clientX - stageRect.left;
-  setActive(nearest, true, stageX, svgX);
-}
-
-function basePath(seed=0,amp=6,offsetY=0){
-  let d=`M 0 ${midY+offsetY}`;
-  for(let x=0;x<=W;x+=12){
-    const y=midY+offsetY+Math.sin((x*0.03)+t+seed)*amp+Math.cos((x*0.011)+t*0.7+seed)*amp*0.45;
-    d+=` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+  /* static polar grid: arcs + spokes over ±90° */
+  let g = '<g class="grid" fill="none" stroke-width="0.8">';
+  for (let k = 1; k <= 4; k++){
+    const r = R * k/4;
+    g += `<path d="M ${CX - r} ${CY} A ${r} ${r} 0 0 1 ${CX + r} ${CY}"/>`;
   }
-  return d;
-}
-
-function spikePath(){
-  const sigma=21;
-  let d='';
-  for(let x=0;x<=W;x+=8){
-    const base=midY+Math.sin((x*0.03)+t)*4.2+Math.cos((x*0.011)+t*0.7)*2.1;
-    const g=Math.exp(-Math.pow(x-currentSpikeX,2)/(2*sigma*sigma));
-    const y=base-currentAmp*g;
-    d+=(x===0?'M':'L')+` ${x.toFixed(1)} ${y.toFixed(1)}`;
+  for (let a = -90; a <= 90; a += 15){
+    const th = a * Math.PI/180;
+    g += `<line x1="${CX}" y1="${CY}" x2="${(CX + R*Math.sin(th)).toFixed(1)}" y2="${(CY - R*Math.cos(th)).toFixed(1)}"/>`;
   }
-  return d;
-}
+  g += "</g>";
 
-function updateGuide(){
-  const row=thumbRow.getBoundingClientRect();
-  const stageRect=stage.getBoundingClientRect();
-  const isMobile = window.matchMedia('(max-width:680px)').matches;
-  const guideTopPx=(row.top-stageRect.top)+(isMobile ? 28 : 8);
-  const guideTopSvg=(guideTopPx/stageRect.height)*(280);
-  guideLine.setAttribute('x1',currentSpikeX);
-  guideLine.setAttribute('x2',currentSpikeX);
-  guideLine.setAttribute('y1',guideTopSvg);
-  guideLine.setAttribute('y2',midY+2);
-  markerDot.setAttribute('cx',currentSpikeX);
-  markerDot.setAttribute('cy',midY+1);
-}
-
-function animate(){
-  t+=0.028;
-  currentSpikeX+=(targetSpikeX-currentSpikeX)*0.11;
-  currentAmp+=(targetAmp-currentAmp)*0.11;
-  baseLine.setAttribute('d',basePath(0,4.8,0));
-  noise1.setAttribute('d',basePath(1.4,7.8,-18));
-  noise2.setAttribute('d',basePath(3.2,6.2,18));
-  spikeLine.setAttribute('d',spikePath());
-  updateGuide();
-  requestAnimationFrame(animate);
-}
-
-thumbs.forEach((thumb,i)=>{
-  thumb.addEventListener('mouseenter',()=>setActive(i,false));
-  thumb.addEventListener('focus',()=>setActive(i,false));
-  thumb.addEventListener('click',()=>{
-    setActive(i,false);
-    const url = thumb.dataset.url;
-    if(url) window.location.href = url;
+  /* ghost slices: the pattern at a set of fixed frequencies, pencil-light */
+  const ghosts = [0.7, 1.1, 1.6, 2.3, 3.2];
+  let gh = "";
+  ghosts.forEach((A, i) => {
+    gh += `<path class="ghost" stroke-width="0.9" opacity="${(0.16 + i*0.05).toFixed(2)}" d="${patternPath(A)}"/>`;
   });
-});
 
-function openActiveSection(){
-  const url = thumbs[activeIndex] && thumbs[activeIndex].dataset.url;
-  if(url) window.location.href = url;
-}
+  svg.innerHTML = g + gh +
+    `<path class="live" id="liveLobe" d="${patternPath(2)}"/>` +
+    "";
 
-markerLabel.addEventListener('click', openActiveSection);
-markerLabel.addEventListener('keydown', evt => {
-  if(evt.key === 'Enter' || evt.key === ' '){
-    evt.preventDefault();
-    openActiveSection();
+  const live = document.getElementById("liveLobe");
+  if (reduce){ live.setAttribute("d", patternPath(2.3)); return; }
+
+  let t0 = null;
+  function frame(ts){
+    if (t0 === null) t0 = ts;
+    const t = (ts - t0) / 1000;
+    /* sweep aperture (frequency) up and down over ~18 s */
+    const A = 0.7 + (3.2 - 0.7) * (0.5 - 0.5 * Math.cos(2 * Math.PI * t / 18));
+    live.setAttribute("d", patternPath(A));
+    requestAnimationFrame(frame);
   }
-});
-
-rippleZone.addEventListener('mouseenter', handleTraceMove);
-rippleZone.addEventListener('mousemove', handleTraceMove);
-
-// Mobile/tablet support: touch or pen drag across the trace moves the signal.
-function handlePointerMove(evt){
-  if(evt.pointerType === 'mouse') return;
-  evt.preventDefault();
-  handleTraceMove(evt);
-}
-rippleZone.addEventListener('pointerdown', evt => {
-  if(evt.pointerType !== 'mouse'){
-    rippleZone.setPointerCapture(evt.pointerId);
-    handlePointerMove(evt);
-  }
-});
-rippleZone.addEventListener('pointermove', handlePointerMove);
-rippleZone.addEventListener('pointerup', evt => {
-  if(evt.pointerType !== 'mouse'){
-    try { rippleZone.releasePointerCapture(evt.pointerId); } catch(e) {}
-  }
-});
-
-// Touching an image is equivalent to selecting it; no hover needed.
-thumbs.forEach((thumb,i)=>{
-  thumb.addEventListener('touchstart', evt => {
-    setActive(i,false);
-  }, {passive:true});
-});
-
-window.addEventListener('resize',()=>setActive(activeIndex,false));
-setActive(0,false);
-animate();
+  requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>

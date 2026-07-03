@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Skin Depth Calculator | James Yates</title>
+<meta name="description" content="Skin depth calculator for common conductor materials, with a plain-language explanation of why RF current hugs the surface and what it means for bonding, shielding and plating.">
+<link rel="stylesheet" href="../assets/v2.css">
+<link rel="stylesheet" href="../assets/v2-tools.css">
+<style>
+.chart-wrap text { font: 11px "IBM Plex Mono", monospace; fill: #7e8f9a; }
+.chart-wrap .axis { stroke: #3a5260; stroke-width: 1; }
+.chart-wrap .gridline { stroke: #23343f; stroke-width: 1; }
+.chart-wrap .d-line { fill: none; stroke: #22d3e6; stroke-width: 2.4; }
+.xsec text { font: 12px "IBM Plex Mono", monospace; fill: #9fb2bd; }
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="../index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="../emc.html" aria-current="page">EMC</a>
+      <a href="../antenna.html">Antennas</a>
+      <a href="../radar.html">Radar</a>
+      <a href="../environmental.html">Space</a>
+      <a href="../leadership.html">Leadership</a>
+      <a href="../fitness.html">Personal</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>Skin Depth</nav>
+
+  <p class="kicker">Grounding &amp; Bonding</p>
+  <h1>Skin depth calculator</h1>
+  <p class="intro">At DC, current fills a conductor evenly. At RF, it crowds into a thin layer at the surface — and above a few megahertz that layer is thinner than a human hair. This tool calculates how thin, for the materials you actually meet on the bench.</p>
+
+  <section class="section explain">
+    <h2>What skin depth means</h2>
+    <p>Alternating current generates a changing magnetic field inside the conductor, and that field pushes the current back out toward the surface. The faster the alternation, the harder the push. The <strong>skin depth δ</strong> is the depth at which the current density has fallen to about 37% (1/e) of its surface value:</p>
+    <div class="formula"><span class="eq">δ &nbsp;=&nbsp; <span class="rad">√</span><span class="vinc"><span class="frac"><span>ρ</span><span>π · f · µ₀ · µᵣ</span></span></span></span></div>
+    <p>where ρ is the material's resistivity and µᵣ its relative permeability. Roughly 86% of the current flows within the first two skin depths, so for most purposes the conductor might as well be a hollow tube δ-thick.</p>
+    <p>Three practical consequences. <strong>Bonding:</strong> the effective resistance of a strap rises with frequency because less metal carries the current — surface area and surface condition matter more than cross-section. <strong>Plating:</strong> a few tens of microns of tin or zinc is enough to carry essentially all the RF current, which is why plated finishes and their corrosion state dominate RF bond quality. <strong>Shielding:</strong> a shield attenuates fields by roughly 8.7 dB per skin depth of thickness, so even thin metal is a very effective shield at high frequency — and note how magnetic materials like steel trade higher resistivity for enormous µᵣ, giving them <em>smaller</em> skin depths than copper.</p>
+  </section>
+
+  <div class="tool-layout">
+    <div class="panel" aria-label="Inputs">
+      <h2>Inputs</h2>
+      <div class="field">
+        <label for="mat">Material</label>
+        <select id="mat">
+          <option value="1.68e-8,1" selected>Copper (ρ 1.68e-8, µr 1)</option>
+          <option value="2.65e-8,1">Aluminium (ρ 2.65e-8, µr 1)</option>
+          <option value="6.4e-8,1">Brass (ρ 6.4e-8, µr 1)</option>
+          <option value="5.9e-8,1">Zinc plating (ρ 5.9e-8, µr 1)</option>
+          <option value="1.09e-7,1">Tin plating (ρ 1.09e-7, µr 1)</option>
+          <option value="6.99e-8,100">Nickel (ρ 6.99e-8, µr ≈100)</option>
+          <option value="1.6e-7,300">Mild steel (ρ 1.6e-7, µr ≈300)</option>
+          <option value="6.9e-7,1">Stainless 304 (ρ 6.9e-7, µr ≈1)</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="rho">Resistivity ρ (Ω·m)</label>
+        <input type="number" id="rho" value="1.68e-8" min="0" step="any">
+      </div>
+      <div class="field">
+        <label for="mur">Relative permeability µᵣ</label>
+        <input type="number" id="mur" value="1" min="0.001" step="any">
+        <small>For steel and nickel this varies a lot with grade, field strength and frequency — treat the presets as ballpark.</small>
+      </div>
+      <div class="field">
+        <label for="fspot">Frequency</label>
+        <div class="row">
+          <input type="number" id="fspot" value="10" min="0.000001" step="any">
+          <select id="funit" class="unit-select">
+            <option value="1">Hz</option>
+            <option value="1e3">kHz</option>
+            <option value="1e6" selected>MHz</option>
+            <option value="1e9">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="results" style="margin-top:18px">
+        <div class="result-row"><span class="rlabel">Skin depth δ</span><span class="rvalue big" id="delta">—</span></div>
+        <div class="result-row"><span class="rlabel">Depth carrying ~86% of current (2δ)</span><span class="rvalue" id="d2">—</span></div>
+        <div class="result-row"><span class="rlabel">Shield attenuation per mm (absorption)</span><span class="rvalue" id="shield">—</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="viz chart-wrap" aria-label="Skin depth against frequency">
+        <svg id="chart" viewBox="0 0 720 320"></svg>
+      </div>
+      <div class="viz xsec" style="margin-top:14px" aria-label="Conductor cross-section showing current crowding">
+        <svg id="xsec" viewBox="0 0 720 130"></svg>
+      </div>
+      <p class="explain aside" style="margin-top:10px">Top: the material's skin-depth law — this curve belongs to the material, so changing frequency moves the amber marker along it rather than reshaping it; change the material to reshape the curve. Bottom: a 2 mm-thick conductor cross-section, with the current-carrying skin drawn to scale at your chosen frequency.</p>
+    </div>
+  </div>
+
+  <p class="note">Values assume a solid, clean, non-corroded conductor and a uniform plane-wave view of the field. Surface roughness, plating porosity and corrosion all reduce real-world performance — which is exactly why bond condition gets inspected, not assumed.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="bar">
+    <span>© James Yates · jamesyates.co.uk</span>
+    <span>Provided as-is for education — verify against the applicable standard.</span><a href="../emc.html">Back to EMC</a>
+  </div>
+</footer>
+
+<script>
+document.documentElement.dataset.theme = "";
+
+const $ = id => document.getElementById(id);
+const mu0 = 4e-7 * Math.PI;
+
+$("mat").addEventListener("change", () => {
+  if ($("mat").value !== "custom"){
+    const [rho, mur] = $("mat").value.split(",");
+    $("rho").value = rho;
+    $("mur").value = mur;
+  }
+  calc();
+});
+["rho","mur"].forEach(id => $(id).addEventListener("input", () => { $("mat").value = "custom"; calc(); }));
+["fspot","funit"].forEach(id => $(id).addEventListener("input", calc));
+
+function skinDepth(f, rho, mur){ return Math.sqrt(rho / (Math.PI * f * mu0 * mur)); }
+
+function fmtLen(m){
+  if (m >= 1e-3) return (m*1e3).toPrecision(3) + " mm";
+  if (m >= 1e-6) return (m*1e6).toPrecision(3) + " µm";
+  return (m*1e9).toPrecision(3) + " nm";
+}
+
+function calc(){
+  const rho = parseFloat($("rho").value);
+  const mur = parseFloat($("mur").value);
+  const f = parseFloat($("fspot").value) * parseFloat($("funit").value);
+  if ([rho, mur, f].some(v => !isFinite(v) || v <= 0)) return;
+
+  const d = skinDepth(f, rho, mur);
+  $("delta").textContent = fmtLen(d);
+  $("d2").textContent = fmtLen(2*d);
+  $("shield").textContent = (8.686 * 1e-3 / d).toPrecision(3) + " dB/mm";
+  drawChart(rho, mur, f, d);
+  drawXsec(d);
+}
+
+function drawChart(rho, mur, fspot, dspot){
+  const W = 720, H = 320, L = 70, R = 20, T = 16, B = 44;
+  const iw = W - L - R, ih = H - T - B;
+  const fLo = 50, fHi = 1e9;
+  const dHi = skinDepth(fLo, rho, mur) * 2;
+  const dLo = skinDepth(fHi, rho, mur) / 2;
+  const lx = f => L + iw * (Math.log10(f) - Math.log10(fLo)) / (Math.log10(fHi) - Math.log10(fLo));
+  const ly = d => T + ih * (Math.log10(dHi) - Math.log10(d)) / (Math.log10(dHi) - Math.log10(dLo));
+
+  let s = "";
+  const fl = { 2: "100", 3: "1k", 4: "10k", 5: "100k", 6: "1M", 7: "10M", 8: "100M", 9: "1G" };
+  for (let d = 2; d <= 9; d++){
+    s += `<line class="gridline" x1="${lx(10**d)}" y1="${T}" x2="${lx(10**d)}" y2="${H-B}"/>`;
+    s += `<text x="${lx(10**d)}" y="${H-B+16}" text-anchor="middle">${fl[d]}</text>`;
+  }
+  for (let d = Math.ceil(Math.log10(dLo)); d <= Math.floor(Math.log10(dHi)); d++){
+    s += `<line class="gridline" x1="${L}" y1="${ly(10**d)}" x2="${W-R}" y2="${ly(10**d)}"/>`;
+    s += `<text x="${L-6}" y="${ly(10**d)+4}" text-anchor="end">${fmtLen(10**d)}</text>`;
+  }
+  s += `<line class="axis" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/>`;
+  s += `<line class="axis" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/>`;
+  s += `<text x="${W-R}" y="${H-6}" text-anchor="end">frequency (Hz) →</text>`;
+
+  let d2 = "";
+  for (let i = 0; i <= 200; i++){
+    const f = fLo * Math.pow(fHi/fLo, i/200);
+    d2 += (i ? "L" : "M") + `${lx(f).toFixed(1)} ${ly(skinDepth(f, rho, mur)).toFixed(1)} `;
+  }
+  s += `<path class="d-line" d="${d2}"/>`;
+  if (fspot >= fLo && fspot <= fHi){
+    const mx = lx(fspot);
+    s += `<line x1="${mx}" y1="${T}" x2="${mx}" y2="${H-B}" stroke="#d98a45" stroke-width="1.4" stroke-dasharray="5 5"/>`;
+    s += `<circle cx="${mx}" cy="${ly(dspot)}" r="6" fill="#d98a45"/>`;
+    s += `<text x="${Math.min(mx + 8, W - 150)}" y="${T + 14}" fill="#d98a45">your frequency → δ = ${fmtLen(dspot)}</text>`;
+  }
+  $("chart").innerHTML = s;
+}
+
+function drawXsec(delta){
+  const W = 720, H = 130;
+  const bx = 60, bw = 600, thickM = 2e-3;
+  const bh = 70, by = 30;
+  const skinPx = Math.min(bh/2, (delta / thickM) * bh);
+  let s = `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="#101e28" stroke="#3a5260"/>`;
+  s += `<rect x="${bx}" y="${by}" width="${bw}" height="${Math.max(1, skinPx)}" fill="rgba(34,211,230,.55)"/>`;
+  s += `<rect x="${bx}" y="${by + bh - Math.max(1, skinPx)}" width="${bw}" height="${Math.max(1, skinPx)}" fill="rgba(34,211,230,.55)"/>`;
+  s += `<text x="${bx}" y="${by-8}">2 mm thick conductor — current-carrying skin shown in cyan (to scale)</text>`;
+  s += `<text x="${bx}" y="${by+bh+22}" fill="#22d3e6">δ = ${fmtLen(delta)}${delta >= thickM/2 ? "  (current still fills the whole section at this frequency)" : ""}</text>`;
+  $("xsec").innerHTML = s;
+}
+
+calc();
+</script>
+</body>
+</html>

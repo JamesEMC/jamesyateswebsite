@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>PPI Display Demo | James Yates</title>
+<meta name="description" content="A working plan position indicator in your browser: rotating sweep, phosphor afterglow, range rings, and moving targets you can place yourself.">
+<link rel="stylesheet" href="../assets/v2.css">
+<link rel="stylesheet" href="../assets/v2-tools.css">
+<style>
+.ppi-wrap { border: 1px solid var(--line); border-radius: var(--radius); background: #050c12; padding: 12px; }
+.ppi-wrap canvas { display: block; width: 100%; height: auto; border-radius: 4px; cursor: crosshair; }
+.ppi-status { display: flex; justify-content: space-between; gap: 10px; font: .78rem "IBM Plex Mono", monospace; color: #9fb2bd; padding: 8px 4px 0; flex-wrap: wrap; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.btn {
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper);
+  color: var(--ink); font: 600 .8rem var(--font-mono); padding: 8px 14px; cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent-ink); }
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="../index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="../emc.html">EMC</a>
+      <a href="../antenna.html">Antennas</a>
+      <a href="../radar.html" aria-current="page">Radar</a>
+      <a href="../environmental.html">Space</a>
+      <a href="../leadership.html">Leadership</a>
+      <a href="../fitness.html">Personal</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../radar.html">Radar</a><span>/</span>PPI Display</nav>
+
+  <p class="kicker">Radar Tool</p>
+  <h1>PPI display demo</h1>
+  <p class="intro">The plan position indicator is the classic radar picture: you're looking straight down on the world with the radar at the centre, north at the top. Click anywhere on the scope to place an aircraft, then watch the sweep find it.</p>
+
+  <section class="section explain">
+    <h2>What you're looking at</h2>
+    <p>The rotating line is the <strong>sweep</strong> — it shows where the antenna is pointing right now. As the beam passes over a target, the echo paints a <strong>blip</strong> at the matching bearing and range. On the original cathode-ray displays the phosphor kept glowing after the beam moved on, so blips faded slowly until the antenna came round again. That <strong>afterglow</strong> wasn't a nice-to-have: the fading trail is what let operators see which way a target was moving, one revolution at a time.</p>
+    <p class="aside">Notice the update problem this creates. A rotating radar only looks at each target once per revolution — at 12 RPM, that's one fresh position every five seconds. Fast jets move a long way in five seconds, which is one big reason modern systems use electronically-steered arrays that can revisit a target thousands of times a second without anything physically moving.</p>
+  </section>
+
+  <div class="tool-layout">
+    <div class="panel" aria-label="Controls">
+      <h2>Controls</h2>
+      <div class="field">
+        <label for="rpm">Antenna rotation: <span id="rpmVal">12</span> RPM</label>
+        <input type="range" id="rpm" min="3" max="40" value="12" step="1">
+      </div>
+      <div class="field">
+        <label for="glow">Afterglow persistence: <span id="glowVal">medium</span></label>
+        <input type="range" id="glow" min="1" max="10" value="5" step="1">
+      </div>
+      <div class="field">
+        <label for="scale">Display range: <span id="scaleVal">100</span> km</label>
+        <input type="range" id="scale" min="25" max="300" value="100" step="25">
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="addBtn" type="button">Add random aircraft</button>
+        <button class="btn" id="clearBtn" type="button">Clear targets</button>
+        <button class="btn" id="pauseBtn" type="button">Pause</button>
+      </div>
+      <p style="color:var(--muted);font-size:.85rem;margin:14px 0 0">Click (or tap) the scope to place a target where you like. Each aircraft flies a straight track at a realistic speed, so watch its blips step across the screen sweep by sweep.</p>
+    </div>
+
+    <div>
+      <div class="ppi-wrap">
+        <canvas id="ppi" width="760" height="760" aria-label="Plan position indicator radar display"></canvas>
+        <div class="ppi-status">
+          <span id="stTargets">TGTS 0</span>
+          <span id="stBearing">BRG 000°</span>
+          <span id="stScale">RNG 100 KM · RINGS 25 KM</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">This demo simplifies reality: every target is always detected, there's no clutter, no noise and no missed scans. It exists to make the geometry and the update rate intuitive — the rest of the radar section covers what makes real detection hard.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="bar">
+    <span>© James Yates · jamesyates.co.uk</span>
+    <span>Provided as-is for education — verify against the applicable standard.</span><a href="../radar.html">Back to Radar</a>
+  </div>
+</footer>
+
+<script>
+document.documentElement.dataset.theme = "";
+
+const $ = id => document.getElementById(id);
+const canvas = $("ppi");
+const ctx = canvas.getContext("2d");
+const SIZE = canvas.width, CX = SIZE/2, CY = SIZE/2, RADIUS = SIZE/2 - 20;
+
+/* persistent layer for blips (so afterglow fading is independent of overlay) */
+const blipLayer = document.createElement("canvas");
+blipLayer.width = SIZE; blipLayer.height = SIZE;
+const bctx = blipLayer.getContext("2d");
+
+let sweepDeg = 0, lastTime = null, paused = false;
+let displayRangeKm = 100;
+let targets = [];
+
+function ringStepKm(){ return displayRangeKm / 4; }
+
+$("rpm").addEventListener("input", () => $("rpmVal").textContent = $("rpm").value);
+$("glow").addEventListener("input", () => {
+  const g = +$("glow").value;
+  $("glowVal").textContent = g <= 3 ? "short" : g <= 7 ? "medium" : "long";
+});
+$("scale").addEventListener("input", () => {
+  displayRangeKm = +$("scale").value;
+  $("scaleVal").textContent = displayRangeKm;
+  $("stScale").textContent = `RNG ${displayRangeKm} KM · RINGS ${ringStepKm()} KM`;
+  bctx.clearRect(0, 0, SIZE, SIZE);
+});
+
+$("addBtn").addEventListener("click", () => {
+  const bearing = Math.random() * 360;
+  const range = displayRangeKm * (0.25 + Math.random() * 0.65);
+  addTarget(bearing, range);
+});
+$("clearBtn").addEventListener("click", () => {
+  targets = [];
+  bctx.clearRect(0, 0, SIZE, SIZE);
+  $("stTargets").textContent = "TGTS 0";
+});
+$("pauseBtn").addEventListener("click", () => {
+  paused = !paused;
+  $("pauseBtn").textContent = paused ? "Resume" : "Pause";
+  if (!paused){ lastTime = null; requestAnimationFrame(frame); }
+});
+
+function addTarget(bearingDeg, rangeKm){
+  const b = bearingDeg * Math.PI/180;
+  targets.push({
+    x: rangeKm * Math.sin(b),               // km east
+    y: rangeKm * Math.cos(b),               // km north
+    heading: Math.random() * 2 * Math.PI,
+    speed: 120 + Math.random() * 180,       // m/s (roughly 230–580 kt)
+    lastPainted: -999
+  });
+  $("stTargets").textContent = "TGTS " + targets.length;
+}
+
+canvas.addEventListener("pointerdown", evt => {
+  const r = canvas.getBoundingClientRect();
+  const px = (evt.clientX - r.left) * (SIZE / r.width) - CX;
+  const py = (evt.clientY - r.top) * (SIZE / r.height) - CY;
+  const dist = Math.hypot(px, py);
+  if (dist > RADIUS) return;
+  const rangeKm = dist / RADIUS * displayRangeKm;
+  const bearing = (Math.atan2(px, -py) * 180/Math.PI + 360) % 360;
+  addTarget(bearing, rangeKm);
+});
+
+function targetBearing(t){ return (Math.atan2(t.x, t.y) * 180/Math.PI + 360) % 360; }
+function targetRange(t){ return Math.hypot(t.x, t.y); }
+
+function paintBlip(t){
+  const rangeKm = targetRange(t);
+  if (rangeKm > displayRangeKm) return;
+  const b = targetBearing(t) * Math.PI/180;
+  const rr = rangeKm / displayRangeKm * RADIUS;
+  const x = CX + rr * Math.sin(b);
+  const y = CY - rr * Math.cos(b);
+  const grd = bctx.createRadialGradient(x, y, 0, x, y, 9);
+  grd.addColorStop(0, "rgba(120, 255, 190, 1)");
+  grd.addColorStop(0.5, "rgba(60, 220, 150, .8)");
+  grd.addColorStop(1, "rgba(60, 220, 150, 0)");
+  bctx.fillStyle = grd;
+  bctx.beginPath();
+  bctx.arc(x, y, 9, 0, 2*Math.PI);
+  bctx.fill();
+}
+
+function drawStatic(){
+  ctx.strokeStyle = "rgba(70, 160, 140, .5)";
+  ctx.fillStyle = "rgba(120, 200, 180, .75)";
+  ctx.font = "12px 'IBM Plex Mono', monospace";
+  ctx.lineWidth = 1;
+  // range rings
+  for (let i = 1; i <= 4; i++){
+    ctx.beginPath();
+    ctx.arc(CX, CY, RADIUS * i/4, 0, 2*Math.PI);
+    ctx.stroke();
+    ctx.fillText((ringStepKm() * i) + "km", CX + 4, CY - RADIUS * i/4 + 14);
+  }
+  // bearing spokes every 30 degrees
+  for (let d = 0; d < 360; d += 30){
+    const a = d * Math.PI/180;
+    ctx.beginPath();
+    ctx.moveTo(CX + Math.sin(a) * RADIUS * 0.06, CY - Math.cos(a) * RADIUS * 0.06);
+    ctx.lineTo(CX + Math.sin(a) * RADIUS, CY - Math.cos(a) * RADIUS);
+    ctx.globalAlpha = 0.35;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    const lx = CX + Math.sin(a) * (RADIUS + 12);
+    const ly = CY - Math.cos(a) * (RADIUS + 12);
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(String(d).padStart(3, "0"), lx, ly);
+  }
+  ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+}
+
+function frame(ts){
+  if (paused) return;
+  if (lastTime === null) lastTime = ts;
+  const dt = Math.min(0.1, (ts - lastTime) / 1000);
+  lastTime = ts;
+
+  const rpm = +$("rpm").value;
+  const degPerSec = rpm * 6;
+  const prevSweep = sweepDeg;
+  sweepDeg = (sweepDeg + degPerSec * dt) % 360;
+  $("stBearing").textContent = "BRG " + String(Math.floor(sweepDeg)).padStart(3, "0") + "°";
+
+  // move targets (km positions, speed in m/s)
+  targets.forEach(t => {
+    t.x += Math.sin(t.heading) * t.speed * dt / 1000;
+    t.y += Math.cos(t.heading) * t.speed * dt / 1000;
+  });
+
+  // paint blips as sweep crosses their bearing
+  targets.forEach(t => {
+    const b = targetBearing(t);
+    const crossed = prevSweep <= sweepDeg
+      ? (b > prevSweep && b <= sweepDeg)
+      : (b > prevSweep || b <= sweepDeg);
+    if (crossed) paintBlip(t);
+  });
+
+  // fade the blip layer (afterglow)
+  const glow = +$("glow").value;                    // 1..10
+  const fadePerSec = 1.6 / glow;                    // higher glow = slower fade
+  bctx.globalCompositeOperation = "destination-out";
+  bctx.fillStyle = `rgba(0, 0, 0, ${Math.min(0.9, fadePerSec * dt)})`;
+  bctx.fillRect(0, 0, SIZE, SIZE);
+  bctx.globalCompositeOperation = "source-over";
+
+  // compose display
+  ctx.fillStyle = "#04120c";
+  ctx.fillRect(0, 0, SIZE, SIZE);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(CX, CY, RADIUS, 0, 2*Math.PI);
+  ctx.clip();
+  ctx.fillStyle = "#02140c";
+  ctx.fillRect(0, 0, SIZE, SIZE);
+  ctx.drawImage(blipLayer, 0, 0);
+
+  // sweep wedge with trailing glow
+  const a = sweepDeg * Math.PI/180;
+  const grad = ctx.createConicGradient ? (() => {
+    const g = ctx.createConicGradient(a - Math.PI/2, CX, CY);
+    g.addColorStop(0, "rgba(90, 255, 170, .55)");
+    g.addColorStop(0.06, "rgba(90, 255, 170, 0)");
+    g.addColorStop(1, "rgba(90, 255, 170, 0)");
+    return g;
+  })() : "rgba(90,255,170,.12)";
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(CX, CY);
+  ctx.arc(CX, CY, RADIUS, a - Math.PI/2 - 0.6, a - Math.PI/2 + 0.02);
+  ctx.closePath();
+  ctx.fill();
+  // sweep line
+  ctx.strokeStyle = "rgba(150, 255, 200, .95)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(CX, CY);
+  ctx.lineTo(CX + Math.sin(a) * RADIUS, CY - Math.cos(a) * RADIUS);
+  ctx.stroke();
+  ctx.restore();
+
+  drawStatic();
+  requestAnimationFrame(frame);
+}
+
+/* start with three aircraft so the screen is alive immediately */
+addTarget(40, 60); addTarget(160, 35); addTarget(285, 80);
+$("stScale").textContent = `RNG ${displayRangeKm} KM · RINGS ${ringStepKm()} KM`;
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thermal Cycle Duration — James Yates</title>
+<meta name="description" content="Estimate total chamber time for a thermal cycling test from temperature extremes, ramp rate, dwell times and cycle count.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/v2.css">
+<link rel="stylesheet" href="../assets/v2-tools.css">
+</head>
+<body>
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="../index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="../emc.html">EMC</a>
+      <a href="../antenna.html">Antennas</a>
+      <a href="../radar.html">Radar</a>
+      <a href="../environmental.html" aria-current="page">Space</a>
+      <a href="../leadership.html">Leadership</a>
+      <a href="../fitness.html">Personal</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../environmental.html">Space Qualification</a><span>/</span>Thermal Cycle Duration</nav>
+
+  <p class="kicker">Space Qualification — Tool</p>
+
+  <h1>Thermal cycle duration</h1>
+  <p class="intro">"How long will the thermal test take?" is the first question every schedule asks. The honest answer is ramps plus dwells plus the overhead nobody writes down — stabilisation checks, functional tests at temperature, and getting back to ambient at the end.</p>
+
+  <div class="tool-layout">
+    <div class="panel" aria-label="Inputs">
+      <h2>Inputs</h2>
+      <div class="field"><label for="tHot">Hot temperature (°C)</label><input type="number" id="tHot" value="70" step="any"></div>
+      <div class="field"><label for="tCold">Cold temperature (°C)</label><input type="number" id="tCold" value="-40" step="any"></div>
+      <div class="field"><label for="ramp">Ramp rate (°C/min)</label><input type="number" id="ramp" value="3" min="0.01" step="any"><small>Chamber capability with the EUT's thermal mass inside — usually slower than the empty-chamber spec.</small></div>
+      <div class="field"><label for="dwellH">Dwell at hot (min)</label><input type="number" id="dwellH" value="60" min="0" step="any"></div>
+      <div class="field"><label for="dwellC">Dwell at cold (min)</label><input type="number" id="dwellC" value="60" min="0" step="any"></div>
+      <div class="field"><label for="cycles">Number of cycles</label><input type="number" id="cycles" value="8" min="1" step="1"></div>
+      <div class="field"><label for="ovh">Overhead per cycle (min)</label><input type="number" id="ovh" value="20" min="0" step="any"><small>Stabilisation criteria, functional checks, data review.</small></div>
+    </div>
+    <div class="panel" aria-label="Results">
+      <h2>Result</h2>
+      <div class="results">
+        <div class="result-row"><span class="rlabel">Total duration</span><span class="rvalue big" id="total">—</span></div>
+        <div class="result-row"><span class="rlabel">Per cycle</span><span class="rvalue" id="perCycle">—</span></div>
+        <div class="result-row"><span class="rlabel">Ramp time per cycle</span><span class="rvalue" id="rampT">—</span></div>
+        <div class="result-row"><span class="rlabel">Temperature swing</span><span class="rvalue" id="swing">—</span></div>
+        <div class="result-row"><span class="rlabel">Working days (8 h attended)</span><span class="rvalue" id="days">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">Assumes two ramps per cycle (up and down) at the stated rate and excludes initial pull-down from ambient and final return — add one extra half-cycle if you need door-to-door time. Dwell clocks normally start at stabilisation, not at chamber setpoint, so keep the overhead figure honest.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="bar">
+    <span>© James Yates — jamesyates.co.uk</span>
+    <span>Provided as-is for education — verify against the applicable standard.</span><a href="../environmental.html">Back to Space Qualification</a>
+  </div>
+</footer>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+["tHot","tCold","ramp","dwellH","dwellC","cycles","ovh"].forEach(id => $(id).addEventListener("input", run));
+function fmtDur(min){
+  if (min < 60) return min.toFixed(0) + " min";
+  const h = min/60;
+  if (h < 48) return h.toFixed(1) + " h";
+  return (h/24).toFixed(1) + " days";
+}
+function run(){
+  const hot = parseFloat($("tHot").value), cold = parseFloat($("tCold").value);
+  const ramp = parseFloat($("ramp").value), dh = parseFloat($("dwellH").value), dc = parseFloat($("dwellC").value);
+  const n = parseInt($("cycles").value), ovh = parseFloat($("ovh").value);
+  if (![hot,cold,ramp,dh,dc,n,ovh].every(isFinite) || ramp <= 0 || n < 1 || hot <= cold) return;
+  const swing = hot - cold;
+  const rampT = 2 * swing / ramp;
+  const per = rampT + dh + dc + ovh;
+  const total = per * n;
+  $("swing").textContent = swing.toFixed(0) + " °C";
+  $("rampT").textContent = fmtDur(rampT);
+  $("perCycle").textContent = fmtDur(per);
+  $("total").textContent = fmtDur(total);
+  $("days").textContent = (total/60/8).toFixed(1);
+}
+run();
+</script>
+</body>
+</html>

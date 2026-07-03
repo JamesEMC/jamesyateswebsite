@@ -1,105 +1,57 @@
 {
-  "updated": "2026-06-25",
+  "updated": "2026-06-22",
   "metrics": [
     {
       "key": "pullups",
       "label": "Pull-ups",
       "unit": "reps",
-      "description": "Pulling strength marker for walls, ropes and obstacle control.",
+      "goal": 12,
+      "description": "Strict pull-up progress toward stronger obstacle control.",
       "values": [
-        {
-          "date": "2026-06-13",
-          "value": 6,
-          "display": "6 reps",
-          "detail": "Sets: 6, 4, 3, 3. Total 16."
-        },
-        {
-          "date": "2026-06-23",
-          "value": 10,
-          "display": "10 reps",
-          "detail": "Bonus set after leg session."
-        },
-        {
-          "date": "2026-06-24",
-          "value": 8,
-          "display": "8 reps",
-          "detail": "Sets: 8, 6, 3. Total 17. Done after row in heat."
-        }
+        { "date": "2026-04-01", "value": 5 },
+        { "date": "2026-04-20", "value": 6 },
+        { "date": "2026-05-10", "value": 7 },
+        { "date": "2026-06-08", "value": 6 }
       ]
     },
     {
       "key": "burpees30",
       "label": "30 burpees",
       "unit": "min",
+      "goal": 3.0,
       "lowerIsBetter": true,
-      "description": "Conditioning marker for repeated effort under fatigue.",
+      "description": "Conditioning marker for fast recovery under fatigue.",
       "values": [
-        {
-          "date": "2026-06-13",
-          "value": 3.92,
-          "display": "3:55",
-          "detail": "30 burpees split as 3 sets of 10."
-        }
+        { "date": "2026-04-01", "value": 4.8 },
+        { "date": "2026-04-20", "value": 4.4 },
+        { "date": "2026-05-10", "value": 4.15 },
+        { "date": "2026-06-08", "value": 3.92 }
       ]
     },
     {
       "key": "latpulldown",
       "label": "Lat pulldown",
-      "unit": "kg",
-      "description": "Back-strength support work for pulling and climbing capacity.",
+      "unit": "kg x 10",
+      "goal": 60,
+      "description": "Back strength to support climbing and carries.",
       "values": [
-        {
-          "date": "2026-06-13",
-          "value": 50,
-          "display": "50kg x 10",
-          "detail": "Then 45kg x 10 x 2."
-        },
-        {
-          "date": "2026-06-24",
-          "value": 45,
-          "display": "45kg x 10",
-          "detail": "3 sets of 10."
-        }
+        { "date": "2026-04-01", "value": 40 },
+        { "date": "2026-04-20", "value": 45 },
+        { "date": "2026-05-10", "value": 50 },
+        { "date": "2026-06-08", "value": 50 }
       ]
     },
     {
-      "key": "deadhang",
-      "label": "Dead hang",
+      "key": "hangraise",
+      "label": "Hanging raises",
       "unit": "sec",
-      "description": "Grip endurance marker for hanging obstacles and fatigue resistance.",
+      "goal": 45,
+      "description": "Grip and trunk control under hanging fatigue.",
       "values": [
-        {
-          "date": "2026-06-13",
-          "value": 30,
-          "display": "30 sec",
-          "detail": "3 sets reaching 30 seconds."
-        },
-        {
-          "date": "2026-06-24",
-          "value": 40,
-          "display": "40 sec",
-          "detail": "Sets: 40s, 35s, 30s. Total 105 seconds."
-        }
-      ]
-    },
-    {
-      "key": "hanginglegraises",
-      "label": "Hanging leg raises",
-      "unit": "reps",
-      "description": "Core and hanging-control marker, especially when grip is already tired.",
-      "values": [
-        {
-          "date": "2026-06-13",
-          "value": 12,
-          "display": "12 reps",
-          "detail": "3 sets of 12."
-        },
-        {
-          "date": "2026-06-24",
-          "value": 10,
-          "display": "10 reps",
-          "detail": "Sets: 10, 6, 10. Grip was limiting."
-        }
+        { "date": "2026-04-01", "value": 20 },
+        { "date": "2026-04-20", "value": 24 },
+        { "date": "2026-05-10", "value": 28 },
+        { "date": "2026-06-08", "value": 30 }
       ]
     }
   ]

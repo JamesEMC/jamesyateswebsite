@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Random Vibration gRMS — James Yates</title>
+<meta name="description" content="Integrate a random vibration PSD profile from breakpoints to get the overall gRMS, with correct log-log slope handling.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/v2.css">
+<link rel="stylesheet" href="../assets/v2-tools.css">
+</head>
+<body>
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="../index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="../emc.html">EMC</a>
+      <a href="../antenna.html">Antennas</a>
+      <a href="../radar.html">Radar</a>
+      <a href="../environmental.html" aria-current="page">Space</a>
+      <a href="../leadership.html">Leadership</a>
+      <a href="../fitness.html">Personal</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../environmental.html">Space Qualification</a><span>/</span>Random Vibration gRMS</nav>
+
+  <p class="kicker">Space Qualification — Tool</p>
+
+  <h1>Random vibration g<sub>RMS</sub></h1>
+  <p class="intro">A random vibration spec is a set of PSD breakpoints — frequency against g²/Hz. The overall severity is the square root of the area under that curve, integrated properly on log–log axes where the segments are straight lines, not the flat trapezoids a spreadsheet would give you.</p>
+
+  <div class="tool-layout">
+    <div class="panel" aria-label="PSD breakpoints">
+      <h2>PSD breakpoints</h2>
+      <table class="data" id="bpTable">
+        <thead><tr><th>Hz</th><th>g²/Hz</th><th></th></tr></thead>
+        <tbody id="bpBody"></tbody>
+      </table>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn" id="addRow" type="button">Add breakpoint</button>
+        <button class="btn" id="navmat" type="button">NAVMAT example</button>
+      </div>
+    </div>
+    <div>
+      <div class="panel" aria-label="Result">
+        <h2>Result</h2>
+        <div class="results">
+          <div class="result-row"><span class="rlabel">Overall level</span><span class="rvalue big" id="grms">—</span></div>
+          <div class="result-row"><span class="rlabel">3σ peak (rule of thumb)</span><span class="rvalue" id="g3s">—</span></div>
+          <div class="result-row"><span class="rlabel">Bandwidth</span><span class="rvalue" id="bw">—</span></div>
+        </div>
+      </div>
+      <div class="viz" aria-label="PSD profile plot"><svg id="psd" viewBox="0 0 720 320"></svg></div>
+    </div>
+  </div>
+
+  <p class="note">Slopes between breakpoints are treated as constant dB/octave, the standard convention. The 3σ figure is the usual planning shorthand for peak demand; the underlying Gaussian process exceeds it about 0.3 % of the time.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="bar">
+    <span>© James Yates — jamesyates.co.uk</span>
+    <span>Provided as-is for education — verify against the applicable standard.</span><a href="../environmental.html">Back to Space Qualification</a>
+  </div>
+</footer>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+let rows = [[20, 0.01], [80, 0.04], [350, 0.04], [2000, 0.007]];
+
+function renderTable(){
+  $("bpBody").innerHTML = rows.map((r, i) => `
+    <tr>
+      <td><input type="number" data-i="${i}" data-k="0" value="${r[0]}" min="0.1" step="any" style="width:90px;padding:6px 8px;border:1px solid var(--line-strong);background:var(--paper);font:500 .88rem var(--font-mono)"></td>
+      <td><input type="number" data-i="${i}" data-k="1" value="${r[1]}" min="0" step="any" style="width:110px;padding:6px 8px;border:1px solid var(--line-strong);background:var(--paper);font:500 .88rem var(--font-mono)"></td>
+      <td><button class="btn" data-del="${i}" type="button" style="padding:5px 10px">×</button></td>
+    </tr>`).join("");
+}
+$("bpBody").addEventListener("input", e => {
+  const i = +e.target.dataset.i, k = +e.target.dataset.k;
+  if (isFinite(i) && isFinite(k)){ rows[i][k] = parseFloat(e.target.value); calc(); }
+});
+$("bpBody").addEventListener("click", e => {
+  const d = e.target.dataset.del;
+  if (d !== undefined && rows.length > 2){ rows.splice(+d, 1); renderTable(); calc(); }
+});
+$("addRow").addEventListener("click", () => {
+  const last = rows[rows.length-1];
+  rows.push([last[0]*1.5, last[1]]);
+  renderTable(); calc();
+});
+$("navmat").addEventListener("click", () => {
+  rows = [[20, 0.01], [80, 0.04], [350, 0.04], [2000, 0.007]];
+  renderTable(); calc();
+});
+
+function area(f1, p1, f2, p2){
+  /* log-log segment: PSD = p1 (f/f1)^m */
+  const m = Math.log10(p2/p1) / Math.log10(f2/f1);
+  if (Math.abs(m + 1) < 1e-9) return p1 * f1 * Math.log(f2/f1);
+  return p1 / Math.pow(f1, m) * (Math.pow(f2, m+1) - Math.pow(f1, m+1)) / (m + 1);
+}
+
+function calc(){
+  const pts = rows.filter(r => r.every(v => isFinite(v) && v > 0)).sort((a,b) => a[0]-b[0]);
+  if (pts.length < 2){ $("grms").textContent = "—"; return; }
+  let sum = 0;
+  for (let i = 1; i < pts.length; i++) sum += area(pts[i-1][0], pts[i-1][1], pts[i][0], pts[i][1]);
+  const g = Math.sqrt(sum);
+  $("grms").textContent = g.toPrecision(4) + " gRMS";
+  $("g3s").textContent = (3*g).toPrecision(4) + " g";
+  $("bw").textContent = pts[0][0] + " – " + pts[pts.length-1][0] + " Hz";
+  draw(pts);
+}
+
+function draw(pts){
+  const W = 720, H = 320, L = 64, R = 20, T = 16, B = 42;
+  const iw = W-L-R, ih = H-T-B;
+  const fLo = pts[0][0], fHi = pts[pts.length-1][0];
+  const ps = pts.map(p => p[1]);
+  const pLo = Math.min(...ps)/3, pHi = Math.max(...ps)*3;
+  const x = f => L + iw*(Math.log10(f)-Math.log10(fLo))/(Math.log10(fHi)-Math.log10(fLo));
+  const y = p => T + ih*(Math.log10(pHi)-Math.log10(p))/(Math.log10(pHi)-Math.log10(pLo));
+  let s = "";
+  for (let d = Math.ceil(Math.log10(fLo)); d <= Math.floor(Math.log10(fHi)); d++){
+    s += `<line x1="${x(10**d)}" y1="${T}" x2="${x(10**d)}" y2="${H-B}" stroke="#1f2b30"/>`;
+    s += `<text x="${x(10**d)}" y="${H-B+16}" text-anchor="middle" fill="#8b96a0" font-size="11" font-family="IBM Plex Mono">${10**d}</text>`;
+  }
+  for (let d = Math.ceil(Math.log10(pLo)); d <= Math.floor(Math.log10(pHi)); d++){
+    s += `<line x1="${L}" y1="${y(10**d)}" x2="${W-R}" y2="${y(10**d)}" stroke="#1f2b30"/>`;
+    s += `<text x="${L-6}" y="${y(10**d)+4}" text-anchor="end" fill="#8b96a0" font-size="11" font-family="IBM Plex Mono">${10**d}</text>`;
+  }
+  s += `<line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="#3a4a52"/><line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="#3a4a52"/>`;
+  s += `<text x="${W-R}" y="${H-6}" text-anchor="end" fill="#8b96a0" font-size="11" font-family="IBM Plex Mono">Hz →</text>`;
+  s += `<text x="${L-52}" y="${T+2}" fill="#8b96a0" font-size="11" font-family="IBM Plex Mono">g²/Hz</text>`;
+  let d2 = "";
+  pts.forEach((p, i) => { d2 += (i ? "L" : "M") + x(p[0]).toFixed(1) + " " + y(p[1]).toFixed(1) + " "; });
+  s += `<path d="${d2}" fill="none" stroke="#35c6d8" stroke-width="2.4"/>`;
+  pts.forEach(p => { s += `<circle cx="${x(p[0])}" cy="${y(p[1])}" r="4" fill="#35c6d8"/>`; });
+  $("psd").innerHTML = s;
+}
+
+renderTable(); calc();
+</script>
+</body>
+</html>

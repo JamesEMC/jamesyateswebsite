@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Antennas — James Yates</title>
-<meta name="description" content="Practical antenna tools: field region plotting, guided beamwidth digitising and polarisation animation, with notes from real range and test experience.">
+<title>Radar — James Yates</title>
+<meta name="description" content="Radar fundamentals explained in plain language — the range equation, Doppler and PRF — with interactive calculators and a working PPI display.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,8 +43,8 @@
     <a class="wordmark" href="index.html">James Yates</a>
     <nav class="nav" aria-label="Site">
       <a href="emc.html">EMC</a>
-      <a href="antenna.html" aria-current="page">Antennas</a>
-      <a href="radar.html">Radar</a>
+      <a href="antenna.html">Antennas</a>
+      <a href="radar.html" aria-current="page">Radar</a>
       <a href="environmental.html">Space</a>
       <a href="leadership.html">Leadership</a>
       <a href="fitness.html">Personal</a>
@@ -55,35 +55,37 @@
 
   <div class="sec-hero">
     <div class="wrap">
-      <p class="eyebrow">02 — Antennas</p>
-      <h1 class="reveal in">Ranges, regions and <em>practical geometry.</em></h1>
-      <p class="lede reveal in">Which field region a test distance sits in, and how to pull real numbers out of a manufacturer's beamwidth plot — the practical side of antennas in test work. A rebuilt polarisation and aperture-coupling explainer is in the workshop.</p>
+      <p class="eyebrow">03 — Radar Fundamentals</p>
+      <h1 class="reveal in">From the pulse out to <em>the blip.</em></h1>
+      <p class="lede reveal in">My first job in engineering was an apprenticeship at QinetiQ Aberporth, where radar tracked aircraft and targets across a weapons test range. This section explains the fundamentals the way I wish someone had explained them to me — plain language, with interactive tools so you can see how the numbers behave.</p>
     </div>
   </div>
 
   <section class="tight">
+    <div class="wrap prose">
+      <p class="eyebrow reveal">The basic idea</p>
+      <h2 class="reveal">Shout, then listen for the echo.</h2>
+      <p class="reveal">The radar transmits a short, powerful burst of radio energy — a pulse — then goes quiet and listens. If the pulse hits something, a tiny fraction reflects back. Radio waves travel about <strong>300 metres every microsecond</strong>, and the pulse travels out <em>and</em> back, so every microsecond of echo delay means roughly 150 metres of range. Everything else in radar exists to answer three questions about that echo: how far (timing), which direction (where the antenna was pointing), and how fast (the Doppler shift in the echo's frequency).</p>
+      <p class="reveal">The surprise is how faint the echo is. The pulse spreads as it travels, and the reflection spreads again on the way back — so received power falls with the <strong>fourth power of range</strong>. Double the distance and the echo returns sixteen times weaker. That's why transmitters are measured in kilowatts while receivers strain for millionths of a millionth of a watt, and it's what the range equation is for.</p>
+    </div>
+  </section>
+
+  <section class="tight" style="padding-top:0">
     <div class="wrap">
       <p class="eyebrow reveal">Tools</p>
       <div class="tool-index">
-        <a class="ti reveal" href="antenna/antenna-region-plotter.html"><span class="num">01</span><span><h3>Antenna Region Plotter</h3><p>Reactive, transition and Fraunhofer far-field regions against frequency, antenna size and test distance.</p></span><span class="go">Open →</span></a>
-        <a class="ti reveal" href="antenna/frequency-beamwidth-reader.html"><span class="num">02</span><span><h3>Frequency Beamwidth Reader</h3><p>Digitise E- and H-plane beamwidth curves from a datasheet plot in four guided steps, then export CSV.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="radar/radar-range-equation.html"><span class="num">01</span><span><h3>Radar Range Equation</h3><p>Predict maximum detection range from power, gain, frequency and target size — and see the R⁴ law bite.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="radar/doppler-shift.html"><span class="num">02</span><span><h3>Doppler Shift Calculator</h3><p>Target speed into frequency shift, with an interactive angle diagram showing why geometry matters.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="radar/prf-and-ambiguity.html"><span class="num">03</span><span><h3>PRF &amp; Ambiguity Explorer</h3><p>Unambiguous range, blind speeds, resolution and duty cycle — with a live pulse-train timing diagram.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="radar/ppi-display.html"><span class="num">04</span><span><h3>PPI Display Demo</h3><p>A working scope: rotating sweep, phosphor afterglow, range rings, and targets you place yourself.</p></span><span class="go">Open →</span></a>
       </div>
     </div>
   </section>
 
   <section class="dark">
     <div class="wrap">
-      <p class="eyebrow reveal">Hard-won</p>
-      <blockquote class="pull reveal">The antenna doesn't care what the datasheet says — it cares where you <strong>put it.</strong></blockquote>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap prose">
-      <p class="eyebrow reveal">Where it comes from</p>
-      <h2 class="reveal">From tracking radars to near-field ranges.</h2>
-      <p class="reveal">My first antennas were part of the radar systems at QinetiQ Aberporth, tracking aircraft entering a weapons test range and pulling telemetry from targets and payloads. At Powerlink the scale shrank to the bench: RF amplifiers, tuning, and test equipment you could hold.</p>
-      <p class="reveal">Airbus brought my first planar range and pulled antenna measurement, EMC and spacecraft qualification together. At Mangata, as Director of Environmental Test, that turned into working with suppliers on how a spherical near-field range could be built into a satellite test facility in Scotland — antenna measurement not as a test, but as a building.</p>
+      <p class="eyebrow reveal">The compromise every radar makes</p>
+      <blockquote class="pull reveal">Send pulses slowly and you see far but judge speed poorly. Send them fast and it flips. <strong>There is no free lunch</strong> — only PRFs.</blockquote>
     </div>
   </section>
 
