@@ -277,5 +277,6 @@ let val={peak:68,avg:48.2,rms:52.4,qp:57.3}[det];$('detVal').textContent=val.toF
 $('jump').addEventListener('change',e=>$(e.target.value).scrollIntoView({behavior:'smooth'}));['rbw','spacing'].forEach(id=>$(id).addEventListener('input',drawTwo));$('noiseBw').addEventListener('input',drawNoise);document.querySelectorAll('#bandButtons button').forEach(btn=>btn.addEventListener('click',e=>{document.querySelectorAll('#bandButtons button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');bandIndex=+btn.dataset.b;drawImpulse();}));document.querySelectorAll('#detButtons button').forEach(btn=>btn.addEventListener('click',e=>{document.querySelectorAll('#detButtons button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');det=btn.dataset.d;drawDet();}));
 window.addEventListener('resize',()=>{drawTwo();drawNoise();drawBw();drawImpulse();drawDet();});drawTwo();drawNoise();drawBw();drawImpulse();drawDet();
 </script>
+<script src="../assets/report.js" defer></script>
 </body>
 </html>

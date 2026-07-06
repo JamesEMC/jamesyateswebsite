@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beam Coverage Animator — James Yates</title>
+<meta name="description" content="Animate a horn antenna's beam cross-section across its frequency band and find the worst-case beamwidth and illumination coverage at your test distance.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/v2.css">
+<link rel="stylesheet" href="../assets/v2-tools.css">
+<style>
+.beam text { font: 12px "IBM Plex Mono", monospace; fill: #8b96a0; }
+.beam .ref { fill: none; stroke: #24333a; stroke-width: 1; }
+.beam .reflab { fill: #5b6d76; font-size: 10px; }
+.beam .oval { fill: rgba(53, 198, 216, .14); stroke: #35c6d8; stroke-width: 2.4; }
+.beam .cross { stroke: #3a4a52; stroke-width: 1; }
+.beam .dim { stroke: #d98a45; stroke-width: 1.4; }
+.beam .dimlab { fill: #d98a45; }
+.spark text { font: 10px "IBM Plex Mono", monospace; fill: #8b96a0; }
+.spark .e { fill: none; stroke: #35c6d8; stroke-width: 1.8; }
+.spark .h { fill: none; stroke: #d98a45; stroke-width: 1.8; }
+.spark .cur { stroke: #eef3f3; stroke-width: 1; stroke-dasharray: 3 4; }
+.spark .band { fill: rgba(53, 198, 216, .06); }
+.playrow { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.playrow input[type="range"] { flex: 1; accent-color: var(--accent); }
+.legend2 { display: flex; gap: 20px; font: 500 .74rem var(--font-mono); color: var(--muted); margin-top: 8px; }
+.legend2 .e::before { content: "— "; color: #0d6e79; font-weight: 700; }
+.legend2 .h::before { content: "— "; color: #b3541e; font-weight: 700; }
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="../index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="../emc.html">EMC</a>
+      <a href="../antenna.html" aria-current="page">Antennas</a>
+      <a href="../radar.html">Radar</a>
+      <a href="../environmental.html">Space</a>
+      <a href="../leadership.html">Leadership</a>
+      <a href="../fitness.html">Personal</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../antenna.html">Antennas</a><span>/</span>Beam Coverage Animator</nav>
+
+  <p class="kicker">Antennas — Tool</p>
+  <h1>Beam coverage animator</h1>
+  <p class="intro">A horn's beam isn't one shape — it breathes across the band, and it's rarely round. This tool animates the 3 dB beam cross-section from real manufacturer data (E-plane sets the height, H-plane the width), then answers the planning question: over your sweep, what's the worst-case beamwidth, and how much of the target does that actually illuminate at your distance?</p>
+
+  <div class="tool-layout">
+    <div class="panel" aria-label="Inputs">
+      <h2>Inputs</h2>
+      <div class="field">
+        <label for="ant">Antenna</label>
+        <select id="ant"></select>
+        <small id="antNote"></small>
+      </div>
+      <div class="field">
+        <label for="fStart">Sweep start (GHz)</label>
+        <input type="number" id="fStart" step="any">
+      </div>
+      <div class="field">
+        <label for="fStop">Sweep stop (GHz)</label>
+        <input type="number" id="fStop" step="any">
+      </div>
+      <div class="field">
+        <label for="dist">Distance to target (m)</label>
+        <input type="number" id="dist" value="1" min="0.05" step="any">
+      </div>
+      <div class="results" style="margin-top:16px">
+        <div class="result-row"><span class="rlabel">Worst-case beamwidth in sweep</span><span class="rvalue big" id="minBW">—</span></div>
+        <div class="result-row"><span class="rlabel">Occurs at</span><span class="rvalue" id="minAt">—</span></div>
+        <div class="result-row"><span class="rlabel">Coverage at distance (worst case)</span><span class="rvalue big" id="minCov">—</span></div>
+      </div>
+      <div style="margin-top:18px">
+        <button class="btn" id="exportBtn" type="button" style="width:100%">Export report</button>
+        <small style="display:block;margin-top:8px;color:var(--faint);font-size:.76rem">Opens a print-ready report — save as PDF from the print dialog.</small>
+      </div>
+    </div>
+
+    <div>
+      <div class="viz beam" aria-label="Animated beam cross-section">
+        <svg id="beam" viewBox="0 0 720 430"></svg>
+      </div>
+      <div class="playrow">
+        <button class="btn" id="play" type="button">Pause</button>
+        <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Frequency scrub">
+        <span style="font:500 .82rem var(--font-mono);color:var(--muted);min-width:150px;text-align:right" id="fReadout">—</span>
+      </div>
+      <div class="viz spark" style="margin-top:14px" aria-label="Beamwidth against frequency with sweep cursor">
+        <svg id="spark" viewBox="0 0 720 170"></svg>
+      </div>
+      <div class="legend2"><span class="e">E-plane (height)</span><span class="h">H-plane (width)</span></div>
+    </div>
+  </div>
+
+  <section class="section explain">
+    <h2>Reading the result</h2>
+    <p>The oval is the beam's −3 dB contour: inside it the field is within half power of boresight; outside, it falls away fast. The <strong>worst-case beamwidth</strong> is the smallest of the E- and H-plane values anywhere in your sweep — the frequency where the beam is tightest is the frequency that decides your setup, because every point on the target must be covered at <em>every</em> frequency of the test.</p>
+    <p>Coverage converts that angle to metres on a flat target: <span style="font-family:var(--font-mono)">coverage = 2 · d · tan(θ/2)</span>. Try the 3115 across its full 0.75–18 GHz band at 1 m — the answer is a strip barely 16 cm wide, set by the top end of the band where the beam is narrowest. That's why RS103 setups over wide bands need multiple antenna positions or a band split, and why "the antenna covers the EUT" is a claim that has to be checked per band, not per test.</p>
+    <p class="aside">Curve data is digitised from manufacturer half-power beamwidth plots to about ±2°. It represents typical performance — a specific serial number, mounting arrangement and site will differ. Verify coverage for formal work against your antenna's calibration data and the applicable standard.</p>
+  </section>
+
+  <p class="note">Antenna library: ETS-Lindgren 3115, 3117, 3106, 3106B and 3144 LPDA. Mind the 3106 vs 3106B distinction — they are different antennas. More are added as plots are digitised.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="bar">
+    <span>© James Yates — jamesyates.co.uk</span>
+    <span>Provided as-is for education — verify against the applicable standard.</span><a href="../antenna.html">Back to Antennas</a>
+  </div>
+</footer>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+
+/* ============================================================
+   Antenna library — digitised from manufacturer HPBW plots.
+   Each entry: name, note, range [GHz], pts: [f_GHz, E_deg, H_deg]
+   Accuracy ~±2°. Add antennas by appending a block.
+   ============================================================ */
+const ANTENNAS = {
+  "ets3115": {
+    name: "ETS-Lindgren 3115 (double-ridged horn)",
+    note: "0.75–18 GHz double-ridged waveguide horn. Data digitised from the manufacturer's half-power beamwidth plot.",
+    fLo: 0.75, fHi: 18,
+    pts: [
+      [0.75, 86, 77], [0.85, 92, 52], [1.0, 96, 59], [1.2, 97, 55], [1.5, 78, 55],
+      [1.8, 66, 57], [2.0, 60, 57], [2.5, 52, 50], [3.0, 46, 44], [3.5, 40, 43],
+      [4.0, 38, 49], [4.5, 39, 48], [5.0, 44, 45], [5.5, 50, 44], [6.0, 55, 44],
+      [6.5, 57, 44], [7.0, 57, 44], [7.5, 55, 43], [8.0, 52, 40], [8.5, 44, 36],
+      [9.0, 33, 33], [9.2, 32, 32], [9.5, 33, 34], [10.0, 40, 37], [10.5, 45, 38],
+      [11.0, 48, 37], [11.5, 46, 37], [12.0, 44, 36.5], [12.3, 44, 36], [12.5, 44, 33],
+      [13.0, 45, 24], [13.5, 42, 15], [14.0, 38, 10], [14.5, 33, 8], [15.0, 28, 7],
+      [15.5, 22, 7], [16.0, 18, 7], [16.5, 14, 8], [17.0, 11, 9], [17.5, 10, 9], [18.0, 9, 9]
+    ]
+  },
+  "ets3117": {
+    name: "ETS-Lindgren 3117 (double-ridged horn)",
+    note: "1–18 GHz double-ridged guide horn. Digitised from the manufacturer's HPBW plot.",
+    fLo: 1, fHi: 18,
+    pts: [
+      [1.0, 80, 131], [1.15, 60, 109], [1.3, 48, 118], [1.4, 47, 125], [1.7, 60, 110],
+      [2.0, 70, 110], [2.5, 86, 95], [3.0, 76, 85], [3.5, 62, 75], [4.0, 56, 68],
+      [4.5, 55, 62], [5.0, 55, 57], [5.5, 53, 55], [5.8, 57, 54], [6.0, 55, 52],
+      [6.5, 50, 48], [7.0, 45, 44], [7.5, 42, 42], [8.0, 37, 42], [8.5, 33, 42],
+      [9.0, 32, 42], [9.5, 33, 40], [10.0, 36, 38], [10.5, 38, 37], [11.0, 37, 35],
+      [11.5, 37, 34], [12.0, 36, 33], [12.5, 36, 30], [13.0, 34, 27], [13.5, 34, 26],
+      [14.0, 36, 26], [14.3, 41, 27], [15.0, 40, 28], [15.5, 41, 27], [16.0, 38, 24],
+      [16.5, 38, 21], [17.0, 37, 18], [17.3, 25, 18], [17.6, 20, 19], [18.0, 16, 22]
+    ]
+  },
+  "ets3106": {
+    name: "ETS-Lindgren 3106 (double-ridged horn)",
+    note: "200 MHz–2 GHz double-ridged horn — note this is the original 3106, not the 3106B. Digitised from the manufacturer's HPBW plot.",
+    fLo: 0.2, fHi: 2.0,
+    pts: [
+      [0.20, 90, 78], [0.25, 75, 65], [0.30, 65, 64], [0.34, 66, 61], [0.40, 60, 51],
+      [0.45, 50, 51], [0.50, 46, 54], [0.55, 42, 51], [0.60, 40, 47], [0.65, 39, 44],
+      [0.70, 41, 41], [0.75, 40, 37], [0.80, 32, 30], [0.85, 28, 31], [0.90, 31, 33],
+      [0.95, 45, 36], [1.00, 65, 39], [1.05, 63, 38], [1.10, 56, 36], [1.15, 52, 34],
+      [1.20, 48, 30], [1.30, 51, 32], [1.40, 54, 34], [1.50, 52, 34], [1.60, 49, 37],
+      [1.70, 57, 40], [1.80, 54, 37], [1.90, 34, 25], [1.95, 36, 28], [2.00, 50, 42]
+    ]
+  },
+  "ets3106b": {
+    name: "ETS-Lindgren 3106B (double-ridged horn)",
+    note: "200 MHz–2.5 GHz double-ridged waveguide horn — the B revision, distinct from the 3106. Digitised from the manufacturer's HPBW plot.",
+    fLo: 0.2, fHi: 2.5,
+    pts: [
+      [0.20, 70, 52], [0.30, 57, 51], [0.40, 47, 51], [0.50, 42, 49], [0.55, 40, 47],
+      [0.60, 37, 43], [0.65, 36, 40], [0.70, 38, 36], [0.75, 37, 33], [0.80, 34, 30],
+      [0.85, 33, 30], [0.90, 33, 31], [0.95, 34, 34], [1.00, 56, 38], [1.10, 53, 36],
+      [1.25, 48, 34], [1.40, 49, 33], [1.50, 50, 33], [1.60, 49, 32], [1.70, 48, 31],
+      [1.80, 48, 31], [1.90, 49, 30], [2.00, 50, 30], [2.10, 50, 31], [2.25, 50, 33],
+      [2.40, 43, 26], [2.50, 38, 21]
+    ]
+  },
+  "ets3144": {
+    name: "ETS-Lindgren 3144 (log-periodic dipole array)",
+    note: "80 MHz–2 GHz LPDA. Digitised from the manufacturer's HPBW plot (log frequency axis; the plot's colours are reversed vs the horns — handled). Spiky above 1.2 GHz: treat as ±5° there.",
+    fLo: 0.08, fHi: 2.0,
+    pts: [
+      [0.08, 60, 106], [0.09, 58, 96], [0.10, 57, 98], [0.13, 56, 120], [0.16, 55, 143],
+      [0.20, 55, 153], [0.23, 53, 148], [0.26, 50, 120], [0.30, 40, 80], [0.33, 38, 60],
+      [0.35, 42, 50], [0.40, 60, 46], [0.43, 76, 50], [0.46, 74, 52], [0.50, 60, 68],
+      [0.55, 45, 80], [0.60, 45, 65], [0.65, 55, 55], [0.70, 47, 50], [0.75, 45, 55],
+      [0.80, 55, 50], [0.85, 50, 48], [0.90, 62, 50], [0.95, 50, 47], [1.00, 47, 45],
+      [1.10, 50, 42], [1.20, 45, 47], [1.25, 25, 50], [1.30, 43, 55], [1.40, 22, 45],
+      [1.50, 20, 47], [1.60, 18, 50], [1.70, 20, 48], [1.80, 20, 45], [2.00, 22, 58]
+    ]
+  }
+};
+
+/* ---------- interpolation ---------- */
+function bwAt(ant, f){
+  const p = ant.pts;
+  if (f <= p[0][0]) return { e: p[0][1], h: p[0][2] };
+  if (f >= p[p.length-1][0]) return { e: p[p.length-1][1], h: p[p.length-1][2] };
+  for (let i = 1; i < p.length; i++){
+    if (f <= p[i][0]){
+      const t = (f - p[i-1][0]) / (p[i][0] - p[i-1][0]);
+      return { e: p[i-1][1] + t*(p[i][1]-p[i-1][1]), h: p[i-1][2] + t*(p[i][2]-p[i-1][2]) };
+    }
+  }
+}
+function coverage(deg, d){ return 2 * d * Math.tan(deg * Math.PI/360); }
+
+/* ---------- setup ---------- */
+let ant = null, playing = true, frac = 0, lastTs = null;
+const SWEEP_SECONDS = 12;
+
+const sel = $("ant");
+Object.entries(ANTENNAS).forEach(([key, a]) => {
+  const o = document.createElement("option");
+  o.value = key; o.textContent = a.name;
+  sel.appendChild(o);
+});
+
+function loadAntenna(){
+  ant = ANTENNAS[sel.value];
+  ant._max = Math.max(...ant.pts.map(p => Math.max(p[1], p[2])));
+  $("antNote").textContent = ant.note;
+  $("fStart").value = ant.fLo;
+  $("fStop").value = ant.fHi;
+  frac = 0;
+  summarise();
+}
+sel.addEventListener("change", loadAntenna);
+["fStart","fStop","dist"].forEach(id => $(id).addEventListener("input", summarise));
+
+$("play").addEventListener("click", () => {
+  playing = !playing;
+  $("play").textContent = playing ? "Pause" : "Play";
+  if (playing){ lastTs = null; requestAnimationFrame(tick); }
+});
+$("scrub").addEventListener("input", () => {
+  frac = +$("scrub").value / 1000;
+  if (playing){ playing = false; $("play").textContent = "Play"; }
+  render();
+});
+
+function band(){
+  let a = parseFloat($("fStart").value), b = parseFloat($("fStop").value);
+  if (!isFinite(a)) a = ant.fLo;
+  if (!isFinite(b)) b = ant.fHi;
+  a = Math.max(ant.fLo, Math.min(ant.fHi, a));
+  b = Math.max(ant.fLo, Math.min(ant.fHi, b));
+  if (b <= a) b = Math.min(ant.fHi, a + 0.01);
+  return [a, b];
+}
+
+/* ---------- band summary: worst case ---------- */
+function summarise(){
+  const [a, b] = band();
+  const d = Math.max(0.05, parseFloat($("dist").value) || 1);
+  let worst = Infinity, at = a, plane = "E";
+  for (let i = 0; i <= 800; i++){
+    const f = a + (b - a) * i/800;
+    const { e, h } = bwAt(ant, f);
+    const m = Math.min(e, h);
+    if (m < worst){ worst = m; at = f; plane = e < h ? "E" : "H"; }
+  }
+  window._jySummary = { worst, at, plane };
+  $("minBW").textContent = worst.toFixed(1) + "°";
+  $("minAt").textContent = at.toFixed(2) + " GHz (" + plane + "-plane)";
+  const cov = coverage(worst, d);
+  $("minCov").textContent = cov >= 1 ? cov.toFixed(2) + " m" : (cov*100).toFixed(1) + " cm";
+  render();
+}
+
+/* ---------- animation ---------- */
+function tick(ts){
+  if (!playing) return;
+  if (lastTs === null) lastTs = ts;
+  frac = (frac + (ts - lastTs)/1000/SWEEP_SECONDS) % 1;
+  lastTs = ts;
+  $("scrub").value = Math.round(frac * 1000);
+  render();
+  requestAnimationFrame(tick);
+}
+
+function render(){
+  const [a, b] = band();
+  const d = Math.max(0.05, parseFloat($("dist").value) || 1);
+  const f = a + (b - a) * frac;
+  const { e, h } = bwAt(ant, f);
+  drawBeam(e, h, d, f);
+  drawSpark(a, b, f);
+  $("fReadout").textContent = f.toFixed(2) + " GHz · E " + e.toFixed(0) + "° · H " + h.toFixed(0) + "°";
+}
+
+function drawBeam(e, h, d, f){
+  const W = 720, H2 = 430, cx = W/2, cy = 200;
+  const scale = Math.min(1.9, 300 / Math.max(ant._max, 60));   /* auto-fit big beams */
+  const rx = h/2 * scale, ry = e/2 * scale;
+  let s = "";
+  /* reference circles adapt to the antenna's range */
+  [30, 60, 90, 120, 150].filter(deg => deg <= ant._max + 15).forEach(deg => {
+    const r = deg/2 * scale;
+    s += `<circle class="ref" cx="${cx}" cy="${cy}" r="${r}"/>`;
+    s += `<text class="reflab" x="${cx + r*0.7071 + 4}" y="${cy - r*0.7071 - 4}">${deg}°</text>`;
+  });
+  s += `<line class="cross" x1="${cx-150}" y1="${cy}" x2="${cx+150}" y2="${cy}"/>`;
+  s += `<line class="cross" x1="${cx}" y1="${cy-140}" x2="${cx}" y2="${cy+140}"/>`;
+  s += `<ellipse class="oval" cx="${cx}" cy="${cy}" rx="${Math.max(2, rx)}" ry="${Math.max(2, ry)}"/>`;
+  /* dimension callouts in metres at distance d */
+  const covH = coverage(h, d), covE = coverage(e, d);
+  const fm = v => v >= 1 ? v.toFixed(2) + " m" : (v*100).toFixed(1) + " cm";
+  s += `<line class="dim" x1="${cx-rx}" y1="${cy+ry+26}" x2="${cx+rx}" y2="${cy+ry+26}"/>`;
+  s += `<text class="dimlab" x="${cx}" y="${cy+ry+44}" text-anchor="middle">H ${h.toFixed(0)}° → ${fm(covH)} wide at ${d} m</text>`;
+  s += `<line class="dim" x1="${cx+rx+26}" y1="${cy-ry}" x2="${cx+rx+26}" y2="${cy+ry}"/>`;
+  s += `<text class="dimlab" x="${cx+rx+34}" y="${cy+4}">E ${e.toFixed(0)}° → ${fm(covE)}</text>`;
+  s += `<text x="24" y="30">${f.toFixed(2)} GHz — 3 dB beam cross-section (boresight view)</text>`;
+  $("beam").innerHTML = s;
+}
+
+function drawSpark(a, b, f){
+  const W = 720, H2 = 170, L = 44, R = 14, T = 12, B = 28;
+  const iw = W-L-R, ih = H2-T-B;
+  const lo = ant.fLo, hi = ant.fHi;
+  const top = Math.max(60, Math.ceil(ant._max / 30) * 30);
+  const x = fq => L + iw*(fq - lo)/(hi - lo);
+  const y = deg => T + ih*(top - deg)/top;
+  let s = `<rect class="band" x="${x(a)}" y="${T}" width="${x(b)-x(a)}" height="${ih}"/>`;
+  [0, top/2, top].forEach(g => {
+    s += `<line x1="${L}" y1="${y(g)}" x2="${W-R}" y2="${y(g)}" stroke="#24333a"/>`;
+    s += `<text x="${L-6}" y="${y(g)+3}" text-anchor="end">${g}</text>`;
+  });
+  [2,6,10,14,18].forEach(g => { if (g >= lo && g <= hi) s += `<text x="${x(g)}" y="${H2-8}" text-anchor="middle">${g}</text>`; });
+  ["e","h"].forEach((k, ki) => {
+    let d2 = "";
+    ant.pts.forEach((p, i) => { d2 += (i ? "L" : "M") + x(p[0]).toFixed(1) + " " + y(p[1+ki]).toFixed(1) + " "; });
+    s += `<path class="${k}" d="${d2}"/>`;
+  });
+  s += `<line class="cur" x1="${x(f)}" y1="${T}" x2="${x(f)}" y2="${H2-B}"/>`;
+  $("spark").innerHTML = s;
+}
+
+/* ---------- export report ---------- */
+$("exportBtn").addEventListener("click", () => {
+  const [a, b] = band();
+  const d = Math.max(0.05, parseFloat($("dist").value) || 1);
+  const wasPlaying = playing;
+  playing = false; $("play").textContent = "Play";
+  /* snap the view to the worst-case frequency so the picture matches the headline */
+  const sum = window._jySummary || { at: a };
+  frac = Math.max(0, Math.min(1, (sum.at - a) / (b - a || 1)));
+  $("scrub").value = Math.round(frac * 1000);
+  render();
+  const f = a + (b - a) * frac;
+  const { e, h } = bwAt(ant, f);
+
+  const now = new Date();
+  const stamp = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) +
+                " " + now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  const wm = "data:image/svg+xml," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="420" height="300"><text x="210" y="150" text-anchor="middle" transform="rotate(-30 210 150)" font-family="monospace" font-size="26" fill="rgba(19,22,25,0.06)">jamesyates.co.uk</text></svg>');
+
+  const w = window.open("", "_blank");
+  if (!w){ alert("Pop-up blocked — allow pop-ups for this site to export."); return; }
+  w.document.write(`<!doctype html><html><head><title>Beam Coverage Report — jamesyates.co.uk</title>
+<style>
+  body { font-family: "Segoe UI", system-ui, sans-serif; color: #131619; margin: 34px 40px;
+         background-image: url("${wm}"); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  h1 { font-size: 20px; margin: 0 0 2px; }
+  .meta { color: #64707a; font-size: 12px; margin-bottom: 18px; }
+  .brand { float: right; font: 600 13px monospace; color: #0d6e79; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 18px; font-size: 13px; }
+  th { text-align: left; color: #64707a; font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+       border-bottom: 1px solid #c3ccd0; padding: 6px 8px; }
+  td { border-bottom: 1px solid #dde3e5; padding: 6px 8px; font-family: monospace; }
+  .headline { font-size: 15px; margin: 14px 0; padding: 12px 16px; border-left: 3px solid #0d6e79; background: rgba(13,110,121,.05); }
+  .chartbox { background: #0f1416; padding: 10px; border-radius: 3px; margin: 10px 0; }
+  .chartbox svg { width: 100%; height: auto; display: block; }
+  .beam text { font: 12px monospace; fill: #8b96a0; }
+  .beam .ref { fill: none; stroke: #24333a; stroke-width: 1; }
+  .beam .reflab { fill: #5b6d76; font-size: 10px; }
+  .beam .oval { fill: rgba(53,198,216,.14); stroke: #35c6d8; stroke-width: 2.4; }
+  .beam .cross { stroke: #3a4a52; stroke-width: 1; }
+  .beam .dim { stroke: #d98a45; stroke-width: 1.4; }
+  .beam .dimlab { fill: #d98a45; }
+  .spark text { font: 10px monospace; fill: #8b96a0; }
+  .spark .e { fill: none; stroke: #35c6d8; stroke-width: 1.8; }
+  .spark .h { fill: none; stroke: #d98a45; stroke-width: 1.8; }
+  .spark .cur { stroke: #eef3f3; stroke-width: 1; stroke-dasharray: 3 4; }
+  .spark .band { fill: rgba(53,198,216,.06); }
+  .foot { margin-top: 20px; padding-top: 10px; border-top: 1px solid #c3ccd0; color: #64707a; font-size: 10.5px; }
+</style></head><body>
+  <span class="brand">jamesyates.co.uk</span>
+  <h1>Beam Coverage Report</h1>
+  <div class="meta">Generated ${stamp} · Beam Coverage Animator · jamesyates.co.uk</div>
+  <table>
+    <tr><th>Input</th><th>Value</th></tr>
+    <tr><td>Antenna</td><td>${ant.name}</td></tr>
+    <tr><td>Sweep</td><td>${a.toFixed(2)} – ${b.toFixed(2)} GHz</td></tr>
+    <tr><td>Distance to target</td><td>${d} m</td></tr>
+    <tr><td>Snapshot (worst-case frequency)</td><td>${f.toFixed(2)} GHz — E ${e.toFixed(1)}° · H ${h.toFixed(1)}°</td></tr>
+  </table>
+  <div class="headline"><b>Worst case over sweep:</b> ${$("minBW").textContent} at ${$("minAt").textContent}
+    → <b>coverage ${$("minCov").textContent}</b> at ${d} m (2·d·tan(θ/2))</div>
+  <div class="chartbox beam">${$("beam").outerHTML}</div>
+  <div class="chartbox spark">${$("spark").outerHTML}</div>
+  <div class="foot">Beamwidth data digitised from manufacturer half-power beamwidth plots (~±2°; LPDA ±5° above 1.2 GHz);
+    typical performance, not a calibration. Provided as-is for education and planning — verify against the applicable
+    standard and the specific antenna's calibration data before formal use. © James Yates · jamesyates.co.uk</div>
+  <script>window.onload = () => setTimeout(() => window.print(), 300);<\/script>
+</body></html>`);
+  w.document.close();
+  playing = wasPlaying;
+  if (playing){ $("play").textContent = "Pause"; lastTs = null; requestAnimationFrame(tick); }
+});
+
+loadAntenna();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

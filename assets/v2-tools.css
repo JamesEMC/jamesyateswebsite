@@ -159,3 +159,9 @@ table.data td { padding: 8px 10px; border-bottom: 1px solid var(--line); font-fa
 .vinc { border-top: 2px solid currentColor; padding: 6px 10px 2px; display: inline-flex; align-items: center; }
 .formula sub, .formula sup { font-size: .72em; }
 .formula .where { display: block; margin-top: 12px; font-size: .86rem; color: var(--muted); }
+
+
+/* mobile: guarantee breathing room on the left/right regardless of page-local widths */
+@media (max-width: 560px){
+  .shell { width: auto !important; margin-left: 18px !important; margin-right: 18px !important; }
+}
