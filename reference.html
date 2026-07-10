@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Test Engineering Study Deck</title>
+<meta name="description" content="A personal spaced-repetition study deck for spacecraft test engineering.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Cpath d='M8 9h16v14H8z' fill='none' stroke='%230d6e79' stroke-width='1.6'/%3E%3Cpath d='M11 13h10M11 17h7' stroke='%23131619' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&amp;family=Public+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/v2.css">
+<link rel="stylesheet" href="assets/reference.css">
+</head>
+<body>
+
+<header class="hdr study-header">
+  <div class="bar">
+    <a class="wordmark" href="index.html">James Yates</a>
+    <div class="study-header-meta">
+      <span class="save-state" id="saveState">Progress stays in this browser</span>
+      <a class="quiet-home" href="index.html">Home</a>
+    </div>
+  </div>
+</header>
+
+<main class="study-shell">
+  <section class="study-intro" aria-labelledby="pageTitle">
+    <div>
+      <p class="eyebrow">Personal study reference</p>
+      <h1 id="pageTitle">Test Engineering <em>Study Deck</em></h1>
+      <p class="lede">Short technical questions, practical judgement calls and names worth remembering. Reveal the answer, grade yourself honestly, and weak cards will return more often.</p>
+    </div>
+    <aside class="scope-note">
+      <strong>Use the controlled requirement.</strong>
+      <span>This deck teaches principles and public baseline guidance. The approved verification matrix, tailored specification and test procedure always control programme levels.</span>
+    </aside>
+  </section>
+
+  <section class="study-stats" aria-label="Study progress">
+    <div class="metric"><span id="dueCount" class="metric-value">0</span><span class="metric-label">Due now</span></div>
+    <div class="metric"><span id="masteredCount" class="metric-value">0</span><span class="metric-label">Mastered</span></div>
+    <div class="metric"><span id="accuracyValue" class="metric-value">—</span><span class="metric-label">Recall rate</span></div>
+    <div class="metric"><span id="reviewCount" class="metric-value">0</span><span class="metric-label">Reviews</span></div>
+  </section>
+
+  <section class="study-layout">
+    <aside class="study-controls" aria-label="Study controls">
+      <div class="control-block">
+        <label for="modeSelect">Session</label>
+        <select id="modeSelect">
+          <option value="quick">Quick drill · 10 cards</option>
+          <option value="due">Due cards</option>
+          <option value="weak">Weak areas</option>
+          <option value="category">Selected category</option>
+          <option value="people">People and roles</option>
+          <option value="full">Full mixed deck</option>
+        </select>
+      </div>
+
+      <div class="control-block">
+        <label for="categorySelect">Category</label>
+        <select id="categorySelect"></select>
+      </div>
+
+      <button class="primary-action" id="startSession" type="button">Start new session</button>
+
+      <div class="session-progress" aria-live="polite">
+        <div class="progress-copy"><span id="sessionPosition">Ready</span><span id="sessionRemaining">—</span></div>
+        <div class="progress-track" aria-hidden="true"><span id="sessionBar"></span></div>
+      </div>
+
+      <div class="category-progress">
+        <h2>Category strength</h2>
+        <div id="categoryProgressList"></div>
+      </div>
+
+      <details class="data-tools">
+        <summary>Progress backup</summary>
+        <p>Export before changing browser or clearing website data.</p>
+        <div class="tool-actions">
+          <button id="exportProgress" type="button">Export</button>
+          <button id="importProgress" type="button">Import</button>
+          <button id="resetProgress" class="danger-link" type="button">Reset</button>
+        </div>
+        <input id="progressFile" type="file" accept="application/json,.json" hidden>
+      </details>
+    </aside>
+
+    <div class="study-stage">
+      <article class="study-card" id="studyCard" aria-live="polite">
+        <div class="card-topline">
+          <span class="category-badge" id="cardCategory">Study deck</span>
+          <span class="level-badge" id="cardLevel">Foundation</span>
+        </div>
+        <p class="card-kicker" id="cardKicker">Choose a session to begin</p>
+        <h2 class="question" id="cardQuestion">Your weakest subjects will come back sooner, while secure knowledge gradually moves to longer intervals.</h2>
+
+        <div class="answer-panel" id="answerPanel" hidden>
+          <p class="answer-label">Answer</p>
+          <div class="answer" id="cardAnswer"></div>
+          <details class="more-info" id="moreInfo">
+            <summary>More information</summary>
+            <div id="cardDetail"></div>
+          </details>
+          <div class="source-line" id="cardSource"></div>
+        </div>
+
+        <div class="card-actions">
+          <button class="reveal-action" id="revealAnswer" type="button">Reveal answer <span>Space</span></button>
+          <div class="rating-actions" id="ratingActions" hidden aria-label="How well did you know it?">
+            <p>Did you get it right?</p>
+            <div class="rating-grid">
+              <button type="button" data-rating="wrong"><strong>Wrong</strong><span>1</span></button>
+              <button type="button" data-rating="nearly"><strong>Nearly</strong><span>2</span></button>
+              <button type="button" data-rating="correct"><strong>Correct</strong><span>3</span></button>
+              <button type="button" data-rating="easy"><strong>Easy</strong><span>4</span></button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="session-note" id="sessionNote">
+        <span class="note-mark" aria-hidden="true">i</span>
+        <p><strong>Honest grading beats a long streak.</strong> A wrong card returns after several other questions and needs two clean recalls before it leaves recovery.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr study-footer">
+  <div class="bar">
+    <span>Personal reference · unlisted</span>
+    <span>Verify requirements, revisions and levels against controlled project documentation.</span>
+  </div>
+</footer>
+
+<script src="assets/reference-deck.js"></script>
+<script src="assets/reference.js"></script>
+</body>
+</html>
