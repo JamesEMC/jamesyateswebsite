@@ -107,7 +107,7 @@
     <p class="aside">Curve data is digitised from manufacturer half-power beamwidth plots to about ±2°. It represents typical performance — a specific serial number, mounting arrangement and site will differ. Verify coverage for formal work against your antenna's calibration data and the applicable standard.</p>
   </section>
 
-  <p class="note">Antenna library: ETS-Lindgren 3115, 3117, 3106, 3106B and 3144 LPDA. Mind the 3106 vs 3106B distinction — they are different antennas. More are added as plots are digitised.</p>
+  <p class="note">Antenna library: ETS-Lindgren 3115, 3117, 3106, 3106B, 3144 LPDA, plus one unnamed 1–2 GHz horn awaiting identification. Mind the 3106 vs 3106B distinction — they are different antennas. More are added as plots are digitised.</p>
 </main>
 
 <footer class="site-footer">
@@ -196,6 +196,16 @@ const ANTENNAS = {
       [1.10, 50, 42], [1.20, 45, 47], [1.25, 25, 50], [1.30, 43, 55], [1.40, 22, 45],
       [1.50, 20, 47], [1.60, 18, 50], [1.70, 20, 48], [1.80, 20, 45], [2.00, 22, 58]
     ]
+  },
+  "unnamed12": {
+    name: "Unnamed horn — 1–2 GHz (awaiting model name)",
+    note: "Digitised from a supplied plot with no model label: near-linear fall from ~38° to ~20° across 1–2 GHz, E and H closely matched. Tell me the model and I'll rename it.",
+    fLo: 1.0, fHi: 2.0,
+    pts: [
+      [1.00, 37.5, 38.0], [1.10, 35.0, 35.5], [1.20, 31.5, 32.0], [1.30, 29.5, 30.0],
+      [1.40, 27.5, 28.0], [1.50, 25.5, 26.5], [1.60, 24.0, 25.0], [1.70, 22.5, 24.0],
+      [1.80, 21.5, 22.5], [1.90, 20.5, 21.5], [2.00, 19.5, 20.5]
+    ]
   }
 };
 
@@ -226,7 +236,6 @@ Object.entries(ANTENNAS).forEach(([key, a]) => {
 
 function loadAntenna(){
   ant = ANTENNAS[sel.value];
-  ant._max = Math.max(...ant.pts.map(p => Math.max(p[1], p[2])));
   $("antNote").textContent = ant.note;
   $("fStart").value = ant.fLo;
   $("fStop").value = ant.fHi;
@@ -268,7 +277,6 @@ function summarise(){
     const m = Math.min(e, h);
     if (m < worst){ worst = m; at = f; plane = e < h ? "E" : "H"; }
   }
-  window._jySummary = { worst, at, plane };
   $("minBW").textContent = worst.toFixed(1) + "°";
   $("minAt").textContent = at.toFixed(2) + " GHz (" + plane + "-plane)";
   const cov = coverage(worst, d);
@@ -299,11 +307,11 @@ function render(){
 
 function drawBeam(e, h, d, f){
   const W = 720, H2 = 430, cx = W/2, cy = 200;
-  const scale = Math.min(1.9, 300 / Math.max(ant._max, 60));   /* auto-fit big beams */
+  const scale = 1.9;                       /* px per degree */
   const rx = h/2 * scale, ry = e/2 * scale;
   let s = "";
-  /* reference circles adapt to the antenna's range */
-  [30, 60, 90, 120, 150].filter(deg => deg <= ant._max + 15).forEach(deg => {
+  /* reference circles at 30/60/90 degrees */
+  [30, 60, 90].forEach(deg => {
     const r = deg/2 * scale;
     s += `<circle class="ref" cx="${cx}" cy="${cy}" r="${r}"/>`;
     s += `<text class="reflab" x="${cx + r*0.7071 + 4}" y="${cy - r*0.7071 - 4}">${deg}°</text>`;
@@ -325,12 +333,11 @@ function drawBeam(e, h, d, f){
 function drawSpark(a, b, f){
   const W = 720, H2 = 170, L = 44, R = 14, T = 12, B = 28;
   const iw = W-L-R, ih = H2-T-B;
-  const lo = ant.fLo, hi = ant.fHi;
-  const top = Math.max(60, Math.ceil(ant._max / 30) * 30);
+  const lo = ant.fLo, hi = ant.fHi, top = 100;
   const x = fq => L + iw*(fq - lo)/(hi - lo);
   const y = deg => T + ih*(top - deg)/top;
   let s = `<rect class="band" x="${x(a)}" y="${T}" width="${x(b)-x(a)}" height="${ih}"/>`;
-  [0, top/2, top].forEach(g => {
+  [0, 50, 100].forEach(g => {
     s += `<line x1="${L}" y1="${y(g)}" x2="${W-R}" y2="${y(g)}" stroke="#24333a"/>`;
     s += `<text x="${L-6}" y="${y(g)+3}" text-anchor="end">${g}</text>`;
   });
@@ -344,82 +351,10 @@ function drawSpark(a, b, f){
   $("spark").innerHTML = s;
 }
 
-/* ---------- export report ---------- */
-$("exportBtn").addEventListener("click", () => {
-  const [a, b] = band();
-  const d = Math.max(0.05, parseFloat($("dist").value) || 1);
-  const wasPlaying = playing;
-  playing = false; $("play").textContent = "Play";
-  /* snap the view to the worst-case frequency so the picture matches the headline */
-  const sum = window._jySummary || { at: a };
-  frac = Math.max(0, Math.min(1, (sum.at - a) / (b - a || 1)));
-  $("scrub").value = Math.round(frac * 1000);
-  render();
-  const f = a + (b - a) * frac;
-  const { e, h } = bwAt(ant, f);
-
-  const now = new Date();
-  const stamp = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) +
-                " " + now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-  const wm = "data:image/svg+xml," + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="420" height="300"><text x="210" y="150" text-anchor="middle" transform="rotate(-30 210 150)" font-family="monospace" font-size="26" fill="rgba(19,22,25,0.06)">jamesyates.co.uk</text></svg>');
-
-  const w = window.open("", "_blank");
-  if (!w){ alert("Pop-up blocked — allow pop-ups for this site to export."); return; }
-  w.document.write(`<!doctype html><html><head><title>Beam Coverage Report — jamesyates.co.uk</title>
-<style>
-  body { font-family: "Segoe UI", system-ui, sans-serif; color: #131619; margin: 34px 40px;
-         background-image: url("${wm}"); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-  h1 { font-size: 20px; margin: 0 0 2px; }
-  .meta { color: #64707a; font-size: 12px; margin-bottom: 18px; }
-  .brand { float: right; font: 600 13px monospace; color: #0d6e79; }
-  table { border-collapse: collapse; width: 100%; margin: 10px 0 18px; font-size: 13px; }
-  th { text-align: left; color: #64707a; font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
-       border-bottom: 1px solid #c3ccd0; padding: 6px 8px; }
-  td { border-bottom: 1px solid #dde3e5; padding: 6px 8px; font-family: monospace; }
-  .headline { font-size: 15px; margin: 14px 0; padding: 12px 16px; border-left: 3px solid #0d6e79; background: rgba(13,110,121,.05); }
-  .chartbox { background: #0f1416; padding: 10px; border-radius: 3px; margin: 10px 0; }
-  .chartbox svg { width: 100%; height: auto; display: block; }
-  .beam text { font: 12px monospace; fill: #8b96a0; }
-  .beam .ref { fill: none; stroke: #24333a; stroke-width: 1; }
-  .beam .reflab { fill: #5b6d76; font-size: 10px; }
-  .beam .oval { fill: rgba(53,198,216,.14); stroke: #35c6d8; stroke-width: 2.4; }
-  .beam .cross { stroke: #3a4a52; stroke-width: 1; }
-  .beam .dim { stroke: #d98a45; stroke-width: 1.4; }
-  .beam .dimlab { fill: #d98a45; }
-  .spark text { font: 10px monospace; fill: #8b96a0; }
-  .spark .e { fill: none; stroke: #35c6d8; stroke-width: 1.8; }
-  .spark .h { fill: none; stroke: #d98a45; stroke-width: 1.8; }
-  .spark .cur { stroke: #eef3f3; stroke-width: 1; stroke-dasharray: 3 4; }
-  .spark .band { fill: rgba(53,198,216,.06); }
-  .foot { margin-top: 20px; padding-top: 10px; border-top: 1px solid #c3ccd0; color: #64707a; font-size: 10.5px; }
-</style></head><body>
-  <span class="brand">jamesyates.co.uk</span>
-  <h1>Beam Coverage Report</h1>
-  <div class="meta">Generated ${stamp} · Beam Coverage Animator · jamesyates.co.uk</div>
-  <table>
-    <tr><th>Input</th><th>Value</th></tr>
-    <tr><td>Antenna</td><td>${ant.name}</td></tr>
-    <tr><td>Sweep</td><td>${a.toFixed(2)} – ${b.toFixed(2)} GHz</td></tr>
-    <tr><td>Distance to target</td><td>${d} m</td></tr>
-    <tr><td>Snapshot (worst-case frequency)</td><td>${f.toFixed(2)} GHz — E ${e.toFixed(1)}° · H ${h.toFixed(1)}°</td></tr>
-  </table>
-  <div class="headline"><b>Worst case over sweep:</b> ${$("minBW").textContent} at ${$("minAt").textContent}
-    → <b>coverage ${$("minCov").textContent}</b> at ${d} m (2·d·tan(θ/2))</div>
-  <div class="chartbox beam">${$("beam").outerHTML}</div>
-  <div class="chartbox spark">${$("spark").outerHTML}</div>
-  <div class="foot">Beamwidth data digitised from manufacturer half-power beamwidth plots (~±2°; LPDA ±5° above 1.2 GHz);
-    typical performance, not a calibration. Provided as-is for education and planning — verify against the applicable
-    standard and the specific antenna's calibration data before formal use. © James Yates · jamesyates.co.uk</div>
-  <script>window.onload = () => setTimeout(() => window.print(), 300);<\/script>
-</body></html>`);
-  w.document.close();
-  playing = wasPlaying;
-  if (playing){ $("play").textContent = "Pause"; lastTs = null; requestAnimationFrame(tick); }
-});
-
 loadAntenna();
 requestAnimationFrame(tick);
 </script>
+<script src="../assets/report-tools.js"></script>
+<script>ReportTools.attach({ button: "#exportBtn", visuals: ["#beam", "#spark"], maxTableRows: 20, note: "Beamwidth data is digitised typical performance, not a calibration. Verify the selected antenna's current calibration data before formal use." });</script>
 </body>
 </html>

@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <title>James Yates | EMC Unit Converter</title>
+  <meta name="description" content="Convert RF voltage, current and power units through dBµV using a selectable resistive impedance, with a populated engineering report export.">
   <link rel="stylesheet" href="../assets/v2.css">
 <link rel="stylesheet" href="../assets/v2-tools.css">
 <style>
@@ -92,7 +93,7 @@
     }
 
     .shell {
-      width: min(1440px, calc(100% - 48px));
+      width: min(1200px, calc(100% - 48px));
       margin: 0 auto;
       padding: 34px 0 36px;
     }
@@ -151,7 +152,7 @@
       border-radius: 10px;
       background: var(--panel);
       box-shadow: var(--shadow);
-      padding: 8px;
+      padding: 24px;
     }
 
     .controls {
@@ -299,7 +300,8 @@
 
     @media (max-width: 760px) {
       .brand { top: 16px; right: 16px; font-size: .74rem; }
-      .shell { width: min(100% - 48px, 1380px); padding-top: 78px; }
+      .shell { width: min(100% - 28px, 1200px); padding-top: 32px; }
+      .panel { padding: 16px; }
       .hint { margin-left: 0; }
       table { font-size: .82rem; }
       .converter-wrap { overflow-x: auto; }
@@ -332,7 +334,7 @@
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>RF Unit Converter</nav>
     <div class="eyebrow">EMC Conversion Calculator</div>
     <h1>RF unit converter.</h1>
-    <p class="intro">Type into any value box. Every other unit updates automatically from that entry.</p>
+    <p class="intro">Type into any value box. Every other unit updates automatically from that entry. Voltage, current and power are RMS equivalents for the selected purely resistive impedance.</p>
 
     <section class="panel" aria-label="RF unit converter">
       <div class="controls">
@@ -568,7 +570,7 @@
     function clearAll() {
       activeUnit = null;
       activeValue = "";
-      inputs.forEach(input => input.value = "");
+      inputs.forEach(input => { input.value = ""; input.classList.remove("is-source"); });
     }
 
     function populate(sourceUnit, rawValue, activeInput) {
@@ -587,6 +589,7 @@
       }
 
       inputs.forEach(input => {
+        input.classList.toggle("is-source", input === activeInput || input.dataset.unit === sourceUnit);
         if (input === activeInput) return;
         const targetUnit = input.dataset.unit;
         input.value = format(fromDbuv(dbuv, targetUnit), targetUnit);
@@ -644,6 +647,7 @@
       }
     }
   </script>
-<script src="../assets/report.js" defer></script>
+  <script src="../assets/report-tools.js"></script>
+  <script>ReportTools.attach({ target: "main > .panel", requireValues: ".value-input", maxTableRows: 20, note: "Voltage, current and power conversions assume RMS quantities and a purely resistive system impedance." });</script>
 </body>
 </html>

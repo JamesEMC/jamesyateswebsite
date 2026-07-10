@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <title>Antenna Region Plotter</title>
+  <meta name="description" content="Plot reactive near field, Fresnel region and Fraunhofer distance against frequency for horn, log-periodic and custom antenna apertures.">
   <link rel="stylesheet" href="../assets/v2.css">
 <link rel="stylesheet" href="../assets/v2-tools.css">
 <style>
@@ -41,7 +42,7 @@
     }
 
     .shell {
-      width: min(1380px, calc(100% - 48px));
+      width: min(1380px, calc(100% - 24px));
       margin: 0 auto;
       padding: 28px 0 44px;
     }
@@ -117,7 +118,7 @@
       border-radius: 8px;
       background: rgba(255, 255, 255, .92);
       box-shadow: var(--shadow);
-      padding: 14px;
+      padding: 20px;
     }
 
     .panel h2 {
@@ -571,12 +572,12 @@
 
     @media (max-width: 560px) {
       .shell {
-        width: min(100% - 48px, 1380px);
+        width: min(100% - 28px, 1380px);
         padding-top: 14px;
       }
 
       .panel {
-        padding: 10px;
+        padding: 18px;
       }
 
       .form-grid,
@@ -594,7 +595,19 @@
   </style>
 </head>
 <body>
-  <div class="brand">James Yates</div>
+  <header class="hdr">
+    <div class="bar">
+      <a class="wordmark" href="../index.html">James Yates</a>
+      <nav class="nav" aria-label="Site">
+        <a href="../emc.html">EMC</a>
+        <a href="../antenna.html" aria-current="page">Antennas</a>
+        <a href="../radar.html">Radar</a>
+        <a href="../environmental.html">Space</a>
+        <a href="../leadership.html">Leadership</a>
+        <a href="../fitness.html">Personal</a>
+      </nav>
+    </div>
+  </header>
   <main class="shell">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../antenna.html">Antennas</a><span>/</span>Region Plotter</nav>
     <p class="eyebrow">EMC antenna distance tool</p>
@@ -671,8 +684,8 @@
         <div class="formula">
           <strong>Formulas used</strong><br>
           Wavelength: <code>lambda = c / f</code><br>
-          Reactive near-field boundary: <code>R = 0.62 sqrt(D^3 / lambda)</code><br>
-          Fraunhofer far-field boundary: <code>R = 2D^2 / lambda</code><br>
+          Conservative reactive boundary: <code>R = max(lambda / 2pi, 0.62 sqrt(D^3 / lambda))</code><br>
+          Conservative EMC far-field boundary: <code>R = max(3 lambda, 2D^2 / lambda)</code><br>
           Maximum aperture for selected distance: <code>Dmax = sqrt(R lambda / 2)</code>
         </div>
       </section>
@@ -723,7 +736,7 @@
           </article>
           <article class="region-card">
             <h3>Fraunhofer Far Field</h3>
-            <p>The antenna pattern is effectively formed, the field behaves more like a plane wave, and distance scaling is more predictable. For aperture antennas this page uses <strong>R = 2D^2 / lambda</strong>.</p>
+            <p>The antenna pattern is effectively formed, the field behaves more like a plane wave, and distance scaling is more predictable. This page uses the conservative envelope <strong>R = max(3 lambda, 2D^2 / lambda)</strong>.</p>
           </article>
         </section>
         <div class="emc-caution">
@@ -731,7 +744,7 @@
         </div>
         <div class="formula">
           <strong>Log-periodic note</strong><br>
-          The same <code>2D^2 / lambda</code> expression can be used as a conservative largest-dimension check for many finite antennas, but it is less tidy for log-periodics than for horns. A log-periodic has an active region that moves along the boom with frequency, so for EMC work the better evidence is normally the antenna manual/calibration data, the standard's required separation, and measured field uniformity. Some EMC guidance instead uses wavelength-based limits when the antenna is small compared with wavelength.
+          The <code>2D^2 / lambda</code> aperture expression is less tidy for log-periodics than for horns. A log-periodic has an active region that moves along the boom with frequency, so this tool also applies a conservative <code>3 lambda</code> floor. For formal EMC work the better evidence remains the antenna manual/calibration data, the standard's required separation, and measured field uniformity.
         </div>
         <div class="formula">
           <strong>References</strong>
@@ -883,11 +896,19 @@
     function calcAt(freqGhz, D) {
       const f = freqGhz * 1e9;
       const lambda = c / f;
+      const reactiveAperture = 0.62 * Math.sqrt((D ** 3) / lambda);
+      const reactiveWavelength = lambda / (2 * Math.PI);
+      const farAperture = (2 * D ** 2) / lambda;
+      const farWavelength = 3 * lambda;
       return {
         freqGhz,
         lambda,
-        reactive: 0.62 * Math.sqrt((D ** 3) / lambda),
-        far: (2 * D ** 2) / lambda
+        reactive: Math.max(reactiveAperture, reactiveWavelength),
+        far: Math.max(farAperture, farWavelength),
+        reactiveAperture,
+        reactiveWavelength,
+        farAperture,
+        farWavelength
       };
     }
 
@@ -929,15 +950,15 @@
     }
 
     function updateSummary(data) {
-      const worst = data.endPoint;
+      const worst = data.worstPoint;
       const mainRegion = regionAt(data.distance, worst);
       const dmax = Math.sqrt((data.distance * worst.lambda) / 2);
-      const freqLimit = (data.distance * c) / (2 * data.D ** 2) / 1e9;
+      const wavelengthFloorMet = data.distance >= worst.farWavelength;
       const cards = [
         ['Aperture D', `${fmt(data.D * 1000, 1)} mm`, data.mode === 'diagonal' ? 'Diagonal selected' : 'Largest dimension selected'],
         ['Worst-case far field', `${fmt(worst.far, 2)} m`, `at ${fmt(worst.freqGhz, 3)} GHz`],
         ['Main distance', `${fmt(data.distance, 2)} m`, mainRegion.label],
-        ['Max D at main distance', `${fmt(dmax * 1000, 1)} mm`, `at ${fmt(worst.freqGhz, 3)} GHz`]
+        ['Max D at main distance', wavelengthFloorMet ? `${fmt(dmax * 1000, 1)} mm` : '—', wavelengthFloorMet ? `2D²/λ check at ${fmt(worst.freqGhz, 3)} GHz` : `3λ controls at ${fmt(worst.freqGhz, 3)} GHz`]
       ];
       els.summary.innerHTML = cards.map(([label, value, note]) => `
         <div class="metric">
@@ -949,18 +970,11 @@
 
       els.result.className = `result ${mainRegion.cls}`;
       if (mainRegion.cls === 'ok') {
-        els.result.innerHTML = `At <strong>${fmt(data.distance, 2)} m</strong>, the selected antenna is in the <strong>Fraunhofer far field</strong> across the entered band.`;
+        els.result.innerHTML = `At <strong>${fmt(data.distance, 2)} m</strong>, the selected antenna is beyond the <strong>conservative far-field boundary</strong> across the entered band.`;
       } else {
         const shortage = Math.max(0, worst.far - data.distance);
-        let limitText = '';
-        if (freqLimit >= data.start && freqLimit <= data.end) {
-          limitText = ` It is in the far field up to about <strong>${fmt(freqLimit, 2)} GHz</strong>, then drops into the transition region above that.`;
-        } else if (freqLimit < data.start) {
-          limitText = ` Across this entered band it does <strong>not</strong> reach the Fraunhofer far field at this distance.`;
-        } else {
-          limitText = ` It remains in the far field across this entered band.`;
-        }
-        els.result.innerHTML = `At <strong>${fmt(data.distance, 2)} m</strong>, the worst-case point is <strong>${mainRegion.label}</strong>. It is about <strong>${fmt(shortage, 2)} m</strong> short of the Fraunhofer boundary at ${fmt(worst.freqGhz, 3)} GHz.${limitText}`;
+        const controllingRule = worst.farAperture >= worst.farWavelength ? '2D²/λ' : '3λ';
+        els.result.innerHTML = `At <strong>${fmt(data.distance, 2)} m</strong>, the worst-case point is <strong>${mainRegion.label}</strong>. It is about <strong>${fmt(shortage, 2)} m</strong> short of the conservative boundary at ${fmt(worst.freqGhz, 3)} GHz, where <strong>${controllingRule}</strong> controls.`;
       }
 
       els.selectedDetails.innerHTML = `
@@ -974,9 +988,9 @@
 
     function updateRows(data) {
       const checks = [
-        ['Band start', data.startPoint],
+        [data.worstPoint === data.startPoint ? 'Band start / worst case' : 'Band start', data.startPoint],
         ['Band midpoint', calcAt((data.start + data.end) / 2, data.D)],
-        ['Band end / worst case', data.endPoint]
+        [data.worstPoint === data.endPoint ? 'Band end / worst case' : 'Band end', data.endPoint]
       ];
 
       els.rows.innerHTML = checks.map(([label, point]) => {
@@ -1005,7 +1019,7 @@
       const m = { top: 28, right: 28, bottom: 58, left: 72 };
       const plotW = width - m.left - m.right;
       const plotH = height - m.top - m.bottom;
-      const yMax = Math.max(data.maxDistance, data.endPoint.far * 1.15, data.distance * 1.1, data.compare * 1.1);
+      const yMax = Math.max(data.maxDistance, data.worstPoint.far * 1.15, data.distance * 1.1, data.compare * 1.1);
       const x = (freq) => m.left + ((freq - data.start) / (data.end - data.start || 1)) * plotW;
       const y = (dist) => m.top + (1 - clamp(dist / yMax, 0, 1)) * plotH;
       const yZero = y(0);
@@ -1078,10 +1092,12 @@
         'font-weight': 800
       }, 'Distance from antenna');
 
-      const labelX = x(data.start + (data.end - data.start) * 0.64);
-      addSvg('text', { x: labelX, y: y(data.endPoint.far * 1.08), fill: '#197a4e', 'font-size': 14, 'font-weight': 800 }, 'Far field');
-      addSvg('text', { x: labelX, y: y((data.endPoint.reactive + data.endPoint.far) / 2), fill: '#8a6200', 'font-size': 14, 'font-weight': 800 }, 'Fresnel / transition');
-      addSvg('text', { x: labelX, y: y(data.endPoint.reactive * .45), fill: '#a73e1d', 'font-size': 14, 'font-weight': 800 }, 'Reactive');
+      const labelFreq = data.start + (data.end - data.start) * 0.64;
+      const labelPoint = calcAt(labelFreq, data.D);
+      const labelX = x(labelFreq);
+      addSvg('text', { x: labelX, y: y(labelPoint.far * 1.08), fill: '#197a4e', 'font-size': 14, 'font-weight': 800 }, 'Far field');
+      addSvg('text', { x: labelX, y: y((labelPoint.reactive + labelPoint.far) / 2), fill: '#8a6200', 'font-size': 14, 'font-weight': 800 }, 'Fresnel / transition');
+      addSvg('text', { x: labelX, y: y(labelPoint.reactive * .45), fill: '#a73e1d', 'font-size': 14, 'font-weight': 800 }, 'Reactive');
       addSvg('text', { x: m.left + 8, y: m.top + 18, fill: '#071522', 'font-size': 15, 'font-weight': 900 }, data.preset.name);
       addSvg('text', { x: m.left + 8, y: m.top + 38, fill: '#536879', 'font-size': 13 }, `${fmt(data.widthMm, 1)} x ${fmt(data.heightMm, 1)} mm aperture | ${fmt(data.start, 3)}-${fmt(data.end, 3)} GHz | D=${fmt(data.D * 1000, 1)} mm`);
     }
@@ -1101,6 +1117,9 @@
         note: 'Manually entered dimensions and frequency range',
         isCustom: true
       };
+      const startPoint = points[0];
+      const endPoint = points[points.length - 1];
+      const worstPoint = startPoint.far >= endPoint.far ? startPoint : endPoint;
       return {
         D,
         mode,
@@ -1113,8 +1132,9 @@
         maxDistance: Number(els.maxDistanceM.value),
         samples,
         points,
-        startPoint: calcAt(start, D),
-        endPoint: calcAt(end, D),
+        startPoint,
+        endPoint,
+        worstPoint,
         preset
       };
     }
@@ -1159,6 +1179,7 @@
     updateSelectedButtons();
     update();
   </script>
-<script src="../assets/report.js" defer></script>
+  <script src="../assets/report-tools.js"></script>
+  <script>ReportTools.attach({ target: ".layout", visuals: ["#chart"], maxTableRows: 20 });</script>
 </body>
 </html>

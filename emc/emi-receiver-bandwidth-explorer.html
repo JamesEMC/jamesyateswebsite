@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <title>James Yates | EMI Receiver Bandwidth Explorer</title>
+<meta name="description" content="Interactive explanation of 3 dB and 6 dB bandwidth, broadband noise, impulse response and detector functions in EMC receivers.">
 <link rel="stylesheet" href="../assets/v2.css">
 <link rel="stylesheet" href="../assets/v2-tools.css">
 <style>
@@ -223,7 +224,7 @@
       <table>
         <thead><tr><th>Standard / family</th><th>Bandwidth convention</th><th>Typical emission bandwidths</th><th>Detector notes</th><th>Practical note</th></tr></thead>
         <tbody>
-          <tr><td><strong>MIL-STD-461G</strong></td><td>Bandwidths specified at the <strong>6 dB down points</strong> of the receiver selectivity curve.</td><td>10 Hz, 1 kHz, 10 kHz, 1 MHz depending on test and frequency range.</td><td>Predominantly Peak for emissions.</td><td>Do not treat listed bandwidths as generic 3 dB analyser RBW unless your procedure/equipment evidence supports equivalence.</td></tr>
+          <tr><td><strong>MIL-STD-461G</strong></td><td>Bandwidths specified at the <strong>6 dB down points</strong> of the receiver selectivity curve.</td><td>10 Hz, 100 Hz, 1 kHz, 10 kHz, 100 kHz and 1 MHz, selected by frequency range.</td><td>Peak detector for frequency-domain measurements.</td><td>Do not treat listed bandwidths as generic 3 dB analyser RBW unless your procedure/equipment evidence supports equivalence.</td></tr>
           <tr><td><strong>DEF STAN 59-411 Part 3</strong></td><td>Uses wording such as <strong>receiver 6 dB (impulse) bandwidths</strong>.</td><td>Defined by test method/frequency range tables in the standard.</td><td>Peak detector generally, with average detector where required by specific tests.</td><td>Confirm bandwidths used in the test report.</td></tr>
           <tr><td><strong>CISPR 16 / EN 550xx family</strong></td><td>EMI receiver specification includes <strong>6 dB bandwidth</strong>, impulse response and filter selectivity requirements.</td><td>200 Hz, 9 kHz, 120 kHz, 1 MHz bands are commonly encountered.</td><td>Peak, Quasi-Peak, Average and RMS depending on standard and frequency range.</td><td>CISPR compliance is about the complete receiver behaviour, not just the label “120 kHz”.</td></tr>
           <tr><td><strong>DO-160 emissions</strong></td><td>Uses specified receiver bandwidths/detectors in the procedure; check section and category.</td><td>Commonly 10 kHz, 120 kHz and 1 MHz style bandwidths depending on test/frequency.</td><td>Peak and/or Average depending on section.</td><td>Always use the section-specific table rather than memory.</td></tr>
@@ -277,6 +278,7 @@ let val={peak:68,avg:48.2,rms:52.4,qp:57.3}[det];$('detVal').textContent=val.toF
 $('jump').addEventListener('change',e=>$(e.target.value).scrollIntoView({behavior:'smooth'}));['rbw','spacing'].forEach(id=>$(id).addEventListener('input',drawTwo));$('noiseBw').addEventListener('input',drawNoise);document.querySelectorAll('#bandButtons button').forEach(btn=>btn.addEventListener('click',e=>{document.querySelectorAll('#bandButtons button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');bandIndex=+btn.dataset.b;drawImpulse();}));document.querySelectorAll('#detButtons button').forEach(btn=>btn.addEventListener('click',e=>{document.querySelectorAll('#detButtons button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');det=btn.dataset.d;drawDet();}));
 window.addEventListener('resize',()=>{drawTwo();drawNoise();drawBw();drawImpulse();drawDet();});drawTwo();drawNoise();drawBw();drawImpulse();drawDet();
 </script>
-<script src="../assets/report.js" defer></script>
+<script src="../assets/report-tools.js"></script>
+<script>ReportTools.attach({ target: "main", visuals: ["#twoCanvas", "#noiseCanvas", "#bwCanvas", "#impulseCanvas", "#detCanvas"], maxTableRows: 30, note: "The plots explain receiver behaviour; they are not receiver tolerance masks or calibration evidence." });</script>
 </body>
 </html>

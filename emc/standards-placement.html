@@ -17,6 +17,7 @@
 .verdict h3 { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
 .verdict .flag { font: 500 .72rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; padding: 4px 10px; white-space: nowrap; }
 .verdict .flag.ok { background: #dcecec; color: #09525b; }
+.verdict .flag.warn { background: #f8e8c9; color: #7a5200; }
 .verdict .flag.bad { background: #f3ded9; color: #9c2b1e; }
 .verdict .flag.na { background: var(--bg-2); color: var(--muted); }
 .verdict p { margin: 6px 0 0; color: var(--muted); font-size: .93rem; max-width: none; }
@@ -43,7 +44,7 @@
 
   <p class="kicker">EMC — Tool</p>
   <h1>Standards placement checks</h1>
-  <p class="intro">Enter your test geometry once and check it against three sets of placement rules at the same time: the MIL-STD-461G RE103 minimum measurement distance, RS103 illumination coverage and antenna positions, and the DO-160G Section 20 far-field distance.</p>
+  <p class="intro">Enter your test geometry once and check the MIL-STD-461G RE103 minimum measurement distance, RS103 illumination coverage and antenna positions, plus a separate Fraunhofer-distance engineering check useful when planning DO-160 Section 20 work.</p>
 
   <div class="tool-layout">
     <div class="panel" aria-label="Test geometry">
@@ -87,9 +88,9 @@
 
   <section class="section explain">
     <h2>Where these rules come from</h2>
-    <p><strong>RE103</strong> measures an antenna-connected transmitter's spurious emissions, so the measurement antenna must sit in the transmit antenna's far field. MIL-STD-461G gives the distance rules this page applies: at or below 1.24 GHz, the greater of 2D²/λ and 3λ; above 1.24 GHz, 2D²/λ where the receive aperture is small compared with the source (2.5D &lt; d fails), otherwise (D+d)²/λ.</p>
-    <p><strong>RS103</strong> radiates a field at the EUT, and the standard requires the antenna at least 1 m from the setup boundary, with enough antenna positions that no point of the boundary is more than 1.5 m from an antenna centreline — in practice, one position per 3 m of boundary. The coverage figure here uses the antenna's 3 dB beamwidth to show how wide a strip your antenna genuinely illuminates at the proposed distance, which is the practical constraint people forget.</p>
-    <p><strong>DO-160G Section 20</strong> similarly wants far-field conditions for its radiated susceptibility work; the classic 2D²/λ figure is shown against your proposed distance.</p>
+    <p><strong>RE103</strong> measures an antenna-connected transmitter's spurious emissions. MIL-STD-461G gives the distance rules this page applies: at or below 1.24 GHz, use the greater of 2D²/λ and 3λ; above 1.24 GHz, use 2D²/λ when 2.5D &lt; d, otherwise use (D+d)²/λ.</p>
+    <p><strong>RS103</strong> requires the antenna at least 1 m from the setup boundary. From 2 MHz to below 200 MHz, boundaries over 3 m use multiple positions based on the boundary length divided by 3 and rounded up. From 200 MHz upward, position count is instead governed by placing the relevant EUT enclosure and cable length inside the antenna's 3 dB beamwidth. The high-frequency count below is therefore a coverage-width planning estimate.</p>
+    <p><strong>DO-160 Section 20</strong> uses a pre-calibrated field and section-specific setup requirements. The 2D²/λ result shown here is a separate Fraunhofer engineering check; it is not presented as a replacement test distance from the standard.</p>
     <p class="aside">As always: these checks encode the headline geometry rules to speed up planning. The standard you're testing to — and your lab's accredited procedure — take precedence over anything on this page.</p>
   </section>
 </main>
@@ -148,30 +149,40 @@ function run(){
     [`Required minimum: <span class="kv">${f2(reqR)} m</span> · proposed: <span class="kv">${f2(R)} m</span>` +
      (reOk ? "" : ` — move back <span class="kv">${f2(reqR - R)} m</span>.`)]);
 
-  /* RS103 — coverage and positions */
+  /* RS103 — placement changes at 200 MHz */
   const lines = [];
   let rsFlag = "OK", rsCls = "ok";
   if (R < 1){ rsFlag = "UNDER 1 m"; rsCls = "bad"; lines.push("RS103 requires the antenna at least <span class='kv'>1 m</span> from the setup boundary."); }
-  if (isFinite(L) && L > 0){
-    const positions = Math.max(1, Math.ceil(L / 3));
-    lines.push(`Boundary <span class="kv">${f2(L)} m</span> → <span class="kv">${positions}</span> antenna position${positions > 1 ? "s" : ""} (one per 3 m of boundary).`);
-  }
+  let cover = null;
   if (isFinite(bw) && bw > 0 && bw < 180){
-    const cover = 2 * R * Math.tan(bw * Math.PI/360);
-    lines.push(`3 dB illumination width at ${f2(R)} m: <span class="kv">${f2(cover)} m</span>` +
-      (isFinite(L) && L > 0 && cover < Math.min(3, L) ? " — narrower than the 3 m position spacing assumes; expect extra positions or a greater distance." : "."));
-    if (isFinite(L) && L > 0 && cover < Math.min(3, L) && rsCls === "ok"){ rsFlag = "CHECK COVERAGE"; rsCls = "bad"; }
+    cover = 2 * R * Math.tan(bw * Math.PI/360);
+    lines.push(`3 dB illumination width at ${f2(R)} m: <span class="kv">${f2(cover)} m</span>.`);
+  }
+  if (isFinite(L) && L > 0){
+    let positions = null;
+    if (fMHz >= 2 && fMHz < 200){
+      positions = Math.max(1, Math.ceil(L / 3));
+      lines.push(`2 MHz to below 200 MHz: <span class="kv">${f2(L)} m</span> boundary → <span class="kv">${positions}</span> position${positions > 1 ? "s" : ""} (L/3 rounded up).`);
+    } else if (fMHz >= 200 && cover){
+      positions = Math.max(1, Math.ceil(L / cover));
+      const cable = fMHz < 1000 ? "first 35 cm" : "first 7 cm";
+      lines.push(`200 MHz and above: approximately <span class="kv">${positions}</span> position${positions > 1 ? "s" : ""} to cover ${f2(L)} m at the calculated beam width. Confirm that each enclosure and the ${cable} of interfacing cables are inside the measured 3 dB beamwidth.`);
+    } else if (fMHz < 2) {
+      lines.push("The entered frequency is below the 2 MHz start of the open-area RS103 antenna-positioning rule.");
+    }
+    if (positions > 1 && rsCls === "ok") { rsFlag = `${positions} POSITIONS`; rsCls = "warn"; }
   }
   verdict($("vRS103"), "RS103 placement", rsFlag, rsCls, lines);
 
   /* DO-160 §20 */
   const doR = 2*D*D/lam;
   const doOk = R >= doR;
-  verdict($("vDO160"), "DO-160G §20 far-field distance", doOk ? "OK" : "TOO CLOSE", doOk ? "ok" : "bad",
-    [`2D²/λ = <span class="kv">${f2(doR)} m</span> · proposed: <span class="kv">${f2(R)} m</span>.`]);
+  verdict($("vDO160"), "DO-160 §20 planning — Fraunhofer check", doOk ? "BEYOND 2D²/λ" : "INSIDE 2D²/λ", doOk ? "ok" : "warn",
+    [`Engineering check 2D²/λ = <span class="kv">${f2(doR)} m</span> · proposed: <span class="kv">${f2(R)} m</span>. Use the section-specific distance and field calibration for the actual test.`]);
 }
 run();
 </script>
-<script src="../assets/report.js" defer></script>
+<script src="../assets/report-tools.js"></script>
+<script>ReportTools.attach({ maxTableRows: 20, note: "RE103 results apply the antenna-separation equations in MIL-STD-461G. The DO-160 result is an engineering Fraunhofer check, not a substitute for the section-specific test distance, field calibration or agreed deviation." });</script>
 </body>
 </html>

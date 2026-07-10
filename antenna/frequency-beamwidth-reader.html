@@ -405,7 +405,9 @@ function interp(series, f){
   for (let i = 1; i < series.length; i++){
     if (f <= series[i].f){
       const a = series[i-1], b = series[i];
-      const t = (f - a.f) / (b.f - a.f || 1);
+      const t = state.logX
+        ? (Math.log10(f) - Math.log10(a.f)) / (Math.log10(b.f) - Math.log10(a.f) || 1)
+        : (f - a.f) / (b.f - a.f || 1);
       return a.bw + t * (b.bw - a.bw);
     }
   }
@@ -512,6 +514,5 @@ function xAxisRefX(){ return state.xRefs[0] ? state.xRefs[0].px : 10; }
 
 setStep(1);
 </script>
-<script src="../assets/report.js" defer></script>
 </body>
 </html>

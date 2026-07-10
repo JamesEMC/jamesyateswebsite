@@ -210,6 +210,7 @@ function upd(){
 ["inoise","znoise"].forEach(id => $(id).addEventListener("input", upd));
 upd();
 </script>
-<script src="../assets/report.js" defer></script>
+<script src="../assets/report-tools.js"></script>
+<script>ReportTools.attach({ target: "main", visuals: [".diag svg"], maxTableRows: 10 });</script>
 </body>
 </html>

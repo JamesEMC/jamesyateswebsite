@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MIL-STD-461 FFT Receiver — James Yates</title>
-<meta name="description" content="Why measurement dwell time decides whether a pulsed signal is captured — a MIL-STD-461 CE102-style simulation comparing swept and FFT receivers against the limit line.">
+<title>MIL-STD-461G FFT Receiver Examples — James Yates</title>
+<meta name="description" content="Four separate engineering plots recreating the receiver examples in MIL-STD-461G Appendix A, Figures A-5 to A-8.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,26 +12,37 @@
 <link rel="stylesheet" href="../assets/v2.css">
 <link rel="stylesheet" href="../assets/v2-tools.css">
 <style>
-.chart text { font: 11px "IBM Plex Mono", monospace; fill: #8b96a0; }
-.chart .axis { stroke: #3a4a52; stroke-width: 1; }
-.chart .gridline { stroke: #1f2b30; stroke-width: 1; }
-.chart .env { fill: none; stroke: rgba(255,255,255,.35); stroke-width: 1; stroke-dasharray: 3 4; }
-.chart .limit { fill: none; stroke: #d98a45; stroke-width: 1.8; }
-.chart .sweptA { fill: none; stroke: #5d8f98; stroke-width: 1.2; }
-.chart .sweptB { fill: none; stroke: #9fd3da; stroke-width: 1.4; }
-.chart .fftA { fill: none; stroke: #b08ae0; stroke-width: 1.4; }
-.chart .fftB { fill: none; stroke: #35c6d8; stroke-width: 2.1; }
-.legendbar { display: flex; gap: 22px; flex-wrap: wrap; font: 500 .76rem var(--font-mono); color: var(--muted); margin-top: 10px; }
-.legendbar i { display: inline-block; width: 20px; height: 0; border-top: 3px solid; margin-right: 8px; vertical-align: 3px; }
-.legendbar .l-env i { border-color: #9aa5aa; border-top-style: dashed; }
-.legendbar .l-limit i { border-color: #d98a45; }
-.legendbar .l-sweptA i { border-color: #5d8f98; }
-.legendbar .l-sweptB i { border-color: #9fd3da; }
-.legendbar .l-fftA i { border-color: #b08ae0; }
-.legendbar .l-fftB i { border-color: #35c6d8; }
-.flagline { font: 500 .8rem var(--font-mono); margin-top: 4px; }
-.flagline.ok { color: var(--accent-ink); }
-.flagline.bad { color: #9c2b1e; }
+.reference-controls { margin-top: 32px; }
+.control-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.control-grid > * { min-width: 0; }
+.case-line { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
+.case-badge { display:inline-flex; align-items:center; padding:6px 9px; border:1px solid var(--line-strong); font:500 .72rem var(--font-mono); letter-spacing:.06em; text-transform:uppercase; color:var(--accent-ink); }
+.plot-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-top:26px; }
+.example { min-width:0; border:1px solid var(--line-strong); background:var(--panel); padding:18px; }
+.example header { display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start; margin-bottom:12px; }
+.fig-no { display:inline-flex; align-items:center; justify-content:center; min-width:48px; height:30px; padding:0 8px; background:var(--ink); color:var(--paper); font:500 .72rem var(--font-mono); }
+.example h2 { font-size:1.13rem; margin:0 0 4px; }
+.example .sub { color:var(--muted); font-size:.86rem; margin:0; line-height:1.4; }
+.plot-frame { border:1px solid #26343a; background:#0f1416; padding:8px; overflow:hidden; }
+.example-chart { display:block; width:100%; height:auto; }
+.example-chart text { font:11px "IBM Plex Mono",monospace; fill:#9aa7ad; }
+.example-chart .grid { stroke:#26343a; stroke-width:1; }
+.example-chart .axis { stroke:#56656c; stroke-width:1.2; }
+.example-chart .limit { fill:none; stroke:#d98a45; stroke-width:2; }
+.example-chart .trace { fill:none; stroke:#35c6d8; stroke-width:2; }
+.example-chart .truth { fill:none; stroke:#8b96a0; stroke-width:1.1; stroke-dasharray:4 4; opacity:.8; }
+.example-chart .noise { fill:none; stroke:#64707a; stroke-width:1; opacity:.65; }
+.plot-key { display:flex; gap:16px; flex-wrap:wrap; margin:9px 0 0; color:var(--muted); font:500 .7rem var(--font-mono); }
+.plot-key i { display:inline-block; width:18px; border-top:2px solid; margin-right:6px; vertical-align:3px; }
+.plot-key .measured i { border-color:#35c6d8; }
+.plot-key .envelope i { border-color:#8b96a0; border-top-style:dashed; }
+.plot-key .ce i { border-color:#d98a45; }
+.interpretation { margin:12px 0 0; color:var(--muted); font-size:.9rem; line-height:1.55; }
+.interpretation strong { color:var(--ink); }
+.probability { display:inline-block; color:var(--accent-ink); font:500 .78rem var(--font-mono); margin-top:8px; }
+.standards-note { margin-top:28px; max-width:none; }
+@media (max-width:920px){.plot-grid{grid-template-columns:1fr}.control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.control-grid{grid-template-columns:1fr}.example{padding:14px}.example header{grid-template-columns:1fr}.case-line{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body>
@@ -50,206 +61,132 @@
 </header>
 
 <main class="shell">
-  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>MIL-STD-461 FFT Receiver</nav>
-
-  <p class="kicker">EMC — Tool</p>
-  <h1>MIL-STD-461 FFT receiver</h1>
-  <p class="intro">A pulsed signal only exists for microseconds at a time. Whether your receiver sees it depends on one thing: does the measurement dwell at each frequency last long enough to catch a pulse? This simulation recreates a CE102-style measurement and shows what a swept receiver and an FFT receiver each report against the limit line.</p>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>MIL-STD-461G FFT Examples</nav>
+  <p class="kicker">EMC — Reference Tool</p>
+  <h1>MIL-STD-461G receiver examples</h1>
+  <p class="intro">Four separate plots corresponding directly to Appendix A, Figures A-5 through A-8. They compare a traditional scanning receiver with an FFT receiver for the standard's example signal: one 10 µs, 0.1 V pulse every second.</p>
 
   <section class="section explain">
-    <h2>The rule this page exists to teach</h2>
-    <p>A pulse train with repetition frequency PRF has one pulse every 1/PRF seconds. If a receiver dwells at a frequency for less time than that, there's a real chance no pulse arrives while it's listening — and it reports only noise. MIL-STD-461G's measurement-time requirements exist to prevent exactly this: <strong>the dwell at each frequency must be at least one pulse repetition period</strong> (and Table II sets minimum measurement times per band accordingly). An FFT receiver measures a whole block of frequencies simultaneously, so a single compliant dwell covers the block — which is how modern receivers meet the requirement dramatically faster than a stepped scan.</p>
-    <div class="formula"><span class="eq">Capture guaranteed when&nbsp;&nbsp;t<sub>dwell</sub> ≥ <span class="frac"><span>1</span><span>PRF</span></span></span></div>
+    <h2>What the four figures demonstrate</h2>
+    <p>A 1 Hz pulse train has a one-second repetition period. A traditional receiver moves its narrow bandpass through the spectrum, so individual pulses are caught only at the frequencies inside the bandpass when each pulse occurs. A longer scan catches the pulse at many more frequency positions. An FFT receiver observes a complete frequency block at once: if its time record catches the pulse, it produces the continuous spectral profile; if not, the whole acquisition can miss it.</p>
+    <p>For 10 kHz to 150 kHz, MIL-STD-461G Table II specifies a 1 kHz, 6 dB resolution bandwidth, a 15 ms dwell for a stepped-tuned receiver and a 1 s dwell per FFT measurement bandwidth. The longer FFT record is deliberate: the Appendix example shows that 15 ms gives only a 1.5% chance of intercepting a pulse that occurs once per second.</p>
+    <div class="formula">P<sub>intercept</sub> ≈ min(1, t<sub>dwell</sub> / T<sub>pulse</sub>)</div>
   </section>
 
-  <div class="tool-layout">
-    <div class="panel" aria-label="Inputs">
-      <h2>Inputs</h2>
-      <div class="field">
-        <label for="tau">Pulse width τ (µs)</label>
-        <input type="number" id="tau" value="5" min="0.01" step="any">
-        <small>Sets the sinc envelope: spectral nulls at multiples of 1/τ.</small>
-      </div>
-      <div class="field">
-        <label for="prf">Pulse repetition frequency (Hz)</label>
-        <input type="number" id="prf" value="10" min="0.01" step="any">
-        <small>A slow PRF is the hard case — pulses are rare events.</small>
-      </div>
-      <div class="field">
-        <label for="lvl">Signal level (dBµV)</label>
-        <input type="number" id="lvl" value="90" step="any">
-      </div>
-      <div class="field">
-        <label for="dSweptA">Swept dwell A — per step (ms)</label>
-        <input type="number" id="dSweptA" value="15" min="0.01" step="any">
-        <small id="nSweptA"></small>
-      </div>
-      <div class="field">
-        <label for="dSweptB">Swept dwell B — per step (ms)</label>
-        <input type="number" id="dSweptB" value="150" min="0.01" step="any">
-        <small id="nSweptB"></small>
-      </div>
-      <div class="field">
-        <label for="dFftA">FFT dwell A — per block (ms)</label>
-        <input type="number" id="dFftA" value="15" min="0.01" step="any">
-        <small id="nFftA"></small>
-      </div>
-      <div class="field">
-        <label for="dFftB">FFT dwell B — per block (ms)</label>
-        <input type="number" id="dFftB" value="1000" min="0.01" step="any">
-        <small id="nFftB"></small>
-      </div>
-      <div class="results" style="margin-top:16px">
-        <div class="result-row"><span class="rlabel">Pulse period 1/PRF</span><span class="rvalue" id="period">—</span></div>
-        <div class="result-row"><span class="rlabel">Scan time, 10 kHz–10 MHz</span><span class="rvalue" id="scanTimes">—</span></div>
-      </div>
+  <section class="panel reference-controls" aria-label="Reference signal controls">
+    <div class="case-line"><div><h2 style="margin-bottom:4px">Reference signal</h2><span class="aside">Defaults reproduce the values stated in MIL-STD-461G Appendix A.</span></div><span class="case-badge" id="caseBadge">Appendix values</span></div>
+    <div class="control-grid">
+      <div class="field"><label for="tau">Pulse width (µs)</label><input id="tau" type="number" value="10" min="0.1" step="any"></div>
+      <div class="field"><label for="prf">Pulse repetition frequency (Hz)</label><input id="prf" type="number" value="1" min="0.001" step="any"></div>
+      <div class="field"><label for="amp">Pulse amplitude (V)</label><input id="amp" type="number" value="0.1" min="0.000001" step="any"></div>
+      <div class="field"><label for="shortOutcome">15 ms FFT example outcome</label><select id="shortOutcome"><option value="miss" selected>Pulse missed (typical)</option><option value="hit">Pulse captured (1.5% case)</option></select></div>
     </div>
+    <button class="btn" type="button" id="reset">Reset Appendix values</button>
+  </section>
 
-    <div>
-      <div class="viz" aria-label="Simulated CE102 measurement">
-        <svg id="chart" class="chart" viewBox="0 0 760 400"></svg>
-      </div>
-      <div class="legendbar">
-        <span class="l-env"><i></i>True sinc envelope</span>
-        <span class="l-limit"><i></i>CE102-style limit</span>
-        <span class="l-sweptA"><i></i>Swept A</span>
-        <span class="l-sweptB"><i></i>Swept B</span>
-        <span class="l-fftA"><i></i>FFT A</span>
-        <span class="l-fftB"><i></i>FFT B</span>
-      </div>
-      <p class="explain aside" style="margin-top:12px">The dashed line is what the signal really contains. Tweak the four measurement times and watch each trace: where a dwell is shorter than the pulse period, that receiver misses pulses and its trace collapses into the noise floor — a failing signal can measure as a pass. Push any dwell past 1/PRF and its trace snaps up onto the true envelope. The classic demonstration: leave Swept A and FFT A short, make FFT B long, and compare.</p>
-    </div>
-  </div>
+  <section class="plot-grid" aria-label="Four MIL-STD-461G Appendix examples">
+    <article class="example">
+      <header><span class="fig-no">A-5</span><div><h2>Traditional receiver — 10 s scan</h2><p class="sub">Minimum scan example used by the Appendix.</p></div></header>
+      <div class="plot-frame"><svg id="plotA5" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="Traditional receiver with 10 second scan time"></svg></div>
+      <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
+      <p class="interpretation"><strong>Several isolated responses are captured.</strong> The bandpass crosses only a small part of the spectrum when each one-second pulse occurs, leaving gaps between detected portions.</p>
+    </article>
 
-  <p class="note">The simulation is deliberately idealised: fixed 10 kHz–10 MHz span, representative resolution bandwidths, and a stylised CE102-shaped limit for context — the real limit depends on your application and voltage class. The lesson it demonstrates is exactly the one MIL-STD-461G's measurement-time rules encode; the numbers for a formal test come from the standard's Table II, not from here.</p>
+    <article class="example">
+      <header><span class="fig-no">A-6</span><div><h2>Traditional receiver — 300 s scan</h2><p class="sub">The slower scan samples the pulse at far more frequency positions.</p></div></header>
+      <div class="plot-frame"><svg id="plotA6" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="Traditional receiver with 300 second scan time"></svg></div>
+      <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
+      <p class="interpretation"><strong>The responses overlap into the spectral profile.</strong> The additional scan time improves the chance of intercept at every part of the span, but at a large time cost.</p>
+    </article>
+
+    <article class="example">
+      <header><span class="fig-no">A-7</span><div><h2>FFT receiver — 15 ms dwell</h2><p class="sub">A complete frequency block is observed for only 0.015 s.</p></div></header>
+      <div class="plot-frame"><svg id="plotA7" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="FFT receiver with 15 millisecond dwell time"></svg></div>
+      <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
+      <span class="probability" id="shortProbability">1.5% intercept probability</span>
+      <p class="interpretation" id="shortText"><strong>The pulse is missed in this acquisition.</strong> The receiver has frequency coverage, but not enough time coverage for a once-per-second event.</p>
+    </article>
+
+    <article class="example">
+      <header><span class="fig-no">A-8</span><div><h2>FFT receiver — 1 s dwell</h2><p class="sub">The time record covers a complete pulse repetition period.</p></div></header>
+      <div class="plot-frame"><svg id="plotA8" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="FFT receiver with one second dwell time"></svg></div>
+      <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
+      <p class="interpretation"><strong>The continuous spectral profile is captured.</strong> One compliant time record covers the entire frequency block and includes at least one event from a periodic 1 Hz source.</p>
+    </article>
+  </section>
+
+  <p class="note standards-note">These are original, illustrative recreations of the behaviour described by MIL-STD-461G Appendix A, not copied standard figures and not simulated receiver calibration data. The CE102 115 V limit is included for orientation. Use the controlled standard and the verified settings of the actual measurement receiver for formal work.</p>
 </main>
 
-<footer class="site-footer">
-  <div class="bar">
-    <span>© James Yates — jamesyates.co.uk</span>
-    <span>Provided as-is for education — verify against the applicable standard.</span><a href="../emc.html">Back to EMC</a>
-  </div>
-</footer>
+<footer class="site-footer"><div class="bar"><span>© James Yates — jamesyates.co.uk</span><span>Provided as-is for education — verify against the applicable standard.</span><a href="../emc.html">Back to EMC</a></div></footer>
 
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
-["tau","prf","lvl","dSweptA","dSweptB","dFftA","dFftB"].forEach(id => $(id).addEventListener("input", run));
+const FLO = 60e3, FHI = 150e3, RBW = 1e3, NOISE = 16, N = 520;
 
-/* deterministic pseudo-random (fixed seed — no seed box, same picture every visit) */
-function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function sinc(x){ return Math.abs(x) < 1e-12 ? 1 : Math.sin(x) / x; }
+function fmtFrequency(f){ return `${Math.round(f/1000)}k`; }
+function noiseAt(i, phase){ return NOISE + 1.5*Math.sin(i*0.71 + phase) + .8*Math.sin(i*.173 + phase*2); }
+function ce102Limit(f){ return Math.max(60, 94 - 20*Math.log10(f/10e3)) + 6; }
 
-const FLO = 10e3, FHI = 10e6, N = 700, NOISE = 32;   // span, points, noise floor dBµV
-
-function freqs(){
-  const out = [];
-  for (let i = 0; i < N; i++) out.push(FLO * Math.pow(FHI/FLO, i/(N-1)));
-  return out;
-}
-function envelopeDb(f, tauSec, lvl){
-  const x = Math.PI * f * tauSec;
-  const s = x === 0 ? 1 : Math.abs(Math.sin(x)/x);
-  return lvl + 20*Math.log10(Math.max(s, 1e-6));
-}
-function limitDb(f){
-  /* stylised CE102 shape: flat 94 dBµV to 500 kHz then falling to 60 at 10 MHz (context only) */
-  if (f <= 500e3) return 94;
-  return 94 - 34 * (Math.log10(f) - Math.log10(500e3)) / (Math.log10(10e6) - Math.log10(500e3));
+function envelope(f, tau, amp){
+  const reconstructedV = amp * 2 * tau * RBW * Math.abs(sinc(Math.PI * f * tau));
+  return Math.max(NOISE, 20*Math.log10(Math.max(reconstructedV, 1e-12) / 1e-6));
 }
 
-function fmtT(s){
-  if (s >= 60) return (s/60).toPrecision(3) + " min";
-  if (s >= 1) return s.toPrecision(3) + " s";
-  return (s*1000).toPrecision(3) + " ms";
+function traditionalTrace(f, scanSeconds, prf, env, i){
+  const eventSpacingHz = (FHI - FLO) / Math.max(scanSeconds * prf, 1e-9);
+  const eventIndex = Math.round((f - FLO) / eventSpacingHz);
+  const centre = FLO + eventIndex * eventSpacingHz;
+  const captured = Math.abs(f - centre) <= RBW * .58;
+  return captured ? env + .8*Math.sin(i*.31) : noiseAt(i, scanSeconds/20);
 }
 
-function capNote(el, d, period){
-  const p = Math.min(1, d/period);
-  el.textContent = d >= period
-    ? "≥ 1/PRF — captures a pulse every time. ✓"
-    : "‹ 1/PRF — " + (p*100).toFixed(0) + " % chance per measurement. ✗";
-  el.style.color = d >= period ? "var(--accent-ink)" : "#9c2b1e";
+function drawPlot(id, kind, tau, prf, amp, shortHit){
+  const svg = $(id), W=620, H=300, L=52, R=14, T=24, B=40;
+  const iw=W-L-R, ih=H-T-B, yLo=10, yHi=90;
+  const x=f=>L+iw*(f-FLO)/(FHI-FLO);
+  const y=db=>T+ih*(yHi-db)/(yHi-yLo);
+  const points=Array.from({length:N},(_,i)=>({i,f:FLO+(FHI-FLO)*i/(N-1)}));
+  const clamp=v=>Math.max(yLo,Math.min(yHi,v));
+  const path=fn=>points.map((p,i)=>`${i?"L":"M"}${x(p.f).toFixed(1)} ${y(clamp(fn(p))).toFixed(1)}`).join(" ");
+  let out="";
+  [60e3,80e3,100e3,120e3,140e3].forEach(f=>{out+=`<line class="grid" x1="${x(f)}" y1="${T}" x2="${x(f)}" y2="${H-B}"/><text x="${x(f)}" y="${H-B+17}" text-anchor="middle">${fmtFrequency(f)}</text>`});
+  [10,30,50,70,90].forEach(db=>{out+=`<line class="grid" x1="${L}" y1="${y(db)}" x2="${W-R}" y2="${y(db)}"/><text x="${L-7}" y="${y(db)+4}" text-anchor="end">${db}</text>`});
+  out+=`<line class="axis" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/><line class="axis" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/><text x="${L}" y="12">Level (dBµV)</text><text x="${W-R}" y="${H-7}" text-anchor="end">Frequency (Hz)</text>`;
+  out+=`<path class="truth" d="${path(p=>envelope(p.f,tau,amp))}"/><path class="limit" d="${path(p=>ce102Limit(p.f))}"/>`;
+  let measured;
+  if(kind==="scan10") measured=p=>traditionalTrace(p.f,10,prf,envelope(p.f,tau,amp),p.i);
+  if(kind==="scan300") measured=p=>traditionalTrace(p.f,300,prf,envelope(p.f,tau,amp),p.i);
+  if(kind==="fft15") measured=p=>shortHit ? envelope(p.f,tau,amp)+.45*Math.sin(p.i*.22) : noiseAt(p.i,1.7);
+  if(kind==="fft1") measured=p=>envelope(p.f,tau,amp)+.35*Math.sin(p.i*.18);
+  out+=`<path class="trace" d="${path(measured)}"/>`;
+  svg.innerHTML=out;
 }
 
 function run(){
-  const tau = parseFloat($("tau").value) * 1e-6;
-  const prf = parseFloat($("prf").value);
-  const lvl = parseFloat($("lvl").value);
-  const dSA = parseFloat($("dSweptA").value) / 1000;
-  const dSB = parseFloat($("dSweptB").value) / 1000;
-  const dFA = parseFloat($("dFftA").value) / 1000;
-  const dFB = parseFloat($("dFftB").value) / 1000;
-  if (![tau, prf, lvl, dSA, dSB, dFA, dFB].every(isFinite) || tau <= 0 || prf <= 0 ||
-      dSA <= 0 || dSB <= 0 || dFA <= 0 || dFB <= 0) return;
-
-  const period = 1/prf;
-  $("period").textContent = fmtT(period);
-  capNote($("nSweptA"), dSA, period);
-  capNote($("nSweptB"), dSB, period);
-  capNote($("nFftA"), dFA, period);
-  capNote($("nFftB"), dFB, period);
-
-  /* scan-time comparison at representative step counts (swept: half-RBW spacing; FFT: 24 blocks) */
-  const sweptSteps = Math.round((150e3 - FLO) / 500) + Math.round((FHI - 150e3) / 4500);
-  $("scanTimes").textContent =
-    `swept A ${fmtT(sweptSteps*dSA)} · swept B ${fmtT(sweptSteps*dSB)} · FFT A ${fmtT(24*dFA)} · FFT B ${fmtT(24*dFB)}`;
-
-  draw(tau, prf, lvl, [
-    { p: Math.min(1, dSA*prf), cls: "sweptA", seg: Math.max(1, Math.round(N/90)), seed: 20261, jit: 2.2 },
-    { p: Math.min(1, dSB*prf), cls: "sweptB", seg: Math.max(1, Math.round(N/90)), seed: 20271, jit: 2.0 },
-    { p: Math.min(1, dFA*prf), cls: "fftA",  seg: Math.ceil(N/24),               seed: 20281, jit: 1.4 },
-    { p: Math.min(1, dFB*prf), cls: "fftB",  seg: Math.ceil(N/24),               seed: 20291, jit: 1.0 }
-  ]);
+  const tau=Number($("tau").value)*1e-6, prf=Number($("prf").value), amp=Number($("amp").value);
+  if(![tau,prf,amp].every(v=>Number.isFinite(v)&&v>0)) return;
+  const shortHit=$("shortOutcome").value==="hit";
+  const probability=Math.min(1,.015*prf)*100;
+  $("shortProbability").textContent=`${probability.toFixed(probability<10?1:0)}% intercept probability at ${Number(prf.toPrecision(4))} Hz`;
+  $("shortText").innerHTML=shortHit
+    ? "<strong>The pulse is captured in this acquisition.</strong> Because FFT observes the full block simultaneously, one intercepted pulse produces the continuous profile — but this remains an unlikely outcome at the reference PRF."
+    : "<strong>The pulse is missed in this acquisition.</strong> The receiver has frequency coverage, but not enough time coverage for this pulse repetition period.";
+  const appendix=Math.abs(tau-10e-6)<1e-12&&Math.abs(prf-1)<1e-12&&Math.abs(amp-.1)<1e-12;
+  $("caseBadge").textContent=appendix?"Appendix values":"Custom comparison";
+  drawPlot("plotA5","scan10",tau,prf,amp,shortHit);
+  drawPlot("plotA6","scan300",tau,prf,amp,shortHit);
+  drawPlot("plotA7","fft15",tau,prf,amp,shortHit);
+  drawPlot("plotA8","fft1",tau,prf,amp,shortHit);
 }
 
-function draw(tau, prf, lvl, traces){
-  const W = 760, H = 400, L = 56, R = 16, T = 14, B = 42;
-  const iw = W - L - R, ih = H - T - B;
-  const yLo = 20, yHi = Math.max(110, lvl + 12);
-  const x = f => L + iw * (Math.log10(f) - Math.log10(FLO)) / (Math.log10(FHI) - Math.log10(FLO));
-  const y = db => T + ih * (yHi - db) / (yHi - yLo);
-  const fs = freqs();
-
-  let s = "";
-  const decades = { 4: "10k", 5: "100k", 6: "1M", 7: "10M" };
-  for (const d in decades){
-    s += `<line class="gridline" x1="${x(10**d)}" y1="${T}" x2="${x(10**d)}" y2="${H-B}"/>`;
-    s += `<text x="${x(10**d)}" y="${H-B+16}" text-anchor="middle">${decades[d]}</text>`;
-  }
-  for (let db = 20; db <= yHi; db += 20){
-    s += `<line class="gridline" x1="${L}" y1="${y(db)}" x2="${W-R}" y2="${y(db)}"/>`;
-    s += `<text x="${L-6}" y="${y(db)+4}" text-anchor="end">${db}</text>`;
-  }
-  s += `<line class="axis" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/><line class="axis" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/>`;
-  s += `<text x="${L-44}" y="${T+2}">dBµV</text><text x="${W-R}" y="${H-6}" text-anchor="end">Hz →</text>`;
-
-  const clamp = db => Math.max(yLo, Math.min(yHi, db));
-  function path(fn, cls){
-    let d = "";
-    fs.forEach((f, i) => { d += (i ? "L" : "M") + x(f).toFixed(1) + " " + y(clamp(fn(f, i))).toFixed(1) + " "; });
-    return `<path class="${cls}" d="${d}"/>`;
-  }
-
-  s += path(f => envelopeDb(f, tau, lvl), "env");
-  s += path(f => limitDb(f), "limit");
-
-  /* each receiver: segments (sweep runs or FFT blocks) hit or miss together */
-  traces.forEach(tr => {
-    const rngHit = mulberry32(tr.seed);
-    const hits = [];
-    for (let i = 0; i < N; i += tr.seg){
-      const hit = rngHit() < tr.p;
-      for (let k = i; k < Math.min(N, i + tr.seg); k++) hits.push(hit);
-    }
-    const rngJit = mulberry32(tr.seed + 1);
-    s += path((f, i) => hits[i] ? envelopeDb(f, tau, lvl) + (rngJit()-0.5)*tr.jit
-                                : NOISE + (rngJit()-0.5)*5, tr.cls);
-  });
-
-  $("chart").innerHTML = s;
-}
+["tau","prf","amp","shortOutcome"].forEach(id=>$(id).addEventListener("input",run));
+$("reset").addEventListener("click",()=>{$("tau").value=10;$("prf").value=1;$("amp").value=.1;$("shortOutcome").value="miss";run()});
 run();
 </script>
-<script src="../assets/report.js" defer></script>
+<script src="../assets/report-tools.js"></script>
+<script>ReportTools.attach({ target: ".plot-grid", visuals: [".example-chart"], maxTableRows: 10 });</script>
 </body>
 </html>

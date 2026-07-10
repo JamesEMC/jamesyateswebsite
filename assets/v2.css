@@ -269,7 +269,3 @@ blockquote.pull strong { color: var(--copper); font-weight: 480; }
   .hero { padding: 70px 0 56px; }
   .hero .art { opacity: .1; right: -40%; }
 }
-
-@media (max-width: 560px){
-  .wrap { width: auto; margin-left: 18px; margin-right: 18px; }
-}

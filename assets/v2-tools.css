@@ -87,12 +87,13 @@ a.card:hover, a.tool-card:hover { border-color: var(--accent); transform: transl
 
 .panel { border: 1px solid var(--line-strong); background: var(--panel); padding: 24px; }
 .panel h2 { font-size: 1.18rem; margin-bottom: 16px; }
+.tool-layout > * { min-width: 0; }
 
-.field { display: grid; gap: 6px; margin-bottom: 16px; }
+.field { display: grid; min-width: 0; gap: 6px; margin-bottom: 16px; }
 .field label { font: 500 .72rem var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .field .row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
 .field input[type="number"], .field input[type="text"], .field select {
-  width: 100%; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 0;
+  width: 100%; min-width: 0; max-width: 100%; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 0;
   background: var(--paper); color: var(--ink); font: 500 .95rem var(--font-mono);
 }
 .field input:focus, .field select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -104,7 +105,10 @@ a.card:hover, a.tool-card:hover { border-color: var(--accent); transform: transl
 .result-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 9px; }
 .result-row:last-child { border-bottom: 0; }
 .result-row .rlabel { color: var(--muted); font-size: .9rem; }
-.result-row .rvalue { font: 500 1.02rem var(--font-mono); color: var(--accent-ink); white-space: nowrap; }
+.result-row .rvalue {
+  min-width: 0; font: 500 1.02rem var(--font-mono); color: var(--accent-ink);
+  text-align: right; white-space: normal; overflow-wrap: anywhere;
+}
 .result-row .rvalue.big { font-size: 1.55rem; }
 
 .formula {
@@ -130,6 +134,13 @@ table.data td { padding: 8px 10px; border-bottom: 1px solid var(--line); font-fa
 }
 .btn:hover { background: var(--ink); color: var(--paper); }
 
+.report-actions {
+  display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+  grid-column: 1 / -1; width: 100%;
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
+}
+.report-actions .report-status { color: var(--muted); font-size: .8rem; }
+
 /* legacy site-footer on migrated pages */
 .site-footer { border-top: 1px solid var(--line-strong); background: var(--bg-2); margin-top: 50px; }
 .site-footer .bar {
@@ -144,7 +155,7 @@ table.data td { padding: 8px 10px; border-bottom: 1px solid var(--line); font-fa
 
 
 /* tool pages: kill v2.css's 96px section padding; margins alone set the rhythm */
-.shell section { padding: 0; }
+.shell section:not(.panel) { padding: 0; }
 .shell .section:first-of-type { margin-top: 56px; }
 
 /* ---------- maths rendering ---------- */
@@ -160,8 +171,10 @@ table.data td { padding: 8px 10px; border-bottom: 1px solid var(--line); font-fa
 .formula sub, .formula sup { font-size: .72em; }
 .formula .where { display: block; margin-top: 12px; font-size: .86rem; color: var(--muted); }
 
-
-/* mobile: guarantee breathing room on the left/right regardless of page-local widths */
-@media (max-width: 560px){
-  .shell { width: auto !important; margin-left: 18px !important; margin-right: 18px !important; }
+@media (max-width: 560px) {
+  .shell { width: min(100% - 28px, 1200px); }
+  .panel { padding: 18px; }
+  .result-row { align-items: flex-start; }
+  .result-row .rvalue { max-width: 58%; }
+  .report-actions { justify-content: flex-start; flex-wrap: wrap; }
 }

@@ -148,6 +148,7 @@ function draw(pts){
 
 renderTable(); calc();
 </script>
-<script src="../assets/report.js" defer></script>
+<script src="../assets/report-tools.js"></script>
+<script>ReportTools.attach({ visuals: ["#psd"], maxTableRows: 50, note: "Overall gRMS is calculated by integrating each straight log-log PSD segment and taking the square root of the total area." });</script>
 </body>
 </html>

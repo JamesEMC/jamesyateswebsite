@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <title>James Yates | EUT Antenna Position Calculator</title>
+  <meta name="description" content="Estimate practical antenna centre positions for illuminating a rectangular EUT with a circular footprint and export the resulting setup plan.">
   <link rel="stylesheet" href="../assets/v2.css">
 <link rel="stylesheet" href="../assets/v2-tools.css">
 <style>
@@ -100,7 +101,7 @@
     }
 
     .shell {
-      width: min(1440px, calc(100% - 48px));
+      width: min(1440px, calc(100% - 20px));
       margin: 0 auto;
       padding: 34px 0 42px;
     }
@@ -271,7 +272,7 @@
       .summary-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
       .row { grid-template-columns: 1fr; }
       .brand { top: 12px; right: 12px; font-size: .68rem; }
-      .shell { width: min(100% - 48px, 1440px); padding-top: 56px; }
+      .shell { width: min(100% - 20px, 1440px); padding-top: 56px; }
       .theme-toggle { left: 12px; bottom: 12px; }
     }
   </style>
@@ -1008,6 +1009,7 @@ function renderTable(positions) {
 $("run").addEventListener("click", calculate);
 window.addEventListener("load", calculate);
 </script>
-<script src="../assets/report.js" defer></script>
+<script src="../assets/report-tools.js"></script>
+<script>ReportTools.attach({ target: "main", visuals: ["#drawing"], maxTableRows: 100, note: "Numerical coverage estimate using a circular footprint and sampled EUT area. It is a chamber-planning aid, not a field-uniformity demonstration." });</script>
 </body>
 </html>
