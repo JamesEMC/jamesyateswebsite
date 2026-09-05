@@ -45,22 +45,22 @@
 
   <p class="kicker">Radar Tool</p>
   <h1>Doppler shift calculator</h1>
-  <p class="intro">A moving target changes the frequency of the echo it returns. This tool converts a target's speed and direction into the Doppler shift a radar would measure — and shows why a target crossing side-on can be nearly invisible to Doppler processing.</p>
+  <p class="intro">Calculate Doppler shift from target speed, direction and radar frequency. The diagrams show radial velocity and the effect of a clutter rejection filter.</p>
 
   <section class="section explain">
-    <h2>What's going on</h2>
-    <p>When a target moves towards the radar, each successive wavefront it reflects has slightly less distance to travel back. The reflected waves arrive bunched closer together — a higher frequency. Moving away stretches them out — a lower frequency. It's the same effect that makes a siren drop in pitch as it passes you, except the shift happens <em>twice</em>: once on the way to the target and once on the reflection. That's where the factor of 2 comes from:</p>
+    <h2>Doppler shift and radial velocity</h2>
+    <p>An approaching target returns a higher frequency; a receding target returns a lower frequency. In a monostatic radar, the outward and return paths produce the factor of two in the Doppler equation:</p>
     <div class="formula"><span class="eq">f<sub>d</sub> &nbsp;=&nbsp; <span class="frac"><span>2 · v<sub>radial</sub> · f</span><span>c</span></span></span><span class="where">where v<sub>radial</sub> = v · cos θ</span></div>
-    <p>The crucial detail is <strong>v<sub>radial</sub></strong>: only the part of the target's speed pointing <em>along the radar's line of sight</em> produces a shift. A target flying straight at the radar (θ = 0°) gives the full effect. One crossing perfectly side-on (θ = 90°) gives no Doppler shift at all, however fast it's going — for that instant, its range isn't changing. Drag the angle slider below and watch the radial component collapse.</p>
-    <p class="aside">The shifts are tiny compared with the carrier — a jet at 300 m/s seen by a 10 GHz radar shifts the echo by only about 20 kHz out of 10,000,000 kHz. Radar receivers measure it by comparing the echo against a copy of the transmitted signal, which is why coherent (phase-stable) transmitters matter so much.</p>
+    <p>Only radial velocity, the component along the radar’s line of sight, produces a Doppler shift. At θ = 0°, the full target speed is radial. At θ = 90°, radial velocity and Doppler shift are zero at that instant.</p>
+    <p class="aside">At 300 m/s radial velocity and a radar frequency of 10 GHz, the Doppler shift is approximately 20 kHz. Coherent receivers measure this shift relative to the transmitted signal.</p>
   </section>
 
   <section class="section explain">
-    <h2>Why you should care</h2>
-    <p>Here is the problem Doppler solves. Point a radar at a low-flying aircraft and the echo from the aircraft arrives mixed with the echo from everything behind it — hills, buildings, the sea. That background <strong>clutter</strong> can be a million times stronger than the target. On range alone, the aircraft is invisible: a 2 m² echo buried inside a 2,000,000 m² one.</p>
-    <p>But the hillside isn't moving. Its echo comes back at exactly the transmitted frequency — zero Doppler — while the aircraft's echo comes back shifted. Put a filter in the receiver that rejects a narrow band around zero Doppler and the mountain vanishes, leaving the aircraft standing alone. This is <strong>moving target indication (MTI)</strong>, and it's the single biggest reason Doppler matters: it doesn't just measure speed, it makes moving targets <em>visible at all</em>.</p>
-    <p>The same trick runs the modern world: weather radars map storm winds from the Doppler of raindrops, police radar and speed cameras are pure Doppler devices, and airborne radars use it to spot vehicles against the ground rushing past below.</p>
-    <p>Now connect it to the angle slider. A target crossing side-on has zero radial speed — zero Doppler — so its echo lands in exactly the band the clutter filter rejects. <strong>To an MTI radar, a crossing target looks like a hillside.</strong> Watch it happen in the spectrum below: drag θ toward 90° and the target line slides into the clutter notch and is eaten.</p>
+    <h2>Clutter rejection</h2>
+    <p>Returns from terrain, buildings and the sea can be much stronger than an aircraft echo at a similar range. Doppler processing helps distinguish moving targets from this background clutter.</p>
+    <p>For a stationary radar, stationary terrain produces returns near zero Doppler. Moving target indication (MTI) suppresses these returns to improve detection of targets with a different Doppler shift.</p>
+    <p>Other applications include weather radar wind measurements, speed measurement and airborne detection of moving ground targets.</p>
+    <p>A target crossing at θ = 90° has zero radial velocity, so its return may fall within the clutter rejection band. Adjust the angle to see the target return move towards the filter notch.</p>
   </section>
 
   <div class="tool-layout">
@@ -100,7 +100,7 @@
       <div class="viz geo" aria-label="Geometry diagram: velocity vector and its radial component">
         <svg id="geo" viewBox="0 0 720 360"></svg>
       </div>
-      <p class="explain aside" style="margin-top:10px">The amber arrow is the target's true velocity. The dashed amber line is the part of it pointing along the radar's line of sight — the only part the Doppler shift can see. The cyan arrow shows that radial component on its own.</p>
+      <p class="explain aside" style="margin-top:10px">The amber arrow shows target velocity. The dashed amber line and cyan arrow show its radial component along the radar’s line of sight.</p>
 
       <div class="viz spec" aria-label="Receiver Doppler spectrum with clutter notch and target line">
         <svg id="spec" viewBox="0 0 720 250"></svg>
@@ -109,7 +109,7 @@
     </div>
   </div>
 
-  <p class="note">Positive f<sub>d</sub> here means the target is closing (approaching). Real radars must also cope with their own platform motion — an airborne radar sees the whole ground moving, so its "zero Doppler" clutter notch has to chase the terrain. Same principle as the spectrum above, harder sums.</p>
+  <p class="note">Positive Doppler shift indicates an approaching target in this model. Airborne radar processing must also account for platform motion and the resulting ground-clutter Doppler shift.</p>
 </main>
 
 <footer class="site-footer">

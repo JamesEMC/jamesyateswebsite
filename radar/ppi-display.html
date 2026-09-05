@@ -43,12 +43,12 @@
 
   <p class="kicker">Radar Tool</p>
   <h1>PPI display demo</h1>
-  <p class="intro">The plan position indicator is the classic radar picture: you're looking straight down on the world with the radar at the centre, north at the top. Click anywhere on the scope to place an aircraft, then watch the sweep find it.</p>
+  <p class="intro">A plan position indicator (PPI) displays targets by range and bearing, with the radar at the centre and north at the top. Click the display to add a target.</p>
 
   <section class="section explain">
-    <h2>What you're looking at</h2>
-    <p>The rotating line is the <strong>sweep</strong> — it shows where the antenna is pointing right now. As the beam passes over a target, the echo paints a <strong>blip</strong> at the matching bearing and range. On the original cathode-ray displays the phosphor kept glowing after the beam moved on, so blips faded slowly until the antenna came round again. That <strong>afterglow</strong> wasn't a nice-to-have: the fading trail is what let operators see which way a target was moving, one revolution at a time.</p>
-    <p class="aside">Notice the update problem this creates. A rotating radar only looks at each target once per revolution — at 12 RPM, that's one fresh position every five seconds. Fast jets move a long way in five seconds, which is one big reason modern systems use electronically-steered arrays that can revisit a target thousands of times a second without anything physically moving.</p>
+    <h2>Display operation</h2>
+    <p>The rotating sweep indicates antenna bearing. When the beam passes a target, its echo appears at the corresponding range and bearing. Simulated phosphor persistence makes returns fade between sweeps and shows a trail of previous positions.</p>
+    <p class="aside">A rotating radar updates each target once per revolution. At 12 RPM, this is one update every five seconds. Electronically steered arrays can revisit targets without waiting for mechanical rotation.</p>
   </section>
 
   <div class="tool-layout">
@@ -71,7 +71,7 @@
         <button class="btn" id="clearBtn" type="button">Clear targets</button>
         <button class="btn" id="pauseBtn" type="button">Pause</button>
       </div>
-      <p style="color:var(--muted);font-size:.85rem;margin:14px 0 0">Click (or tap) the scope to place a target where you like. Each aircraft flies a straight track at a realistic speed, so watch its blips step across the screen sweep by sweep.</p>
+      <p style="color:var(--muted);font-size:.85rem;margin:14px 0 0">Click or tap the display to place a target. Each target follows a straight track, with its displayed position updated as the sweep passes.</p>
     </div>
 
     <div>
@@ -86,7 +86,7 @@
     </div>
   </div>
 
-  <p class="note">This demo simplifies reality: every target is always detected, there's no clutter, no noise and no missed scans. It exists to make the geometry and the update rate intuitive — the rest of the radar section covers what makes real detection hard.</p>
+  <p class="note">This demonstration assumes every target is detected on each scan. It excludes clutter, noise and missed detections.</p>
 </main>
 
 <footer class="site-footer">

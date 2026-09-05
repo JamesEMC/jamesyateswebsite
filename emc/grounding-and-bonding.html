@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <title>Grounding & Bonding Explained | James Yates</title>
-<meta name="description" content="Star, mesh and hybrid earthing explained in plain language with original diagrams — common-impedance coupling, parallel earthing conductors, and why installations follow IEC 61000-5-2.">
+<meta name="description" content="Protective earthing, signal reference and EMC bonding, with diagrams of star and mesh networks and common-impedance coupling.">
 <link rel="stylesheet" href="../assets/v2.css">
 <link rel="stylesheet" href="../assets/v2-tools.css">
 <style>
@@ -51,20 +51,20 @@
   <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>Grounding &amp; Bonding</nav>
 
   <p class="kicker">Grounding &amp; Bonding</p>
-  <h1>Grounding &amp; bonding, explained properly</h1>
-  <p class="intro">"Ground" is the most overloaded word in electrical engineering. It's a safety path, a signal reference, and an EMC tool — and confusing those three jobs causes more real-world interference problems than almost anything else. This page untangles them, with the diagrams I draw on whiteboards.</p>
+  <h1>Grounding &amp; bonding</h1>
+  <p class="intro">Grounding serves three distinct functions: protective earthing, signal reference and EMC bonding. Each has different requirements for current paths and impedance.</p>
 
   <section class="section explain">
-    <h2>Three jobs, one word</h2>
-    <p><strong>Safety earthing</strong> exists so that a fault current has a low-resistance path back to the source, tripping the protection before an exposed metal case becomes dangerous. It cares about ohms at 50 Hz and nothing else.</p>
-    <p><strong>Signal reference</strong> is the "zero volts" that circuits measure everything against. Two circuits that disagree about where zero is will exchange unwanted currents to settle the argument.</p>
-    <p><strong>EMC bonding</strong> ties metalwork together so RF currents can flow where you want them (screens, enclosures, gaskets) rather than where you don't (cables, apertures, your measurement). It cares about <em>impedance across the whole spectrum</em> — which, as the <a href="bond-strap-impedance.html">bond strap tool</a> shows, is mostly about geometry, not resistance.</p>
-    <p class="aside">A system can be perfectly safe and an EMC disaster at the same time. The safety earth is non-negotiable; the question is how everything else is arranged around it.</p>
+    <h2>Protective earthing, signal reference and EMC bonding</h2>
+    <p>Protective earthing provides a fault-current path so protective devices can operate and limit the risk from exposed conductive parts.</p>
+    <p>Signal reference defines the voltage against which a circuit measures its signals. Differences between circuit references can drive unwanted currents.</p>
+    <p>EMC bonding connects metalwork to provide controlled RF current paths through screens, enclosures and gaskets. Its performance depends on impedance across the relevant frequency range, including the effects of conductor geometry. See the <a href="bond-strap-impedance.html">bond strap impedance calculator</a>.</p>
+    <p class="aside">Meeting protective earthing requirements does not, by itself, establish EMC performance. Both requirements must be addressed in the installation design.</p>
   </section>
 
   <section class="section explain">
     <h2>The problem: common-impedance coupling</h2>
-    <p>Here is where most "grounding problems" actually come from. When two circuits share a stretch of return conductor, the current from one develops a voltage across that shared impedance — and the other circuit sees that voltage added directly to its signal:</p>
+    <p>When two circuits share a return conductor, current from one develops a voltage across the shared impedance. That voltage can couple into the other circuit:</p>
 
     <div class="diag" role="img" aria-label="Two circuits sharing a return conductor, with noise voltage developed across the shared impedance">
       <svg viewBox="0 0 720 240">
@@ -83,7 +83,7 @@
       </svg>
     </div>
 
-    <p>Feel the sizes involved. A motor drive dumping 10 A of switching return current through a shared conductor with just 0.1 Ω of impedance at the frequency of interest puts a full <strong>1 volt</strong> of noise in series with whatever else uses that conductor — enough to swamp a millivolt-level sensor completely. Try it:</p>
+    <p>A switching return current of 10 A through a shared impedance of 0.1 Ω develops 1 V of interference, which can overwhelm a millivolt-level sensor signal.</p>
 
     <div class="panel">
       <div class="field">
@@ -102,9 +102,9 @@
   </section>
 
   <section class="section explain">
-    <h2>Two answers: star and mesh</h2>
-    <p>The <strong>star</strong> (single-point) approach eliminates sharing by giving every unit its own dedicated conductor back to one reference point. No shared path, no common-impedance coupling — at low frequency. Its weakness is that those long dedicated conductors have inductance, so at RF each one becomes a high impedance and the "single point" stops meaning anything. Stars suit low-frequency, high-sensitivity systems: audio, instrumentation, some analogue plant.</p>
-    <p>The <strong>mesh</strong> (multipoint) approach goes the other way: bond everything to a shared metal structure — a ground plane, floor grid, cabinet frame, cable tray network — at every opportunity. Individual paths are short, so their inductance is low; and the many parallel paths divide the current, so the effective impedance stays low right up through the RF range. This is how modern electronics, PCBs, vehicles, aircraft and EMC test facilities are built.</p>
+    <h2>Star and mesh arrangements</h2>
+    <p>A star arrangement gives each unit a dedicated conductor to a common reference point, reducing shared-path coupling at low frequencies. At RF, the inductance of long conductors limits its effectiveness. Typical applications include low-frequency audio and sensitive instrumentation.</p>
+    <p>A mesh arrangement bonds equipment to a common conductive structure, such as a ground plane, floor grid, cabinet frame or cable tray network. Short connections and parallel paths reduce effective impedance at RF.</p>
 
     <div class="two-col">
       <div class="diag" role="img" aria-label="Star earthing: each unit has its own conductor to a single reference point">
@@ -139,12 +139,12 @@
       </div>
     </div>
 
-    <p>Real installations usually end up <strong>hybrid</strong>: a meshed bonding network for structure, cabinets, trays and screens, with particular sensitive circuits treated as controlled islands within it. The dangerous option isn't star or mesh — it's the accidental topology nobody designed.</p>
+    <p>Hybrid installations combine a meshed structural bonding network with controlled reference arrangements for sensitive circuits. The complete topology should be defined and documented.</p>
   </section>
 
   <section class="section explain">
     <h2>Cables: the parallel earthing conductor idea</h2>
-    <p>One concept from installation practice deserves its own picture. When a cable runs between two areas, any RF or fault current flowing between those areas will use the cable's screen — unless you give it a better path. Running the cable on a bonded metal tray, duct or a dedicated heavy conductor <em>alongside</em> it (a parallel earthing conductor) gives structural currents a low-impedance route of their own, and dramatically reduces what flows on the screen:</p>
+    <p>A bonded cable tray, duct or parallel earthing conductor provides an additional low-impedance path between connected areas. This can reduce the current carried by a cable screen:</p>
 
     <div class="diag" role="img" aria-label="A signal cable routed along a bonded tray that carries structural current instead of the cable screen">
       <svg viewBox="0 0 720 200">
@@ -159,7 +159,7 @@
       </svg>
     </div>
 
-    <p class="aside">This is the everyday reason cable trays get bonded at every joint, and why "just float the screen at one end" is not the universal fix it's sometimes claimed to be — at RF, a floated screen end simply re-radiates.</p>
+    <p class="aside">Bonding continuity at cable tray joints supports this current path. Cable screen termination should be selected for the installation and frequency range; leaving one end unconnected is not a universal solution.</p>
   </section>
 
   <section class="section explain">
@@ -173,14 +173,14 @@
       <a class="tool-card" href="bond-strap-impedance.html">
         <div>
           <h3>Bond Strap Impedance</h3>
-          <p>See how the impedance of a real strap climbs with frequency, and why geometry beats resistance.</p>
+          <p>Calculate bond strap impedance as a function of frequency and geometry.</p>
         </div>
         <span class="open">Open tool</span>
       </a>
       <a class="tool-card" href="skin-depth.html">
         <div>
           <h3>Skin Depth Calculator</h3>
-          <p>How deep RF current actually penetrates a conductor — and what that means for plating and shields.</p>
+          <p>Calculate current penetration depth for conductor, plating and shielding materials.</p>
         </div>
         <span class="open">Open tool</span>
       </a>

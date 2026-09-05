@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <title>Radar Range Equation | James Yates</title>
-<meta name="description" content="Interactive radar range equation calculator with a plain-language explanation of every term and a live received-power chart showing the R-to-the-fourth law.">
+<meta name="description" content="Calculate radar detection range and received power from transmitter, antenna, target and receiver parameters.">
 <link rel="stylesheet" href="../assets/v2.css">
 <link rel="stylesheet" href="../assets/v2-tools.css">
 <style>
@@ -41,15 +41,15 @@
 
   <p class="kicker">Radar Tool</p>
   <h1>Radar range equation</h1>
-  <p class="intro">How far can a radar actually see? This tool predicts the maximum detection range from the radar's power, antenna, frequency and the size of the target — and shows why doubling the range is so much harder than it sounds.</p>
+  <p class="intro">Estimate maximum detection range from transmit power, antenna gain, frequency, target radar cross-section, receiver threshold and losses.</p>
 
   <section class="section explain">
-    <h2>The equation in plain language</h2>
+    <h2>Radar range equation</h2>
     <div class="formula"><span class="eq">R<sub>max</sub> &nbsp;=&nbsp; <span class="rad"><sup>4</sup>√</span><span class="vinc"><span class="frac"><span>P<sub>t</sub> · G² · λ² · σ</span><span>(4π)³ · P<sub>min</sub> · L</span></span></span></span></div>
-    <p>And yes — that outer fourth root is real. The echo's power falls with R⁴ on the way out and back, so undoing it to find the range means taking the fourth root of everything else.</p>
-    <p>Each symbol is one link in the chain between the transmitter and the faint echo:</p>
-    <p><strong>P<sub>t</sub></strong> is the transmit power — how loudly the radar shouts. <strong>G</strong> is antenna gain: how well the antenna focuses that shout into a beam (it appears squared because the same antenna focuses the transmission <em>and</em> collects the echo). <strong>λ</strong> is the wavelength, set by the operating frequency. <strong>σ</strong> (sigma) is the target's <em>radar cross-section</em> — effectively how big and reflective the target looks to radio waves, measured in square metres. <strong>P<sub>min</sub></strong> is the weakest echo the receiver can still detect, and <strong>L</strong> collects real-world losses in cables, the atmosphere and processing.</p>
-    <p class="aside">The whole thing is raised to the power of a quarter. That's the R⁴ law biting: to double detection range you need <em>sixteen times</em> more transmit power, all else being equal. It's why radar engineering is a game of decibels scraped together from every part of the system, not just a bigger transmitter.</p>
+    <p>Received echo power decreases with the fourth power of range. Solving for range therefore requires the fourth root.</p>
+    <p>Parameters:</p>
+    <p><strong>P<sub>t</sub></strong> is transmit power. <strong>G</strong> is antenna gain and appears squared because the same antenna transmits and receives. <strong>λ</strong> is wavelength. <strong>σ</strong> is target radar cross-section in square metres. <strong>P<sub>min</sub></strong> is the minimum detectable received power. <strong>L</strong> represents system and propagation losses.</p>
+    <p class="aside">With all other parameters unchanged, doubling detection range requires sixteen times the transmit power.</p>
   </section>
 
   <div class="tool-layout">
@@ -108,11 +108,11 @@
       <div class="viz chart-wrap" aria-label="Received echo power against range">
         <svg id="chart" viewBox="0 0 720 340"></svg>
       </div>
-      <p class="explain aside" style="margin-top:10px">The cyan curve is the echo power arriving back at the receiver as the target moves further away — a straight line on this log–log style plot because of the R⁴ law (−12 dB every time range doubles). Where it crosses the amber P<sub>min</sub> line, the echo disappears into the noise: that crossing <em>is</em> the maximum range.</p>
+      <p class="explain aside" style="margin-top:10px">The cyan curve shows received echo power against range, decreasing by approximately 12 dB each time range doubles. Its crossing with the amber P<sub>min</sub> line marks the modelled detection limit.</p>
     </div>
   </div>
 
-  <p class="note">This is the simplest form of the range equation — single pulse, no integration gain, no clutter, no fluctuation statistics. Real detection range analysis adds all of those, but the shape of the problem stays exactly as shown here.</p>
+  <p class="note">This model assumes single-pulse detection and excludes integration gain, clutter and target fluctuation statistics.</p>
 </main>
 
 <footer class="site-footer">

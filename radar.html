@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Radar — James Yates</title>
-<meta name="description" content="Radar fundamentals explained in plain language — the range equation, Doppler and PRF — with interactive calculators and a working PPI display.">
+<meta name="description" content="Radar principles and interactive tools covering the range equation, Doppler shift, PRF and PPI displays.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,17 +56,17 @@
   <div class="sec-hero">
     <div class="wrap">
       <p class="eyebrow">03 — Radar Fundamentals</p>
-      <h1 class="reveal in">From the pulse out to <em>the blip.</em></h1>
-      <p class="lede reveal in">My first job in engineering was an apprenticeship at QinetiQ Aberporth, where radar tracked aircraft and targets across a weapons test range. This section explains the fundamentals the way I wish someone had explained them to me — plain language, with interactive tools so you can see how the numbers behave.</p>
+      <h1 class="reveal in">Radar <em>Fundamentals</em></h1>
+      <p class="lede reveal in">My engineering apprenticeship at QinetiQ Aberporth included radar systems used to track aircraft and targets on a weapons test range.</p>
     </div>
   </div>
 
   <section class="tight">
     <div class="wrap prose">
-      <p class="eyebrow reveal">The basic idea</p>
-      <h2 class="reveal">Shout, then listen for the echo.</h2>
-      <p class="reveal">The radar transmits a short, powerful burst of radio energy — a pulse — then goes quiet and listens. If the pulse hits something, a tiny fraction reflects back. Radio waves travel about <strong>300 metres every microsecond</strong>, and the pulse travels out <em>and</em> back, so every microsecond of echo delay means roughly 150 metres of range. Everything else in radar exists to answer three questions about that echo: how far (timing), which direction (where the antenna was pointing), and how fast (the Doppler shift in the echo's frequency).</p>
-      <p class="reveal">The surprise is how faint the echo is. The pulse spreads as it travels, and the reflection spreads again on the way back — so received power falls with the <strong>fourth power of range</strong>. Double the distance and the echo returns sixteen times weaker. That's why transmitters are measured in kilowatts while receivers strain for millionths of a millionth of a watt, and it's what the range equation is for.</p>
+      <p class="eyebrow reveal">Principles</p>
+      <h2 class="reveal">Pulse transmission and echo reception</h2>
+      <p class="reveal">A pulsed radar transmits radio energy and receives a small fraction reflected by a target. Radio waves travel approximately <strong>300 metres per microsecond</strong>. Because the signal travels to the target and back, each microsecond of echo delay corresponds to approximately 150 metres of range. Antenna direction provides bearing, while Doppler shift indicates radial velocity.</p>
+      <p class="reveal">Transmitted energy spreads on the outward path, and the reflected energy spreads again on the return path. In the basic radar range equation, received power decreases with the <strong>fourth power of range</strong>: doubling the distance reduces received power by a factor of sixteen.</p>
     </div>
   </section>
 
@@ -74,18 +74,11 @@
     <div class="wrap">
       <p class="eyebrow reveal">Tools</p>
       <div class="tool-index">
-        <a class="ti reveal" href="radar/radar-range-equation.html"><span class="num">01</span><span><h3>Radar Range Equation</h3><p>Predict maximum detection range from power, gain, frequency and target size — and see the R⁴ law bite.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="radar/radar-range-equation.html"><span class="num">01</span><span><h3>Radar Range Equation</h3><p>Estimate maximum detection range from transmit power, antenna gain, frequency and target radar cross-section.</p></span><span class="go">Open →</span></a>
         <a class="ti reveal" href="radar/doppler-shift.html"><span class="num">02</span><span><h3>Doppler Shift Calculator</h3><p>Target speed into frequency shift, with an interactive angle diagram showing why geometry matters.</p></span><span class="go">Open →</span></a>
         <a class="ti reveal" href="radar/prf-and-ambiguity.html"><span class="num">03</span><span><h3>PRF &amp; Ambiguity Explorer</h3><p>Unambiguous range, blind speeds, resolution and duty cycle — with a live pulse-train timing diagram.</p></span><span class="go">Open →</span></a>
         <a class="ti reveal" href="radar/ppi-display.html"><span class="num">04</span><span><h3>PPI Display Demo</h3><p>A working scope: rotating sweep, phosphor afterglow, range rings, and targets you place yourself.</p></span><span class="go">Open →</span></a>
       </div>
-    </div>
-  </section>
-
-  <section class="dark">
-    <div class="wrap">
-      <p class="eyebrow reveal">The compromise every radar makes</p>
-      <blockquote class="pull reveal">Send pulses slowly and you see far but judge speed poorly. Send them fast and it flips. <strong>There is no free lunch</strong> — only PRFs.</blockquote>
     </div>
   </section>
 

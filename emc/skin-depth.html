@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <title>Skin Depth Calculator | James Yates</title>
-<meta name="description" content="Skin depth calculator for common conductor materials, with a plain-language explanation of why RF current hugs the surface and what it means for bonding, shielding and plating.">
+<meta name="description" content="Calculate skin depth for common conductor materials and assess its implications for bonding, shielding and plating.">
 <link rel="stylesheet" href="../assets/v2.css">
 <link rel="stylesheet" href="../assets/v2-tools.css">
 <style>
@@ -39,14 +39,14 @@
 
   <p class="kicker">Grounding &amp; Bonding</p>
   <h1>Skin depth calculator</h1>
-  <p class="intro">At DC, current fills a conductor evenly. At RF, it crowds into a thin layer at the surface — and above a few megahertz that layer is thinner than a human hair. This tool calculates how thin, for the materials you actually meet on the bench.</p>
+  <p class="intro">Calculate skin depth from frequency, resistivity and relative permeability for common conductor and plating materials.</p>
 
   <section class="section explain">
     <h2>What skin depth means</h2>
-    <p>Alternating current generates a changing magnetic field inside the conductor, and that field pushes the current back out toward the surface. The faster the alternation, the harder the push. The <strong>skin depth δ</strong> is the depth at which the current density has fallen to about 37% (1/e) of its surface value:</p>
+    <p>At higher frequencies, alternating current is concentrated nearer the conductor surface. Skin depth δ is the depth at which current density falls to approximately 37% (1/e) of its surface value:</p>
     <div class="formula"><span class="eq">δ &nbsp;=&nbsp; <span class="rad">√</span><span class="vinc"><span class="frac"><span>ρ</span><span>π · f · µ₀ · µᵣ</span></span></span></span></div>
-    <p>where ρ is the material's resistivity and µᵣ its relative permeability. Roughly 86% of the current flows within the first two skin depths, so for most purposes the conductor might as well be a hollow tube δ-thick.</p>
-    <p>Three practical consequences. <strong>Bonding:</strong> the effective resistance of a strap rises with frequency because less metal carries the current — surface area and surface condition matter more than cross-section. <strong>Plating:</strong> a few tens of microns of tin or zinc is enough to carry essentially all the RF current, which is why plated finishes and their corrosion state dominate RF bond quality. <strong>Shielding:</strong> a shield attenuates fields by roughly 8.7 dB per skin depth of thickness, so even thin metal is a very effective shield at high frequency — and note how magnetic materials like steel trade higher resistivity for enormous µᵣ, giving them <em>smaller</em> skin depths than copper.</p>
+    <p>where ρ is resistivity and µᵣ is relative permeability.</p>
+    <p>Skin effect increases effective AC resistance by reducing the conducting cross-section. Plating thickness and surface condition affect RF current distribution and bond performance. Shield absorption is approximately 8.7 dB per skin depth of thickness in this model; resistivity and permeability determine the skin depth.</p>
   </section>
 
   <div class="tool-layout">
@@ -101,11 +101,11 @@
       <div class="viz xsec" style="margin-top:14px" aria-label="Conductor cross-section showing current crowding">
         <svg id="xsec" viewBox="0 0 720 130"></svg>
       </div>
-      <p class="explain aside" style="margin-top:10px">Top: the material's skin-depth law — this curve belongs to the material, so changing frequency moves the amber marker along it rather than reshaping it; change the material to reshape the curve. Bottom: a 2 mm-thick conductor cross-section, with the current-carrying skin drawn to scale at your chosen frequency.</p>
+      <p class="explain aside" style="margin-top:10px">The upper plot shows skin depth against frequency for the selected material. The marker indicates the selected frequency. The lower plot shows skin depth to scale in a 2 mm-thick conductor.</p>
     </div>
   </div>
 
-  <p class="note">Values assume a solid, clean, non-corroded conductor and a uniform plane-wave view of the field. Surface roughness, plating porosity and corrosion all reduce real-world performance — which is exactly why bond condition gets inspected, not assumed.</p>
+  <p class="note">Values assume a solid, clean conductor and uniform plane-wave conditions. Surface roughness, plating porosity and corrosion can affect performance.</p>
 </main>
 
 <footer class="site-footer">

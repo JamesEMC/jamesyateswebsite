@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Antennas — James Yates</title>
-<meta name="description" content="Practical antenna tools: field region plotting, guided beamwidth digitising and polarisation animation, with notes from real range and test experience.">
+<meta name="description" content="Antenna test-planning tools for field regions, beamwidth digitising and beam coverage.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,8 +56,8 @@
   <div class="sec-hero">
     <div class="wrap">
       <p class="eyebrow">02 — Antennas</p>
-      <h1 class="reveal in">Ranges, regions and <em>practical geometry.</em></h1>
-      <p class="lede reveal in">Which field region a test distance sits in, and how to pull real numbers out of a manufacturer's beamwidth plot — the practical side of antennas in test work. A rebuilt polarisation and aperture-coupling explainer is in the workshop, and the beam coverage animator grows as more antennas are digitised.</p>
+      <h1 class="reveal in">Antenna Measurement <em>&amp; Test Planning</em></h1>
+      <p class="lede reveal in">Calculate antenna field regions, extract beamwidth data from manufacturer plots and assess beam coverage at the required test distance.</p>
     </div>
   </div>
 
@@ -67,24 +67,17 @@
       <div class="tool-index">
         <a class="ti reveal" href="antenna/antenna-region-plotter.html"><span class="num">01</span><span><h3>Antenna Region Plotter</h3><p>Reactive, transition and Fraunhofer far-field regions against frequency, antenna size and test distance.</p></span><span class="go">Open →</span></a>
         <a class="ti reveal" href="antenna/frequency-beamwidth-reader.html"><span class="num">02</span><span><h3>Frequency Beamwidth Reader</h3><p>Digitise E- and H-plane beamwidth curves from a datasheet plot in four guided steps, then export CSV.</p></span><span class="go">Open →</span></a>
-        <a class="ti reveal" href="antenna/beam-coverage-animator.html"><span class="num">03</span><span><h3>Beam Coverage Animator</h3><p>Watch a horn's beam breathe across its band, and get the worst-case beamwidth and real coverage at your test distance.</p></span><span class="go">Open →</span></a>
+        <a class="ti reveal" href="antenna/beam-coverage-animator.html"><span class="num">03</span><span><h3>Beam Coverage Animator</h3><p>Assess beamwidth variation across frequency and minimum coverage at the selected test distance.</p></span><span class="go">Open →</span></a>
       </div>
-    </div>
-  </section>
-
-  <section class="dark">
-    <div class="wrap">
-      <p class="eyebrow reveal">Hard-won</p>
-      <blockquote class="pull reveal">The antenna doesn't care what the datasheet says — it cares where you <strong>put it.</strong></blockquote>
     </div>
   </section>
 
   <section>
     <div class="wrap prose">
-      <p class="eyebrow reveal">Where it comes from</p>
-      <h2 class="reveal">From tracking radars to near-field ranges.</h2>
-      <p class="reveal">My first antennas were part of the radar systems at QinetiQ Aberporth, tracking aircraft entering a weapons test range and pulling telemetry from targets and payloads. At Powerlink the scale shrank to the bench: RF amplifiers, tuning, and test equipment you could hold.</p>
-      <p class="reveal">Airbus brought my first planar range and pulled antenna measurement, EMC and spacecraft qualification together. At Mangata, as Director of Spacecraft Test, that turned into working with suppliers on how a spherical near-field range could be built into a satellite test facility in Scotland — antenna measurement not as a test, but as a building.</p>
+      <p class="eyebrow reveal">Experience</p>
+      <h2 class="reveal">Radar and antenna test facilities</h2>
+      <p class="reveal">At QinetiQ Aberporth, I worked with radar systems tracking aircraft on a weapons test range and receiving telemetry from targets and payloads. At Powerlink, I worked on RF amplifier testing and tuning.</p>
+      <p class="reveal">At Airbus, my work included a planar antenna range, EMC and spacecraft qualification. As Director of Spacecraft Test at Mangata, I worked with suppliers to define a spherical near-field range for a satellite test facility in Scotland.</p>
     </div>
   </section>
 

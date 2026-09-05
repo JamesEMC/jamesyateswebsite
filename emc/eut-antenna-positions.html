@@ -410,8 +410,7 @@
     <div id="tableWrap"></div>
 
     <div class="explain">
-      <p><span class="pill">Method</span> The page first calculates an impossible-to-beat area lower bound using
-        <code>ceil(required area / circle area)</code>. It then searches for practical centre positions and tests the actual EUT area covered by the union of the circles.</p>
+      <p>Method: calculate an area lower bound using ceil(required area / circle area), then search for antenna centre positions and evaluate the EUT area covered by the union of the circles.</p>
       <p>The exact least-number circle-covering problem is not a simple closed-form formula for every rectangle and percentage, so this is a practical numerical optimiser. When row alignment is enabled, the optimiser averages similar y positions into common rows and only accepts the aligned result if the requested coverage is still met. Increase the resolution and search fineness if the result is borderline.</p>
     </div>
       </section>

@@ -32,11 +32,11 @@
 
   <p class="kicker">EMC — Tool</p>
   <h1>Field strength calculator</h1>
-  <p class="intro">Two jobs, kept separate. Convert one field value into every unit you'll meet on a limit line — or work between transmitter power, antenna gain, distance and the field it produces. Antenna placement rules have <a href="standards-placement.html">their own page</a>.</p>
+  <p class="intro">Convert field-strength units or calculate the relationship between transmitter power, antenna gain, distance and field strength. See <a href="standards-placement.html">standards placement checks</a> for antenna geometry.</p>
 
   <section class="section" aria-label="Unit converter">
     <h2>1 — Convert a field value</h2>
-    <p class="explain aside" style="margin:0 0 6px">One box. Type a value, pick its unit, and every equivalent updates. Plane-wave (far-field) relationships assumed throughout: H = E / 377 Ω.</p>
+    <p class="explain aside" style="margin:0 0 6px">Enter a value and select its unit to update all equivalents. Calculations assume plane-wave far-field conditions: H = E / 377 Ω.</p>
     <div class="tool-layout" style="margin-top:18px">
       <div class="panel" aria-label="Input">
         <h2>Input</h2>
@@ -67,7 +67,7 @@
 
   <section class="section" aria-label="Field and power at distance">
     <h2>2 — Field ↔ power at a distance</h2>
-    <p class="explain aside" style="margin:0 0 6px">The far-field link between what the amplifier delivers and what the EUT sees. Choose which way you're working.</p>
+    <p class="explain aside" style="margin:0 0 6px">Calculate field strength, transmitter power or distance under far-field conditions.</p>
     <div class="formula" style="max-width:420px"><span class="eq">E &nbsp;=&nbsp; <span class="frac"><span><span class="rad">√</span><span class="vinc">30 · P · G</span></span><span>d</span></span></span></div>
     <div class="tool-layout" style="margin-top:18px">
       <div class="panel" aria-label="Inputs">
@@ -102,7 +102,7 @@
         <div class="results" id="rpOut"></div>
       </div>
     </div>
-    <p class="note">Far-field, free-space maths — no chamber reflections, no near-field gain reduction, no cable loss. For a test level like RS103's 20 V/m, add real margin for modulation (a 1 kHz 80% AM CW signal needs the amplifier to deliver the peak, not the RMS) and check the antenna's spec at your actual distance. Placement and spacing rules live on the <a href="standards-placement.html">standards placement page</a>.</p>
+    <p class="note">Calculations assume far-field, free-space conditions and exclude chamber reflections, near-field gain reduction and cable loss. Allow amplifier headroom for modulation and check antenna performance at the test distance. For 1 kHz, 80% AM, the amplifier must support the modulation peak. Refer to the <a href="standards-placement.html">standards placement page</a> for placement and spacing checks.</p>
   </section>
 </main>
 

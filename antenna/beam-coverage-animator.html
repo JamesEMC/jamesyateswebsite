@@ -51,7 +51,7 @@
 
   <p class="kicker">Antennas — Tool</p>
   <h1>Beam coverage animator</h1>
-  <p class="intro">A horn's beam isn't one shape — it breathes across the band, and it's rarely round. This tool animates the 3 dB beam cross-section from real manufacturer data (E-plane sets the height, H-plane the width), then answers the planning question: over your sweep, what's the worst-case beamwidth, and how much of the target does that actually illuminate at your distance?</p>
+  <p class="intro">View the 3 dB beam cross-section using digitised manufacturer data, with E-plane beamwidth defining height and H-plane beamwidth defining width. Calculate the minimum beamwidth across a frequency sweep and the corresponding coverage at the selected test distance.</p>
 
   <div class="tool-layout">
     <div class="panel" aria-label="Inputs">
@@ -102,12 +102,12 @@
 
   <section class="section explain">
     <h2>Reading the result</h2>
-    <p>The oval is the beam's −3 dB contour: inside it the field is within half power of boresight; outside, it falls away fast. The <strong>worst-case beamwidth</strong> is the smallest of the E- and H-plane values anywhere in your sweep — the frequency where the beam is tightest is the frequency that decides your setup, because every point on the target must be covered at <em>every</em> frequency of the test.</p>
-    <p>Coverage converts that angle to metres on a flat target: <span style="font-family:var(--font-mono)">coverage = 2 · d · tan(θ/2)</span>. Try the 3115 across its full 0.75–18 GHz band at 1 m — the answer is a strip barely 16 cm wide, set by the top end of the band where the beam is narrowest. That's why RS103 setups over wide bands need multiple antenna positions or a band split, and why "the antenna covers the EUT" is a claim that has to be checked per band, not per test.</p>
+    <p>The oval shows the beam’s −3 dB contour relative to boresight. The reported minimum beamwidth is the smallest E- or H-plane value within the selected sweep. Use it to assess coverage over the full frequency range.</p>
+    <p>Coverage at a flat target is calculated as 2 · d · tan(θ/2). For the 3115 over 0.75–18 GHz at 1 m, the minimum width is approximately 16 cm. Wide-band RS103 planning may require multiple antenna positions or separate frequency bands; check coverage for each band.</p>
     <p class="aside">Curve data is digitised from manufacturer half-power beamwidth plots to about ±2°. It represents typical performance — a specific serial number, mounting arrangement and site will differ. Verify coverage for formal work against your antenna's calibration data and the applicable standard.</p>
   </section>
 
-  <p class="note">Antenna library: ETS-Lindgren 3115, 3117, 3106, 3106B, 3144 LPDA, plus one unnamed 1–2 GHz horn awaiting identification. Mind the 3106 vs 3106B distinction — they are different antennas. More are added as plots are digitised.</p>
+  <p class="note">Antenna library: ETS-Lindgren 3115, 3117, 3106, 3106B and 3144 LPDA, plus an unidentified 1–2 GHz horn. The 3106 and 3106B are different models.</p>
 </main>
 
 <footer class="site-footer">

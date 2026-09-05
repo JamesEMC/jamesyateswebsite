@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <title>Bond Strap Impedance | James Yates</title>
-<meta name="description" content="Bond strap impedance calculator: see why a strap with excellent DC resistance can be almost useless at RF, with inductance, skin effect and a live impedance-vs-frequency chart.">
+<meta name="description" content="Calculate bond strap impedance against frequency, including resistance, inductance and skin effect.">
 <link rel="stylesheet" href="../assets/v2.css">
 <link rel="stylesheet" href="../assets/v2-tools.css">
 <style>
@@ -40,14 +40,14 @@
 
   <p class="kicker">Grounding &amp; Bonding</p>
   <h1>Bond strap impedance vs frequency</h1>
-  <p class="intro">A bonding strap that measures a beautiful 2.5 milliohms on a bond meter can present tens of ohms to an RF current. This tool shows why — and lets you see how length, width and geometry change the picture.</p>
+  <p class="intro">Calculate how bond strap impedance varies with frequency, length, width and geometry. A strap with 2.5 mΩ DC resistance can present tens of ohms at RF.</p>
 
   <section class="section explain">
-    <h2>Why a "good" bond can fail at RF</h2>
+    <h2>DC resistance and RF impedance</h2>
     <p>A DC bond test only measures <strong>resistance</strong>. But every conductor also has <strong>inductance</strong> — it resists <em>changes</em> in current — and the opposition that inductance creates grows in direct proportion to frequency:</p>
     <div class="formula"><span class="eq">Z &nbsp;=&nbsp; <span class="rad">√</span><span class="vinc">R² + (2πf·L)²</span></span></div>
-    <p>For a typical strap the inductance is a few hundred nanohenries. That sounds like nothing, but at 100 MHz even 300 nH presents about 190 Ω. The 2.5 mΩ you measured with the bond meter is irrelevant a thousand times over — at RF, the strap's <em>geometry</em> is what matters, not its resistance.</p>
-    <p>Two practical rules fall out of the numbers. First, <strong>short and wide beats long and thin</strong>: inductance is driven mostly by length, and a wide flat strap has less inductance than a round wire of the same length. Second, the old workshop guideline that a strap's <strong>length should be no more than about 5 times its width</strong> exists precisely to keep the inductance down. Try a 30 cm × 6 mm strap in the tool, then the same length at 60 mm wide, and watch the chart.</p>
+    <p>A typical strap may have an inductance of a few hundred nanohenries. At 100 MHz, 300 nH produces approximately 190 Ω of inductive reactance, far exceeding a DC resistance of 2.5 mΩ. Geometry is therefore critical to RF bonding performance.</p>
+    <p>Short, wide straps generally have lower inductance than long, narrow conductors. A common guideline limits strap length to approximately five times its width. Compare a 30 cm × 6 mm strap with a 30 cm × 60 mm strap to assess the effect of width.</p>
     <p class="aside">At higher frequencies still, skin effect pushes the current into the conductor's surface, raising the effective resistance — the tool includes this, though inductive reactance usually dominates long before skin effect matters.</p>
   </section>
 
@@ -110,7 +110,7 @@
       <div class="viz chart-wrap" aria-label="Impedance against frequency">
         <svg id="chart" viewBox="0 0 720 360"></svg>
       </div>
-      <p class="explain aside" style="margin-top:10px">The cyan line is the strap's total impedance from 1 kHz to 1 GHz. At low frequency it sits on the flat resistance floor (grey dashes); above a few kilohertz the inductive reactance 2πfL (amber dashes) takes over and the impedance climbs 20 dB per decade, forever. This is the chart every bond meter is silently not showing you.</p>
+      <p class="explain aside" style="margin-top:10px">The cyan line shows total modelled impedance from 1 kHz to 1 GHz. The grey dashed line shows DC resistance, and the amber dashed line shows inductive reactance, 2πfL. Where inductance dominates, impedance rises at approximately 20 dB per decade in this model.</p>
     </div>
   </div>
 

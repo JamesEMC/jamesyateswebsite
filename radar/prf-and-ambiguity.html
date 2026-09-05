@@ -40,16 +40,16 @@
 
   <p class="kicker">Radar Tool</p>
   <h1>PRF &amp; ambiguity explorer</h1>
-  <p class="intro">How often should a radar transmit? That single choice — the pulse repetition frequency — sets how far the radar can see without confusion, which target speeds it goes blind to, and how close a target can get before it disappears. This tool puts numbers on all of it.</p>
+  <p class="intro">Calculate unambiguous range, blind speeds, minimum range, range resolution and duty cycle from pulse repetition frequency and pulse width.</p>
 
   <section class="section explain">
-    <h2>The trade-off, in plain language</h2>
+    <h2>Pulse timing and ambiguity</h2>
     <p>After each pulse, the radar listens. It must assume any echo it hears belongs to the <em>most recent</em> pulse. So if an echo from a very distant target arrives after the next pulse has already gone out, the radar mistakes it for a close echo of the new pulse — a <strong>range ambiguity</strong>, or "second-time-around" echo. The listening time between pulses sets a ceiling:</p>
     <div class="formula"><span class="eq">R<sub>unamb</sub> &nbsp;=&nbsp; <span class="frac"><span>c</span><span>2 · PRF</span></span></span></div>
     <p>Pulse repetition also creates <strong>blind speeds</strong>. The radar measures target motion by comparing the echo's phase from pulse to pulse. If a target moves exactly half a wavelength (or any whole multiple of it) between pulses, its echo phase looks identical each time — to the radar, it appears stationary and gets filtered out along with the ground clutter:</p>
     <div class="formula"><span class="eq">v<sub>blind</sub> &nbsp;=&nbsp; <span class="frac"><span>n · λ · PRF</span><span>2</span></span></span><span class="where">n = 1, 2, 3…</span></div>
-    <p>And the pulse's own width matters too. While transmitting, the receiver is switched off (the pulse would destroy it), so anything closer than <strong>R<sub>min</sub> = c·τ/2</strong> is invisible. The same c·τ/2 sets the <strong>range resolution</strong> — two targets closer together than this merge into one blip.</p>
-    <p class="aside">High PRF gives clean speed measurement but short unambiguous range; low PRF the opposite. There's no free lunch — modern radars dodge the problem by switching between several PRFs and cross-checking, but each individual PRF still obeys everything on this page.</p>
+    <p>In this uncompressed-pulse model, the receiver is blanked during transmission. Pulse width τ sets the minimum range <strong>R<sub>min</sub> = c·τ/2</strong> and the nominal range resolution.</p>
+    <p class="aside">High PRF supports a wider unambiguous Doppler interval but reduces unambiguous range. Low PRF increases unambiguous range. Multiple PRFs can be used to resolve ambiguities.</p>
   </section>
 
   <div class="tool-layout">
