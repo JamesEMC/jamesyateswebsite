@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MIL-STD-461G FFT Receiver Examples — James Yates</title>
+<meta name="description" content="Interactive receiver comparisons based on MIL-STD-461G Appendix A, with adjustable traditional scan times and FFT dwell times.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/v2.css">
+<link rel="stylesheet" href="../assets/v2-tools.css">
+<style>
+.reference-controls { margin-top: 32px; }
+.control-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.control-grid > * { min-width: 0; }
+.case-line { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
+.case-badge { display:inline-flex; align-items:center; padding:6px 9px; border:1px solid var(--line-strong); font:500 .72rem var(--font-mono); letter-spacing:.06em; text-transform:uppercase; color:var(--accent-ink); }
+.plot-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-top:26px; }
+.example { min-width:0; border:1px solid var(--line-strong); background:var(--panel); padding:18px; }
+.example header { display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start; margin-bottom:12px; }
+.fig-no { display:inline-flex; align-items:center; justify-content:center; min-width:48px; height:30px; padding:0 8px; background:var(--ink); color:var(--paper); font:500 .72rem var(--font-mono); }
+.example h2 { font-size:1.13rem; margin:0 0 4px; }
+.example .sub { color:var(--muted); font-size:.86rem; margin:0; line-height:1.4; }
+.plot-frame { border:1px solid #26343a; background:#0f1416; padding:8px; overflow:hidden; }
+.example-chart { display:block; width:100%; height:auto; }
+.example-chart text { font:11px "IBM Plex Mono",monospace; fill:#9aa7ad; }
+.example-chart .grid { stroke:#26343a; stroke-width:1; }
+.example-chart .axis { stroke:#56656c; stroke-width:1.2; }
+.example-chart .limit { fill:none; stroke:#d98a45; stroke-width:2; }
+.example-chart .trace { fill:none; stroke:#35c6d8; stroke-width:2; }
+.example-chart .truth { fill:none; stroke:#8b96a0; stroke-width:1.1; stroke-dasharray:4 4; opacity:.8; }
+.example-chart .noise { fill:none; stroke:#64707a; stroke-width:1; opacity:.65; }
+.plot-key { display:flex; gap:16px; flex-wrap:wrap; margin:9px 0 0; color:var(--muted); font:500 .7rem var(--font-mono); }
+.plot-key i { display:inline-block; width:18px; border-top:2px solid; margin-right:6px; vertical-align:3px; }
+.plot-key .measured i { border-color:#35c6d8; }
+.plot-key .envelope i { border-color:#8b96a0; border-top-style:dashed; }
+.plot-key .ce i { border-color:#d98a45; }
+.interpretation { margin:12px 0 0; color:var(--muted); font-size:.9rem; line-height:1.55; }
+.interpretation strong { color:var(--ink); }
+.probability { display:inline-block; color:var(--accent-ink); font:500 .78rem var(--font-mono); margin-top:8px; }
+.timing-control { margin:16px 0; }
+.timing-label { display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
+.timing-label label { font-size:.9rem; color:var(--ink); }
+.timing-label output { font:500 .9rem var(--font-mono); color:var(--accent-ink); white-space:nowrap; }
+.timing-control input[type="range"] { width:100%; min-height:32px; padding:0; accent-color:var(--accent); cursor:pointer; }
+.timing-control input:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.timing-bounds { display:flex; justify-content:space-between; font-size:.875rem; color:var(--muted); }
+.standards-note { margin-top:28px; max-width:none; }
+@media (max-width:920px){.plot-grid{grid-template-columns:1fr}.control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.control-grid{grid-template-columns:1fr}.example{padding:14px}.example header{grid-template-columns:1fr}.case-line{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="../index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="../emc.html" aria-current="page">EMC</a>
+      <a href="../antenna.html">Antennas</a>
+      <a href="../radar.html">Radar</a>
+      <a href="../environmental.html">Space</a>
+      <a href="../leadership.html">Leadership</a>
+      <a href="../fitness.html">Personal</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>MIL-STD-461G FFT Examples</nav>
+  <p class="kicker">EMC — Reference Tool</p>
+  <h1>MIL-STD-461G receiver examples</h1>
+  <p class="intro">Four adjustable plots based on Appendix A, Figures A-5 through A-8. The default timings match the examples; use the sliders to compare other timings. The plots compare a traditional scanning receiver with an FFT receiver for the standard's example signal: one 10 µs, 0.1 V pulse every second.</p>
+
+  <section class="section explain">
+    <h2>What the four figures demonstrate</h2>
+    <p>A 1 Hz pulse train has a one-second repetition period. A traditional receiver moves its narrow bandpass through the spectrum, so individual pulses are caught only at the frequencies inside the bandpass when each pulse occurs. A longer scan catches the pulse at many more frequency positions. An FFT receiver observes a complete frequency block at once: if its time record catches the pulse, it produces the continuous spectral profile; if not, the whole acquisition can miss it.</p>
+    <p>For 10 kHz to 150 kHz, MIL-STD-461G Table II specifies a 1 kHz, 6 dB resolution bandwidth, a 15 ms dwell for a stepped-tuned receiver and a 1 s dwell per FFT measurement bandwidth. The longer FFT record is deliberate: the Appendix example shows that 15 ms gives only a 1.5% chance of intercepting a pulse that occurs once per second.</p>
+    <div class="formula">P<sub>intercept</sub> ≈ min(1, t<sub>dwell</sub> / T<sub>pulse</sub>)</div>
+  </section>
+
+  <section class="panel reference-controls" aria-label="Reference signal controls">
+    <div class="case-line"><div><h2 style="margin-bottom:4px">Reference signal</h2><span class="aside">Defaults reproduce the values stated in MIL-STD-461G Appendix A.</span></div><span class="case-badge" id="caseBadge">Appendix values</span></div>
+    <div class="control-grid">
+      <div class="field"><label for="tau">Pulse width (µs)</label><input id="tau" type="number" value="10" min="0.1" step="any"></div>
+      <div class="field"><label for="prf">Pulse repetition frequency (Hz)</label><input id="prf" type="number" value="1" min="0.001" step="any"></div>
+      <div class="field"><label for="amp">Pulse amplitude (V)</label><input id="amp" type="number" value="0.1" min="0.000001" step="any"></div>
+      <div class="field"><label for="shortOutcome">FFT outcome when capture is not guaranteed</label><select id="shortOutcome"><option value="miss" selected>Show a missed acquisition</option><option value="hit">Show a captured acquisition</option></select></div>
+    </div>
+    <p class="aside">For FFT records shorter than one pulse period, select a captured or missed acquisition above. The probability updates with dwell time. Records covering a full period always capture a pulse in this idealised model; longer dwell does not increase the displayed peak.</p>
+    <button class="btn" type="button" id="reset">Reset Appendix values</button>
+  </section>
+
+  <section class="plot-grid" aria-label="Four MIL-STD-461G Appendix examples">
+    <article class="example">
+      <header><span class="fig-no">A-5</span><div><h2 id="titleA5">Traditional receiver — 10 s scan</h2><p class="sub">Based on Figure A-5 · adjustable scan time.</p></div></header>
+      <div class="timing-control">
+        <div class="timing-label"><label for="scanA5">Traditional scan time (s)</label><output id="scanA5Value" for="scanA5"></output></div>
+        <input id="scanA5" type="range" min="10" max="300" step="1" value="10">
+        <div class="timing-bounds" aria-hidden="true"><span>10 s</span><span>300 s</span></div>
+      </div>
+      <div class="plot-frame"><svg id="plotA5" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="Traditional receiver with 10 second scan time"></svg></div>
+      <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
+      <p class="interpretation" id="textA5"></p>
+    </article>
+
+    <article class="example">
+      <header><span class="fig-no">A-6</span><div><h2 id="titleA6">Traditional receiver — 300 s scan</h2><p class="sub">Based on Figure A-6 · adjustable scan time.</p></div></header>
+      <div class="timing-control">
+        <div class="timing-label"><label for="scanA6">Traditional scan time (s)</label><output id="scanA6Value" for="scanA6"></output></div>
+        <input id="scanA6" type="range" min="10" max="300" step="1" value="300">
+        <div class="timing-bounds" aria-hidden="true"><span>10 s</span><span>300 s</span></div>
+      </div>
+      <div class="plot-frame"><svg id="plotA6" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="Traditional receiver with 300 second scan time"></svg></div>
+      <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
+      <p class="interpretation" id="textA6"></p>
+    </article>
+
+    <article class="example">
+      <header><span class="fig-no">A-7</span><div><h2 id="titleA7">FFT receiver — 15 ms dwell</h2><p class="sub">Based on Figure A-7 · adjustable dwell time.</p></div></header>
+      <div class="timing-control">
+        <div class="timing-label"><label for="dwellA7">FFT dwell time (ms)</label><output id="dwellA7Value" for="dwellA7"></output></div>
+        <input id="dwellA7" type="range" min="15" max="5000" step="1" value="15">
+        <div class="timing-bounds" aria-hidden="true"><span>15 ms</span><span>5 s</span></div>
+      </div>
+      <div class="plot-frame"><svg id="plotA7" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="FFT receiver with 15 millisecond dwell time"></svg></div>
+      <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
+      <span class="probability" id="probabilityA7" aria-live="polite"></span>
+      <p class="interpretation" id="textA7"></p>
+    </article>
+
+    <article class="example">
+      <header><span class="fig-no">A-8</span><div><h2 id="titleA8">FFT receiver — 1 s dwell</h2><p class="sub">Based on Figure A-8 · adjustable dwell time.</p></div></header>
+      <div class="timing-control">
+        <div class="timing-label"><label for="dwellA8">FFT dwell time (ms)</label><output id="dwellA8Value" for="dwellA8"></output></div>
+        <input id="dwellA8" type="range" min="15" max="5000" step="1" value="1000">
+        <div class="timing-bounds" aria-hidden="true"><span>15 ms</span><span>5 s</span></div>
+      </div>
+      <div class="plot-frame"><svg id="plotA8" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="FFT receiver with one second dwell time"></svg></div>
+      <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
+      <span class="probability" id="probabilityA8" aria-live="polite"></span>
+      <p class="interpretation" id="textA8"></p>
+    </article>
+  </section>
+
+  <p class="note standards-note">These are original, illustrative recreations of the behaviour described by MIL-STD-461G Appendix A, not copied standard figures and not simulated receiver calibration data. The CE102 115 V limit is included for orientation. Use the controlled standard and the verified settings of the actual measurement receiver for formal work.</p>
+</main>
+
+<footer class="site-footer"><div class="bar"><span>© James Yates — jamesyates.co.uk</span><span>Provided as-is for education — verify against the applicable standard.</span><a href="../emc.html">Back to EMC</a></div></footer>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const FLO = 60e3, FHI = 150e3, RBW = 1e3, NOISE = 16, N = 520;
+
+function sinc(x){ return Math.abs(x) < 1e-12 ? 1 : Math.sin(x) / x; }
+function fmtFrequency(f){ return `${Math.round(f/1000)}k`; }
+function noiseAt(i, phase){ return NOISE + 1.5*Math.sin(i*0.71 + phase) + .8*Math.sin(i*.173 + phase*2); }
+function ce102Limit(f){ return Math.max(60, 94 - 20*Math.log10(f/10e3)) + 6; }
+
+function envelope(f, tau, amp){
+  const reconstructedV = amp * 2 * tau * RBW * Math.abs(sinc(Math.PI * f * tau));
+  return Math.max(NOISE, 20*Math.log10(Math.max(reconstructedV, 1e-12) / 1e-6));
+}
+
+function traditionalTrace(f, scanSeconds, prf, env, i){
+  const eventSpacingHz = (FHI - FLO) / Math.max(scanSeconds * prf, 1e-9);
+  const eventIndex = Math.round((f - FLO) / eventSpacingHz);
+  const centre = FLO + eventIndex * eventSpacingHz;
+  const captured = Math.abs(f - centre) <= RBW * .58;
+  return captured ? env + .8*Math.sin(i*.31) : noiseAt(i, scanSeconds/20);
+}
+
+function drawPlot(id, kind, seconds, tau, prf, amp, captured){
+  const svg = $(id), W=620, H=300, L=52, R=14, T=24, B=40;
+  const iw=W-L-R, ih=H-T-B, yLo=10, yHi=90;
+  const x=f=>L+iw*(f-FLO)/(FHI-FLO);
+  const y=db=>T+ih*(yHi-db)/(yHi-yLo);
+  const points=Array.from({length:N},(_,i)=>({i,f:FLO+(FHI-FLO)*i/(N-1)}));
+  const clamp=v=>Math.max(yLo,Math.min(yHi,v));
+  const path=fn=>points.map((p,i)=>`${i?"L":"M"}${x(p.f).toFixed(1)} ${y(clamp(fn(p))).toFixed(1)}`).join(" ");
+  let out="";
+  [60e3,80e3,100e3,120e3,140e3].forEach(f=>{out+=`<line class="grid" x1="${x(f)}" y1="${T}" x2="${x(f)}" y2="${H-B}"/><text x="${x(f)}" y="${H-B+17}" text-anchor="middle">${fmtFrequency(f)}</text>`});
+  [10,30,50,70,90].forEach(db=>{out+=`<line class="grid" x1="${L}" y1="${y(db)}" x2="${W-R}" y2="${y(db)}"/><text x="${L-7}" y="${y(db)+4}" text-anchor="end">${db}</text>`});
+  out+=`<line class="axis" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/><line class="axis" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/><text x="${L}" y="12">Level (dBµV)</text><text x="${W-R}" y="${H-7}" text-anchor="end">Frequency (Hz)</text>`;
+  out+=`<path class="truth" d="${path(p=>envelope(p.f,tau,amp))}"/><path class="limit" d="${path(p=>ce102Limit(p.f))}"/>`;
+  let measured;
+  if(kind==="scan") measured=p=>traditionalTrace(p.f,seconds,prf,envelope(p.f,tau,amp),p.i);
+  if(kind==="fft") measured=p=>captured ? envelope(p.f,tau,amp)+.45*Math.sin(p.i*.22) : noiseAt(p.i,1.7);
+  out+=`<path class="trace" d="${path(measured)}"/>`;
+  svg.innerHTML=out;
+}
+
+function formatDwell(ms){
+  return ms < 1000 ? `${ms} ms` : `${Number((ms/1000).toFixed(3))} s`;
+}
+
+function fftState(seconds, prf, selectedOutcome){
+  const probability=Math.min(1,seconds*prf);
+  return { probability, guaranteed:probability>=1, captured:probability>=1||selectedOutcome==="hit" };
+}
+
+function run(){
+  const tau=Number($("tau").value)*1e-6, prf=Number($("prf").value), amp=Number($("amp").value);
+  if(![tau,prf,amp].every(v=>Number.isFinite(v)&&v>0)) return;
+  const timing={A5:Number($("scanA5").value), A6:Number($("scanA6").value), A7:Number($("dwellA7").value), A8:Number($("dwellA8").value)};
+  ["A5","A6"].forEach(caseId=>{
+    const seconds=timing[caseId], control=$("scan"+caseId);
+    $("scan"+caseId+"Value").textContent=`${seconds} s`;
+    control.setAttribute("aria-valuetext",`${seconds} seconds`);
+    $("title"+caseId).textContent=`Traditional receiver — ${seconds} s scan`;
+    $("plot"+caseId).setAttribute("aria-label",`Traditional receiver with ${seconds} second scan time`);
+    const spacing=(FHI-FLO)/(seconds*prf);
+    $("text"+caseId).textContent=`Across the displayed 60–150 kHz span, successive pulses are sampled approximately ${Number((spacing/1000).toPrecision(3))} kHz apart. `+
+      (spacing>RBW*1.16 ? "The trace contains gaps between captured portions of the spectrum. Increasing scan time reduces these gaps." : "The modelled receiver responses overlap across the spectrum.");
+    drawPlot("plot"+caseId,"scan",seconds,tau,prf,amp,false);
+  });
+  ["A7","A8"].forEach(caseId=>{
+    const ms=timing[caseId], seconds=ms/1000, label=formatDwell(ms), control=$("dwell"+caseId);
+    const state=fftState(seconds,prf,$("shortOutcome").value);
+    $("dwell"+caseId+"Value").textContent=label;
+    control.setAttribute("aria-valuetext",`${ms} milliseconds`);
+    $("title"+caseId).textContent=`FFT receiver — ${label} dwell`;
+    $("plot"+caseId).setAttribute("aria-label",`FFT receiver with ${ms} millisecond dwell time; pulse ${state.captured?"captured":"missed"}`);
+    const percent=state.probability*100;
+    const probabilityLabel=state.guaranteed?"100%":percent<0.1?"<0.1%":percent>99.9?">99.9%":`${Number(percent.toFixed(1))}%`;
+    $("probability"+caseId).textContent=`${probabilityLabel} intercept probability at ${Number(prf.toPrecision(4))} Hz`;
+    $("text"+caseId).textContent=state.guaranteed
+      ? "The record covers at least one complete pulse period, so a pulse is captured regardless of acquisition start time. Additional dwell retains the same peak envelope."
+      : state.captured
+        ? "Illustrated outcome: pulse captured. One intercepted pulse produces the spectral envelope across the frequency block. Other acquisition start times can miss the pulse."
+        : "Illustrated outcome: pulse missed. Increasing dwell raises the probability of capture. Select a captured acquisition above to compare its spectrum.";
+    drawPlot("plot"+caseId,"fft",seconds,tau,prf,amp,state.captured);
+  });
+  $("shortOutcome").disabled=timing.A7/1000*prf>=1&&timing.A8/1000*prf>=1;
+  const appendix=Math.abs(tau-10e-6)<1e-12&&prf===1&&amp===.1&&timing.A5===10&&timing.A6===300&&timing.A7===15&&timing.A8===1000;
+  $("caseBadge").textContent=appendix?"Appendix values":"Custom comparison";
+}
+
+["tau","prf","amp","shortOutcome","scanA5","scanA6","dwellA7","dwellA8"].forEach(id=>$(id).addEventListener("input",run));
+$("reset").addEventListener("click",()=>{
+  const defaults={tau:10,prf:1,amp:.1,shortOutcome:"miss",scanA5:10,scanA6:300,dwellA7:15,dwellA8:1000};
+  Object.entries(defaults).forEach(([id,value])=>{$(id).value=value});
+  run();
+});
+run();
+</script>
+<script src="../assets/report-tools.js"></script>
+<script>ReportTools.attach({ target: ".plot-grid", visuals: [".example-chart"], maxTableRows: 10 });</script>
+</body>
+</html>

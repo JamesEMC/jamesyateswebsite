@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frequency Beamwidth Reader — James Yates</title>
+<meta name="description" content="Digitise E-plane and H-plane beamwidth curves from a manufacturer's plot in four guided steps — calibrate, trace, sample and export as CSV.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/v2.css">
+<style>
+.tool-hero { padding: 72px 0 40px; }
+.tool-hero .lede { margin-top: 18px; }
+
+/* stepper */
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line-strong); background: #fff; margin: 40px 0 22px; }
+.step { padding: 16px 18px; border-left: 1px solid var(--line); cursor: pointer; background: none; text-align: left; font-family: inherit; }
+.step:first-child { border-left: 0; }
+.step .sn { font-family: var(--serif); font-style: italic; font-size: 1.15rem; color: var(--line-strong); display: block; }
+.step .st { font: 500 .78rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.step[aria-current="step"] { background: var(--cream-2); }
+.step[aria-current="step"] .sn { color: var(--copper); }
+.step[aria-current="step"] .st { color: var(--ink); }
+.step.done .sn { color: var(--copper-deep); }
+.step:disabled { cursor: not-allowed; opacity: .45; }
+@media (max-width: 720px){ .steps { grid-template-columns: repeat(2, 1fr); } .step { border-top: 1px solid var(--line); } }
+
+/* workspace */
+.workspace { display: grid; grid-template-columns: 1fr 340px; gap: 22px; align-items: start; }
+@media (max-width: 960px){ .workspace { grid-template-columns: 1fr; } }
+
+.stage { border: 1px solid var(--line-strong); background: #fff; position: relative; }
+.stage canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+.stage .empty {
+  display: grid; place-items: center; text-align: center;
+  min-height: 380px; color: var(--muted); padding: 30px;
+}
+.stage .empty .big { font-family: var(--serif); font-size: 1.5rem; color: var(--ink-soft); margin-bottom: 8px; }
+.stage.drag { outline: 2px dashed var(--copper); outline-offset: -8px; }
+
+.side { border: 1px solid var(--line-strong); background: #fff; padding: 22px; }
+.side h2 { font-size: 1.3rem; margin-bottom: 6px; max-width: none; }
+.side .hint { color: var(--muted); font-size: .92rem; margin: 0 0 18px; }
+.side .prompt {
+  border-left: 2px solid var(--copper); padding: 8px 0 8px 14px;
+  font-family: var(--serif); font-style: italic; font-size: 1.06rem; color: var(--ink);
+  margin: 0 0 18px;
+}
+.field { margin-bottom: 14px; }
+.step-help { position:relative; display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.step-help label { margin-bottom:0 !important; }
+.step-help button { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border:1px solid var(--muted); border-radius:50%; background:transparent; color:var(--ink); font:600 14px var(--mono); cursor:pointer; }
+.step-help button:focus-visible { outline:2px solid var(--copper); outline-offset:3px; }
+.step-help .help-popover { position:absolute; top:100%; left:0; right:0; z-index:10; padding:14px; border:1px solid var(--line-strong); background:#ffffff; color:var(--ink); box-shadow:0 6px 20px #0002; font-size:.9rem; line-height:1.5; }
+.step-help .help-popover p { margin:0 0 10px; }
+.step-help .help-popover p:last-child { margin-bottom:0; }
+.field label { display: block; font: 500 .74rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.field input[type="number"], .field input[type="text"], .field select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--line-strong); background: var(--cream);
+  color: var(--ink); font: 500 .95rem var(--mono);
+}
+.field input:focus, .field select:focus { outline: 2px solid var(--copper); outline-offset: 1px; }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.check { display: flex; gap: 10px; align-items: center; font-size: .9rem; color: var(--ink-soft); margin-bottom: 14px; }
+.check input { accent-color: var(--copper); width: 16px; height: 16px; }
+
+.btn {
+  border: 1px solid var(--ink); background: transparent; color: var(--ink);
+  font: 500 .76rem var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  padding: 11px 16px; cursor: pointer; transition: background .2s, color .2s;
+}
+.btn:hover:not(:disabled) { background: var(--ink); color: var(--cream); }
+.btn.primary { background: var(--copper); border-color: var(--copper); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--copper-deep); border-color: var(--copper-deep); }
+.btn.quiet { border-color: var(--line-strong); color: var(--muted); }
+.btn.quiet:hover:not(:disabled) { background: var(--cream-2); color: var(--ink); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+
+.plane-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line-strong); margin-bottom: 16px; }
+.plane-toggle button {
+  padding: 12px; border: 0; background: none; cursor: pointer;
+  font: 500 .78rem var(--mono); letter-spacing: .08em; color: var(--muted);
+}
+.plane-toggle button.on-e { background: var(--copper); color: #fff; }
+.plane-toggle button.on-h { background: #7c5cbf; color: #fff; }
+.counts { font: 500 .8rem var(--mono); color: var(--muted); margin: 10px 0 0; }
+.counts b.e { color: var(--copper-deep); } .counts b.h { color: #6a4daa; }
+
+table.out { width: 100%; border-collapse: collapse; font: .84rem var(--mono); margin-top: 6px; }
+table.out th { text-align: left; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; font-size: .7rem; color: var(--muted); border-bottom: 1px solid var(--line-strong); padding: 7px 8px; }
+table.out td { border-bottom: 1px solid var(--line); padding: 6px 8px; }
+.tscroll { max-height: 300px; overflow-y: auto; border: 1px solid var(--line); }
+.status { font: 500 .78rem var(--mono); color: var(--copper-deep); margin-top: 14px; min-height: 1.2em; }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="bar">
+    <a class="wordmark" href="../index.html">James Yates</a>
+    <nav class="nav" aria-label="Site">
+      <a href="../emc.html">EMC</a>
+      <a href="../antenna.html" aria-current="page">Antennas</a>
+      <a href="../radar.html">Radar</a>
+      <a href="../environmental.html">Space</a>
+      <a href="../leadership.html">Leadership</a>
+      <a href="../fitness.html">Personal</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="tool-hero">
+    <div class="wrap">
+      <p class="eyebrow">Antennas — Tool</p>
+      <h1 style="font-size:clamp(2.2rem,4.6vw,3.6rem)">Frequency beamwidth <em>reader.</em></h1>
+      <p class="lede">Extract numerical beamwidth data from a manufacturer plot: load the image, calibrate its axes, trace the curves and export the results.</p>
+    </div>
+  </div>
+
+  <section class="tight" style="padding-top:0">
+    <div class="wrap">
+
+      <div class="steps" role="tablist" aria-label="Steps">
+        <button class="step" id="stepBtn1" aria-current="step"><span class="sn">01</span><span class="st">Load plot</span></button>
+        <button class="step" id="stepBtn2" disabled><span class="sn">02</span><span class="st">Calibrate axes</span></button>
+        <button class="step" id="stepBtn3" disabled><span class="sn">03</span><span class="st">Trace curves</span></button>
+        <button class="step" id="stepBtn4" disabled><span class="sn">04</span><span class="st">Read &amp; export</span></button>
+      </div>
+
+      <div class="workspace">
+        <div class="stage" id="stage">
+          <div class="empty" id="emptyState">
+            <div>
+              <div class="big">Drop the manufacturer's plot here</div>
+              <p>…or paste a screenshot (Ctrl+V / Cmd+V), or use the file picker on the right.<br>Beamwidth on the Y axis, frequency on the X axis.</p>
+            </div>
+          </div>
+          <canvas id="cv" style="display:none"></canvas>
+        </div>
+
+        <aside class="side" id="side"><!-- panel rendered by JS --></aside>
+      </div>
+
+      <p class="muted" style="margin-top:26px;font-size:.9rem">Tip: a loupe follows your cursor over the plot for precise clicks. Points can be undone one at a time at any stage. Everything runs in your browser — the image never leaves your machine.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr">
+  <div class="bar">
+    <span>© James Yates — jamesyates.co.uk</span>
+    <span>Provided as-is for education — verify against the applicable standard.</span><a href="../antenna.html">Back to Antennas</a>
+  </div>
+</footer>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const stage = $("stage"), cv = $("cv"), side = $("side");
+const ctx = cv.getContext("2d");
+const stepBtns = [null, $("stepBtn1"), $("stepBtn2"), $("stepBtn3"), $("stepBtn4")];
+
+const state = {
+  step: 1,
+  img: null,
+  logX: false,
+  // calibration: two X refs and two Y refs, each {px, py, value}
+  calSeq: 0,                 // 0..4 collected
+  xRefs: [], yRefs: [],
+  pendingClick: null,        // {px, py} awaiting a value entry
+  plane: "E",
+  pts: { E: [], H: [] },     // image-space {x, y}
+  loupe: null,
+};
+
+/* ---------- step machinery ---------- */
+function setStep(n){
+  state.step = n;
+  stepBtns.forEach((b, i) => {
+    if (!b) return;
+    b.toggleAttribute("disabled", !stepReachable(i));
+    b.setAttribute("aria-current", i === n ? "step" : "false");
+    b.classList.toggle("done", i < n);
+  });
+  renderSide();
+  draw();
+}
+function stepReachable(i){
+  if (i === 1) return true;
+  if (i === 2) return !!state.img;
+  if (i === 3) return calComplete();
+  if (i === 4) return calComplete() && (state.pts.E.length >= 2 || state.pts.H.length >= 2);
+  return false;
+}
+stepBtns.forEach((b, i) => b && b.addEventListener("click", () => { if (stepReachable(i)) setStep(i); }));
+
+function calComplete(){ return state.xRefs.length === 2 && state.yRefs.length === 2; }
+
+/* ---------- side panel ---------- */
+function renderSide(){
+  if (state.step === 1){
+    side.innerHTML = `
+      <h2>Load the plot</h2>
+      <p class="hint">Any image of a beamwidth-vs-frequency chart: datasheet screenshot, photo, scan.</p>
+      <div class="field"><label for="file">Image file</label><input type="file" id="file" accept="image/*"></div>
+      <p class="hint">Or drag it onto the canvas, or paste from the clipboard.</p>
+      ${state.img ? '<div class="btnrow"><button class="btn primary" id="toCal">Calibrate axes →</button><button class="btn quiet" id="restart">Start over</button></div>' : ""}
+      <p class="status" id="st"></p>`;
+    $("file").addEventListener("change", e => e.target.files[0] && loadFile(e.target.files[0]));
+    if (state.img){
+      $("toCal").addEventListener("click", () => setStep(2));
+      $("restart").addEventListener("click", resetAll);
+    }
+  }
+
+  if (state.step === 2){
+    const prompts = [
+      "Point 1 of 4 — low frequency. Start near the LEFT end of the horizontal frequency axis. Click a labelled tick or its gridline at the bottom of the plot, then enter its frequency in MHz.",
+      "Point 2 of 4 — high frequency. Move near the RIGHT end of the horizontal frequency axis. Click a labelled tick or its gridline at the bottom of the plot, then enter its frequency in MHz.",
+      "Point 3 of 4 — low beamwidth. Start near the BOTTOM of the vertical beamwidth axis. Click a labelled tick or its gridline at the left edge of the plot, then enter its beamwidth in degrees. Use 0° if it is shown.",
+      "Point 4 of 4 — high beamwidth. Move near the TOP of the vertical beamwidth axis. Click a labelled tick or its gridline at the left edge of the plot, then enter its beamwidth in degrees."
+    ];
+    const valuePrompts = [
+      "Enter the low frequency at your LEFT reference point in MHz.",
+      "Enter the high frequency at your RIGHT reference point in MHz.",
+      "Enter the low beamwidth at your BOTTOM reference point in degrees.",
+      "Enter the high beamwidth at your TOP reference point in degrees."
+    ];
+    const pending = state.pendingClick;
+    side.innerHTML = `
+      <h2>Calibrate the axes</h2>
+      <p class="hint">${state.calSeq}/4 reference points saved. Order: left → right for frequency, then bottom → top for beamwidth.</p>
+      <p class="hint">Choose clearly labelled values as far apart as practical; they do not have to be the exact endpoints. Click the tick or gridline, not the printed number or an E/H curve.</p>
+      <label class="check"><input type="checkbox" id="logx" ${state.logX ? "checked" : ""}> Frequency axis is logarithmic</label>
+      <p class="hint">Leave this unchecked for a linear axis. A logarithmic axis gives equal spacing to equal ratios, such as 100, 1,000 and 10,000 MHz.</p>
+      ${pending ? `
+        <p class="prompt">Point ${state.calSeq + 1} of 4 — ${valuePrompts[state.calSeq]}</p>
+        ${state.calSeq < 2 ? '<p class="hint">Use MHz even if the chart uses GHz: 1 GHz = 1,000 MHz.</p>' : ''}
+        <div class="field"><label for="calval">${state.calSeq < 2 ? "Frequency (MHz)" : "Beamwidth (°)"}</label>
+        <input type="number" id="calval" step="any" autofocus></div>
+        <div class="btnrow"><button class="btn primary" id="calok">Set value</button><button class="btn quiet" id="calcancel">Re-click point</button></div>
+      ` : state.calSeq < 4 ? `<p class="prompt">${prompts[state.calSeq]}</p>` : `
+        <p class="prompt">Calibration complete.</p>
+        <div class="btnrow"><button class="btn primary" id="toTrace">Trace the curves →</button></div>`}
+      <div class="btnrow" style="margin-top:16px">
+        <button class="btn quiet" id="calreset">Redo calibration</button>
+      </div>
+      <p class="status" id="st"></p>`;
+    $("logx").addEventListener("change", e => { state.logX = e.target.checked; });
+    $("calreset").addEventListener("click", () => { state.xRefs = []; state.yRefs = []; state.calSeq = 0; state.pendingClick = null; renderSide(); draw(); });
+    if (pending){
+      $("calok").addEventListener("click", commitCalValue);
+      $("calval").addEventListener("keydown", e => { if (e.key === "Enter") commitCalValue(); });
+      $("calval").focus();
+    }
+    if (calComplete() && !pending) $("toTrace")?.addEventListener("click", () => setStep(3));
+  }
+
+  if (state.step === 3){
+    side.innerHTML = `
+      <h2>Trace the curves</h2>
+      <p class="hint">Pick a plane, then click along its curve left to right — 8 to 15 points is usually plenty. Switch planes any time.</p>
+      <div class="plane-toggle">
+        <button id="pE" class="${state.plane === "E" ? "on-e" : ""}">E-PLANE</button>
+        <button id="pH" class="${state.plane === "H" ? "on-h" : ""}">H-PLANE</button>
+      </div>
+      <p class="counts">Points — <b class="e">E: ${state.pts.E.length}</b> · <b class="h">H: ${state.pts.H.length}</b></p>
+      <div class="btnrow" style="margin-top:14px">
+        <button class="btn quiet" id="undo">Undo last point</button>
+        <button class="btn quiet" id="clearPlane">Clear ${state.plane}-plane</button>
+      </div>
+      <div class="btnrow" style="margin-top:16px">
+        <button class="btn primary" id="toRead" ${stepReachable(4) ? "" : "disabled"}>Read &amp; export →</button>
+      </div>
+      <p class="status" id="st">${stepReachable(4) ? "" : "Trace at least 2 points on a curve to continue."}</p>`;
+    $("pE").addEventListener("click", () => { state.plane = "E"; renderSide(); });
+    $("pH").addEventListener("click", () => { state.plane = "H"; renderSide(); });
+    $("undo").addEventListener("click", () => { state.pts[state.plane].pop(); renderSide(); draw(); });
+    $("clearPlane").addEventListener("click", () => { state.pts[state.plane] = []; renderSide(); draw(); });
+    $("toRead").addEventListener("click", () => setStep(4));
+  }
+
+  if (state.step === 4){
+    const [fLo, fHi] = freqExtent();
+    side.innerHTML = `
+      <h2>Read &amp; export</h2>
+      <p class="hint">Read beamwidth at a single frequency, or create a table to copy or download. Traced range: ${fmtF(fLo)} – ${fmtF(fHi)}.</p>
+      <div class="field"><label for="spotf">Spot frequency (MHz)</label><input type="number" id="spotf" step="any" value="${round3((fLo + fHi)/2)}"></div>
+      <p class="counts" id="spotOut" style="margin:0 0 18px"></p>
+      <div class="frow">
+        <div class="field"><label for="sfrom">From (MHz)</label><input type="number" id="sfrom" step="any" value="${round3(fLo)}"></div>
+        <div class="field"><label for="sto">To (MHz)</label><input type="number" id="sto" step="any" value="${round3(fHi)}"></div>
+      </div>
+      <div class="field">
+        <div class="step-help" id="stepHelpWrap">
+          <label for="sstep">Step (MHz)</label>
+          <button type="button" id="stepHelpButton" aria-label="Explain frequency step" aria-expanded="false" aria-controls="stepHelpText">i</button>
+          <div class="help-popover" id="stepHelpText" hidden>
+            <p><strong>Step is the frequency interval between table rows.</strong> From 200 to 1,000 MHz with a step of 200 MHz gives rows at 200, 400, 600, 800 and 1,000 MHz.</p>
+            <p>A smaller step produces more rows. Values between your traced points are interpolated; more rows do not make the original tracing more accurate.</p>
+            <p>From and To set the table range. The final row only reaches To if the interval lands on it. Spot frequency is a separate, single-frequency lookup.</p>
+          </div>
+        </div>
+        <input type="number" id="sstep" step="any" value="${round3((fHi - fLo)/10 || 1)}">
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" id="copycsv">Copy CSV</button>
+        <button class="btn" id="dlcsv">Download CSV</button>
+        <button class="btn quiet" id="back3">← Adjust points</button>
+      </div>
+      <p class="status" id="st"></p>
+      <div class="tscroll" style="margin-top:16px"><table class="out"><thead><tr><th>MHz</th><th>E-plane °</th><th>H-plane °</th></tr></thead><tbody id="tbody"></tbody></table></div>`;
+    const refresh = () => { renderTable(); renderSpot(); };
+    const helpWrap=$("stepHelpWrap"), helpButton=$("stepHelpButton"), helpText=$("stepHelpText");
+    let helpPinned=false;
+    const showHelp=open=>{ helpText.hidden=!open; helpButton.setAttribute("aria-expanded",String(open)); };
+    helpWrap.addEventListener("mouseenter",()=>showHelp(true));
+    helpWrap.addEventListener("mouseleave",()=>{ if(!helpPinned && document.activeElement!==helpButton) showHelp(false); });
+    helpButton.addEventListener("focus",()=>showHelp(true));
+    helpButton.addEventListener("blur",()=>{helpPinned=false;showHelp(false);});
+    helpButton.addEventListener("click",()=>{helpPinned=!helpPinned;showHelp(helpPinned);});
+    helpWrap.addEventListener("keydown",event=>{if(event.key==="Escape"){helpPinned=false;showHelp(false);event.stopPropagation();}});
+    ["spotf","sfrom","sto","sstep"].forEach(id => $(id).addEventListener("input", refresh));
+    $("back3").addEventListener("click", () => setStep(3));
+    $("copycsv").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(buildCsv()); $("st").textContent = "CSV copied to clipboard."; }
+      catch(e){ $("st").textContent = "Clipboard blocked — use Download instead."; }
+    });
+    $("dlcsv").addEventListener("click", () => {
+      const blob = new Blob([buildCsv()], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "beamwidth-samples.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+    refresh();
+  }
+}
+
+/* ---------- image loading ---------- */
+function loadFile(file){
+  const r = new FileReader();
+  r.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      state.img = img;
+      $("emptyState").style.display = "none";
+      cv.style.display = "block";
+      cv.width = img.naturalWidth;
+      cv.height = img.naturalHeight;
+      setStep(2);
+    };
+    img.src = r.result;
+  };
+  r.readAsDataURL(file);
+}
+document.addEventListener("paste", e => {
+  const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith("image/"));
+  if (item) loadFile(item.getAsFile());
+});
+["dragover","dragleave","drop"].forEach(ev => stage.addEventListener(ev, e => {
+  e.preventDefault();
+  stage.classList.toggle("drag", ev === "dragover");
+  if (ev === "drop" && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+}));
+
+function resetAll(){
+  Object.assign(state, { img: null, calSeq: 0, xRefs: [], yRefs: [], pendingClick: null, pts: { E: [], H: [] }, loupe: null });
+  cv.style.display = "none";
+  $("emptyState").style.display = "grid";
+  setStep(1);
+}
+
+/* ---------- canvas interaction ---------- */
+function canvasPoint(evt){
+  const r = cv.getBoundingClientRect();
+  return {
+    x: (evt.clientX - r.left) * (cv.width / r.width),
+    y: (evt.clientY - r.top) * (cv.height / r.height)
+  };
+}
+
+cv.addEventListener("click", evt => {
+  const p = canvasPoint(evt);
+  if (state.step === 2 && state.calSeq < 4 && !state.pendingClick){
+    state.pendingClick = p;
+    renderSide(); draw();
+  } else if (state.step === 3){
+    state.pts[state.plane].push(p);
+    renderSide(); draw();
+  }
+});
+
+cv.addEventListener("mousemove", evt => { state.loupe = canvasPoint(evt); draw(); });
+cv.addEventListener("mouseleave", () => { state.loupe = null; draw(); });
+
+function commitCalValue(){
+  const v = parseFloat($("calval").value);
+  if (!isFinite(v)){ $("st").textContent = "Enter a number."; return; }
+  const p = state.pendingClick;
+  if (state.calSeq < 2){
+    if (state.logX && v <= 0){ $("st").textContent = "Log axis needs a positive frequency."; return; }
+    state.xRefs.push({ px: p.x, value: v });
+  } else {
+    state.yRefs.push({ py: p.y, value: v });
+  }
+  state.calSeq++;
+  state.pendingClick = null;
+  if (state.calSeq === 2 && state.xRefs[0].px === state.xRefs[1].px){ state.xRefs.pop(); state.calSeq--; }
+  if (state.calSeq === 4 && state.yRefs[0].py === state.yRefs[1].py){ state.yRefs.pop(); state.calSeq--; }
+  renderSide(); draw();
+}
+
+/* ---------- mapping ---------- */
+function pxToF(px){
+  const [a, b] = state.xRefs;
+  if (state.logX){
+    const la = Math.log10(a.value), lb = Math.log10(b.value);
+    return Math.pow(10, la + (px - a.px) * (lb - la) / (b.px - a.px));
+  }
+  return a.value + (px - a.px) * (b.value - a.value) / (b.px - a.px);
+}
+function pyToBW(py){
+  const [a, b] = state.yRefs;
+  return a.value + (py - a.py) * (b.value - a.value) / (b.py - a.py);
+}
+
+function seriesFor(plane){
+  return state.pts[plane]
+    .map(p => ({ f: pxToF(p.x), bw: pyToBW(p.y) }))
+    .sort((u, v) => u.f - v.f);
+}
+function interp(series, f){
+  if (series.length < 2) return null;
+  if (f < series[0].f || f > series[series.length-1].f) return null;
+  for (let i = 1; i < series.length; i++){
+    if (f <= series[i].f){
+      const a = series[i-1], b = series[i];
+      const t = state.logX
+        ? (Math.log10(f) - Math.log10(a.f)) / (Math.log10(b.f) - Math.log10(a.f) || 1)
+        : (f - a.f) / (b.f - a.f || 1);
+      return a.bw + t * (b.bw - a.bw);
+    }
+  }
+  return null;
+}
+function freqExtent(){
+  const all = [...seriesFor("E"), ...seriesFor("H")].map(p => p.f);
+  return all.length ? [Math.min(...all), Math.max(...all)] : [0, 0];
+}
+
+/* ---------- outputs ---------- */
+function round3(v){ return Math.round(v * 1000) / 1000; }
+function fmtF(f){ return round3(f) + " MHz"; }
+function fmtBW(v){ return v === null ? "—" : v.toFixed(1); }
+
+function sampleRows(){
+  const from = parseFloat($("sfrom").value), to = parseFloat($("sto").value), st = parseFloat($("sstep").value);
+  if (![from, to, st].every(isFinite) || st <= 0 || to < from) return [];
+  const E = seriesFor("E"), H = seriesFor("H");
+  const rows = [];
+  for (let f = from; f <= to + 1e-9; f += st){
+    rows.push({ f: round3(f), e: interp(E, f), h: interp(H, f) });
+    if (rows.length > 2000) break;
+  }
+  return rows;
+}
+function renderTable(){
+  $("tbody").innerHTML = sampleRows().map(r =>
+    `<tr><td>${r.f}</td><td>${fmtBW(r.e)}</td><td>${fmtBW(r.h)}</td></tr>`).join("") ||
+    "<tr><td colspan='3'>No samples in range.</td></tr>";
+}
+function renderSpot(){
+  const f = parseFloat($("spotf").value);
+  if (!isFinite(f)){ $("spotOut").textContent = ""; return; }
+  const e = interp(seriesFor("E"), f), h = interp(seriesFor("H"), f);
+  $("spotOut").innerHTML = `At ${fmtF(f)} — <b class="e">E: ${fmtBW(e)}°</b> · <b class="h">H: ${fmtBW(h)}°</b>`;
+}
+function buildCsv(){
+  const rows = sampleRows();
+  return "Frequency_MHz,E_plane_deg,H_plane_deg\n" +
+    rows.map(r => `${r.f},${r.e === null ? "" : r.e.toFixed(2)},${r.h === null ? "" : r.h.toFixed(2)}`).join("\n");
+}
+
+/* ---------- drawing ---------- */
+const COL = { E: "#0d6e79", H: "#7c5cbf", cal: "#b3541e" };
+function draw(){
+  if (!state.img) return;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.drawImage(state.img, 0, 0);
+  const s = Math.max(2, cv.width / 300);   // marker scale relative to image size
+
+  // calibration markers
+  ctx.strokeStyle = COL.cal; ctx.fillStyle = COL.cal; ctx.lineWidth = s * 0.6;
+  state.xRefs.forEach(r => cross(r.px, cv.height * 0.5, s * 3, true));
+  state.yRefs.forEach(r => cross(cv.width * 0.5, r.py, s * 3, false));
+  state.xRefs.forEach(r => { ctx.beginPath(); ctx.arc(r.px, yAxisRefY(), s*1.6, 0, 7); ctx.fill(); });
+  state.yRefs.forEach(r => { ctx.beginPath(); ctx.arc(xAxisRefX(), r.py, s*1.6, 0, 7); ctx.fill(); });
+  if (state.pendingClick){
+    ctx.beginPath(); ctx.arc(state.pendingClick.x, state.pendingClick.y, s*2.4, 0, 7);
+    ctx.stroke();
+  }
+
+  // traced points + polylines
+  ["E","H"].forEach(pl => {
+    const pts = state.pts[pl];
+    ctx.strokeStyle = COL[pl]; ctx.fillStyle = COL[pl]; ctx.lineWidth = s * 0.7;
+    if (pts.length > 1){
+      ctx.beginPath();
+      const sorted = [...pts].sort((a,b) => a.x - b.x);
+      sorted.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+      ctx.globalAlpha = 0.55; ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    pts.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, s*1.5, 0, 7); ctx.fill(); });
+  });
+
+  // loupe
+  if (state.loupe && (state.step === 2 || state.step === 3)){
+    const L = state.loupe, box = Math.min(cv.width, cv.height) * 0.22, zoom = 2.6;
+    const bx = L.x < cv.width/2 ? cv.width - box - s*4 : s*4;
+    const by = s*4;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(bx, by, box, box); ctx.clip();
+    ctx.drawImage(state.img,
+      L.x - box/(2*zoom), L.y - box/(2*zoom), box/zoom, box/zoom,
+      bx, by, box, box);
+    ctx.restore();
+    ctx.strokeStyle = "#131619"; ctx.lineWidth = s*0.5;
+    ctx.strokeRect(bx, by, box, box);
+    ctx.strokeStyle = COL.cal;
+    ctx.beginPath();
+    ctx.moveTo(bx + box/2, by); ctx.lineTo(bx + box/2, by + box);
+    ctx.moveTo(bx, by + box/2); ctx.lineTo(bx + box, by + box/2);
+    ctx.stroke();
+  }
+}
+function cross(x, y, r, vertical){
+  ctx.beginPath();
+  if (vertical){ ctx.moveTo(x, 0); ctx.lineTo(x, cv.height); }
+  else { ctx.moveTo(0, y); ctx.lineTo(cv.width, y); }
+  ctx.globalAlpha = 0.35; ctx.stroke(); ctx.globalAlpha = 1;
+}
+function yAxisRefY(){ return state.yRefs[0] ? state.yRefs[0].py : cv.height - 10; }
+function xAxisRefX(){ return state.xRefs[0] ? state.xRefs[0].px : 10; }
+
+setStep(1);
+</script>
+</body>
+</html>
