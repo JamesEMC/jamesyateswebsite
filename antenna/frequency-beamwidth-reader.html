@@ -49,6 +49,13 @@
   margin: 0 0 18px;
 }
 .field { margin-bottom: 14px; }
+.step-help { position:relative; display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.step-help label { margin-bottom:0 !important; }
+.step-help button { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border:1px solid var(--muted); border-radius:50%; background:transparent; color:var(--ink); font:600 14px var(--mono); cursor:pointer; }
+.step-help button:focus-visible { outline:2px solid var(--copper); outline-offset:3px; }
+.step-help .help-popover { position:absolute; top:100%; left:0; right:0; z-index:10; padding:14px; border:1px solid var(--line-strong); background:#ffffff; color:var(--ink); box-shadow:0 6px 20px #0002; font-size:.9rem; line-height:1.5; }
+.step-help .help-popover p { margin:0 0 10px; }
+.step-help .help-popover p:last-child { margin-bottom:0; }
 .field label { display: block; font: 500 .74rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 .field input[type="number"], .field input[type="text"], .field select {
   width: 100%; padding: 10px 12px; border: 1px solid var(--line-strong); background: var(--cream);
@@ -212,18 +219,27 @@ function renderSide(){
 
   if (state.step === 2){
     const prompts = [
-      "Click a point on the X axis where you know the frequency — a labelled gridline is ideal.",
-      "Click a second, well-separated known frequency on the X axis.",
-      "Click a point on the Y axis where you know the beamwidth value.",
-      "Click a second, well-separated known beamwidth on the Y axis."
+      "Point 1 of 4 — low frequency. Start near the LEFT end of the horizontal frequency axis. Click a labelled tick or its gridline at the bottom of the plot, then enter its frequency in MHz.",
+      "Point 2 of 4 — high frequency. Move near the RIGHT end of the horizontal frequency axis. Click a labelled tick or its gridline at the bottom of the plot, then enter its frequency in MHz.",
+      "Point 3 of 4 — low beamwidth. Start near the BOTTOM of the vertical beamwidth axis. Click a labelled tick or its gridline at the left edge of the plot, then enter its beamwidth in degrees. Use 0° if it is shown.",
+      "Point 4 of 4 — high beamwidth. Move near the TOP of the vertical beamwidth axis. Click a labelled tick or its gridline at the left edge of the plot, then enter its beamwidth in degrees."
+    ];
+    const valuePrompts = [
+      "Enter the low frequency at your LEFT reference point in MHz.",
+      "Enter the high frequency at your RIGHT reference point in MHz.",
+      "Enter the low beamwidth at your BOTTOM reference point in degrees.",
+      "Enter the high beamwidth at your TOP reference point in degrees."
     ];
     const pending = state.pendingClick;
     side.innerHTML = `
       <h2>Calibrate the axes</h2>
-      <p class="hint">Four clicks, four values. ${state.calSeq}/4 done.</p>
+      <p class="hint">${state.calSeq}/4 reference points saved. Order: left → right for frequency, then bottom → top for beamwidth.</p>
+      <p class="hint">Choose clearly labelled values as far apart as practical; they do not have to be the exact endpoints. Click the tick or gridline, not the printed number or an E/H curve.</p>
       <label class="check"><input type="checkbox" id="logx" ${state.logX ? "checked" : ""}> Frequency axis is logarithmic</label>
+      <p class="hint">Leave this unchecked for a linear axis. A logarithmic axis gives equal spacing to equal ratios, such as 100, 1,000 and 10,000 MHz.</p>
       ${pending ? `
-        <p class="prompt">Got it — now type the ${state.calSeq < 2 ? "frequency (MHz)" : "beamwidth (degrees)"} at that point.</p>
+        <p class="prompt">Point ${state.calSeq + 1} of 4 — ${valuePrompts[state.calSeq]}</p>
+        ${state.calSeq < 2 ? '<p class="hint">Use MHz even if the chart uses GHz: 1 GHz = 1,000 MHz.</p>' : ''}
         <div class="field"><label for="calval">${state.calSeq < 2 ? "Frequency (MHz)" : "Beamwidth (°)"}</label>
         <input type="number" id="calval" step="any" autofocus></div>
         <div class="btnrow"><button class="btn primary" id="calok">Set value</button><button class="btn quiet" id="calcancel">Re-click point</button></div>
@@ -272,14 +288,25 @@ function renderSide(){
     const [fLo, fHi] = freqExtent();
     side.innerHTML = `
       <h2>Read &amp; export</h2>
-      <p class="hint">Traced range: ${fmtF(fLo)} – ${fmtF(fHi)}. Sample it on a regular grid, or ask for one frequency.</p>
+      <p class="hint">Read beamwidth at a single frequency, or create a table to copy or download. Traced range: ${fmtF(fLo)} – ${fmtF(fHi)}.</p>
       <div class="field"><label for="spotf">Spot frequency (MHz)</label><input type="number" id="spotf" step="any" value="${round3((fLo + fHi)/2)}"></div>
       <p class="counts" id="spotOut" style="margin:0 0 18px"></p>
       <div class="frow">
         <div class="field"><label for="sfrom">From (MHz)</label><input type="number" id="sfrom" step="any" value="${round3(fLo)}"></div>
         <div class="field"><label for="sto">To (MHz)</label><input type="number" id="sto" step="any" value="${round3(fHi)}"></div>
       </div>
-      <div class="field"><label for="sstep">Step (MHz)</label><input type="number" id="sstep" step="any" value="${round3((fHi - fLo)/10 || 1)}"></div>
+      <div class="field">
+        <div class="step-help" id="stepHelpWrap">
+          <label for="sstep">Step (MHz)</label>
+          <button type="button" id="stepHelpButton" aria-label="Explain frequency step" aria-expanded="false" aria-controls="stepHelpText">i</button>
+          <div class="help-popover" id="stepHelpText" hidden>
+            <p><strong>Step is the frequency interval between table rows.</strong> From 200 to 1,000 MHz with a step of 200 MHz gives rows at 200, 400, 600, 800 and 1,000 MHz.</p>
+            <p>A smaller step produces more rows. Values between your traced points are interpolated; more rows do not make the original tracing more accurate.</p>
+            <p>From and To set the table range. The final row only reaches To if the interval lands on it. Spot frequency is a separate, single-frequency lookup.</p>
+          </div>
+        </div>
+        <input type="number" id="sstep" step="any" value="${round3((fHi - fLo)/10 || 1)}">
+      </div>
       <div class="btnrow">
         <button class="btn primary" id="copycsv">Copy CSV</button>
         <button class="btn" id="dlcsv">Download CSV</button>
@@ -288,6 +315,15 @@ function renderSide(){
       <p class="status" id="st"></p>
       <div class="tscroll" style="margin-top:16px"><table class="out"><thead><tr><th>MHz</th><th>E-plane °</th><th>H-plane °</th></tr></thead><tbody id="tbody"></tbody></table></div>`;
     const refresh = () => { renderTable(); renderSpot(); };
+    const helpWrap=$("stepHelpWrap"), helpButton=$("stepHelpButton"), helpText=$("stepHelpText");
+    let helpPinned=false;
+    const showHelp=open=>{ helpText.hidden=!open; helpButton.setAttribute("aria-expanded",String(open)); };
+    helpWrap.addEventListener("mouseenter",()=>showHelp(true));
+    helpWrap.addEventListener("mouseleave",()=>{ if(!helpPinned && document.activeElement!==helpButton) showHelp(false); });
+    helpButton.addEventListener("focus",()=>showHelp(true));
+    helpButton.addEventListener("blur",()=>{helpPinned=false;showHelp(false);});
+    helpButton.addEventListener("click",()=>{helpPinned=!helpPinned;showHelp(helpPinned);});
+    helpWrap.addEventListener("keydown",event=>{if(event.key==="Escape"){helpPinned=false;showHelp(false);event.stopPropagation();}});
     ["spotf","sfrom","sto","sstep"].forEach(id => $(id).addEventListener("input", refresh));
     $("back3").addEventListener("click", () => setStep(3));
     $("copycsv").addEventListener("click", async () => {
