@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MIL-STD-461G FFT Receiver Examples — James Yates</title>
-<meta name="description" content="Four separate engineering plots recreating the receiver examples in MIL-STD-461G Appendix A, Figures A-5 to A-8.">
+<meta name="description" content="Interactive receiver comparisons based on MIL-STD-461G Appendix A, with adjustable traditional scan times and FFT dwell times.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4f6f6'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23131619' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%230d6e79' stroke-width='1.4'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23131619'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,6 +40,13 @@
 .interpretation { margin:12px 0 0; color:var(--muted); font-size:.9rem; line-height:1.55; }
 .interpretation strong { color:var(--ink); }
 .probability { display:inline-block; color:var(--accent-ink); font:500 .78rem var(--font-mono); margin-top:8px; }
+.timing-control { margin:16px 0; }
+.timing-label { display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
+.timing-label label { font-size:.9rem; color:var(--ink); }
+.timing-label output { font:500 .9rem var(--font-mono); color:var(--accent-ink); white-space:nowrap; }
+.timing-control input[type="range"] { width:100%; min-height:32px; padding:0; accent-color:var(--accent); cursor:pointer; }
+.timing-control input:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.timing-bounds { display:flex; justify-content:space-between; font-size:.875rem; color:var(--muted); }
 .standards-note { margin-top:28px; max-width:none; }
 @media (max-width:920px){.plot-grid{grid-template-columns:1fr}.control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){.control-grid{grid-template-columns:1fr}.example{padding:14px}.example header{grid-template-columns:1fr}.case-line{align-items:flex-start;flex-direction:column}}
@@ -64,7 +71,7 @@
   <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>MIL-STD-461G FFT Examples</nav>
   <p class="kicker">EMC — Reference Tool</p>
   <h1>MIL-STD-461G receiver examples</h1>
-  <p class="intro">Four separate plots corresponding directly to Appendix A, Figures A-5 through A-8. They compare a traditional scanning receiver with an FFT receiver for the standard's example signal: one 10 µs, 0.1 V pulse every second.</p>
+  <p class="intro">Four adjustable plots based on Appendix A, Figures A-5 through A-8. The default timings match the examples; use the sliders to compare other timings. The plots compare a traditional scanning receiver with an FFT receiver for the standard's example signal: one 10 µs, 0.1 V pulse every second.</p>
 
   <section class="section explain">
     <h2>What the four figures demonstrate</h2>
@@ -79,39 +86,61 @@
       <div class="field"><label for="tau">Pulse width (µs)</label><input id="tau" type="number" value="10" min="0.1" step="any"></div>
       <div class="field"><label for="prf">Pulse repetition frequency (Hz)</label><input id="prf" type="number" value="1" min="0.001" step="any"></div>
       <div class="field"><label for="amp">Pulse amplitude (V)</label><input id="amp" type="number" value="0.1" min="0.000001" step="any"></div>
-      <div class="field"><label for="shortOutcome">15 ms FFT example outcome</label><select id="shortOutcome"><option value="miss" selected>Pulse missed (typical)</option><option value="hit">Pulse captured (1.5% case)</option></select></div>
+      <div class="field"><label for="shortOutcome">FFT outcome when capture is not guaranteed</label><select id="shortOutcome"><option value="miss" selected>Show a missed acquisition</option><option value="hit">Show a captured acquisition</option></select></div>
     </div>
+    <p class="aside">For FFT records shorter than one pulse period, select a captured or missed acquisition above. The probability updates with dwell time. Records covering a full period always capture a pulse in this idealised model; longer dwell does not increase the displayed peak.</p>
     <button class="btn" type="button" id="reset">Reset Appendix values</button>
   </section>
 
   <section class="plot-grid" aria-label="Four MIL-STD-461G Appendix examples">
     <article class="example">
-      <header><span class="fig-no">A-5</span><div><h2>Traditional receiver — 10 s scan</h2><p class="sub">Minimum scan example used by the Appendix.</p></div></header>
+      <header><span class="fig-no">A-5</span><div><h2 id="titleA5">Traditional receiver — 10 s scan</h2><p class="sub">Based on Figure A-5 · adjustable scan time.</p></div></header>
+      <div class="timing-control">
+        <div class="timing-label"><label for="scanA5">Traditional scan time (s)</label><output id="scanA5Value" for="scanA5"></output></div>
+        <input id="scanA5" type="range" min="10" max="300" step="1" value="10">
+        <div class="timing-bounds" aria-hidden="true"><span>10 s</span><span>300 s</span></div>
+      </div>
       <div class="plot-frame"><svg id="plotA5" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="Traditional receiver with 10 second scan time"></svg></div>
       <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
-      <p class="interpretation"><strong>Several isolated responses are captured.</strong> The bandpass crosses only a small part of the spectrum when each one-second pulse occurs, leaving gaps between detected portions.</p>
+      <p class="interpretation" id="textA5"></p>
     </article>
 
     <article class="example">
-      <header><span class="fig-no">A-6</span><div><h2>Traditional receiver — 300 s scan</h2><p class="sub">The slower scan samples the pulse at far more frequency positions.</p></div></header>
+      <header><span class="fig-no">A-6</span><div><h2 id="titleA6">Traditional receiver — 300 s scan</h2><p class="sub">Based on Figure A-6 · adjustable scan time.</p></div></header>
+      <div class="timing-control">
+        <div class="timing-label"><label for="scanA6">Traditional scan time (s)</label><output id="scanA6Value" for="scanA6"></output></div>
+        <input id="scanA6" type="range" min="10" max="300" step="1" value="300">
+        <div class="timing-bounds" aria-hidden="true"><span>10 s</span><span>300 s</span></div>
+      </div>
       <div class="plot-frame"><svg id="plotA6" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="Traditional receiver with 300 second scan time"></svg></div>
       <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
-      <p class="interpretation"><strong>The responses overlap into the spectral profile.</strong> The additional scan time improves the chance of intercept at every part of the span, but at a large time cost.</p>
+      <p class="interpretation" id="textA6"></p>
     </article>
 
     <article class="example">
-      <header><span class="fig-no">A-7</span><div><h2>FFT receiver — 15 ms dwell</h2><p class="sub">A complete frequency block is observed for only 0.015 s.</p></div></header>
+      <header><span class="fig-no">A-7</span><div><h2 id="titleA7">FFT receiver — 15 ms dwell</h2><p class="sub">Based on Figure A-7 · adjustable dwell time.</p></div></header>
+      <div class="timing-control">
+        <div class="timing-label"><label for="dwellA7">FFT dwell time (ms)</label><output id="dwellA7Value" for="dwellA7"></output></div>
+        <input id="dwellA7" type="range" min="15" max="5000" step="1" value="15">
+        <div class="timing-bounds" aria-hidden="true"><span>15 ms</span><span>5 s</span></div>
+      </div>
       <div class="plot-frame"><svg id="plotA7" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="FFT receiver with 15 millisecond dwell time"></svg></div>
       <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
-      <span class="probability" id="shortProbability">1.5% intercept probability</span>
-      <p class="interpretation" id="shortText"><strong>The pulse is missed in this acquisition.</strong> The receiver has frequency coverage, but not enough time coverage for a once-per-second event.</p>
+      <span class="probability" id="probabilityA7" aria-live="polite"></span>
+      <p class="interpretation" id="textA7"></p>
     </article>
 
     <article class="example">
-      <header><span class="fig-no">A-8</span><div><h2>FFT receiver — 1 s dwell</h2><p class="sub">The time record covers a complete pulse repetition period.</p></div></header>
+      <header><span class="fig-no">A-8</span><div><h2 id="titleA8">FFT receiver — 1 s dwell</h2><p class="sub">Based on Figure A-8 · adjustable dwell time.</p></div></header>
+      <div class="timing-control">
+        <div class="timing-label"><label for="dwellA8">FFT dwell time (ms)</label><output id="dwellA8Value" for="dwellA8"></output></div>
+        <input id="dwellA8" type="range" min="15" max="5000" step="1" value="1000">
+        <div class="timing-bounds" aria-hidden="true"><span>15 ms</span><span>5 s</span></div>
+      </div>
       <div class="plot-frame"><svg id="plotA8" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="FFT receiver with one second dwell time"></svg></div>
       <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
-      <p class="interpretation"><strong>The continuous spectral profile is captured.</strong> One compliant time record covers the entire frequency block and includes at least one event from a periodic 1 Hz source.</p>
+      <span class="probability" id="probabilityA8" aria-live="polite"></span>
+      <p class="interpretation" id="textA8"></p>
     </article>
   </section>
 
@@ -143,7 +172,7 @@ function traditionalTrace(f, scanSeconds, prf, env, i){
   return captured ? env + .8*Math.sin(i*.31) : noiseAt(i, scanSeconds/20);
 }
 
-function drawPlot(id, kind, tau, prf, amp, shortHit){
+function drawPlot(id, kind, seconds, tau, prf, amp, captured){
   const svg = $(id), W=620, H=300, L=52, R=14, T=24, B=40;
   const iw=W-L-R, ih=H-T-B, yLo=10, yHi=90;
   const x=f=>L+iw*(f-FLO)/(FHI-FLO);
@@ -157,33 +186,64 @@ function drawPlot(id, kind, tau, prf, amp, shortHit){
   out+=`<line class="axis" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/><line class="axis" x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}"/><text x="${L}" y="12">Level (dBµV)</text><text x="${W-R}" y="${H-7}" text-anchor="end">Frequency (Hz)</text>`;
   out+=`<path class="truth" d="${path(p=>envelope(p.f,tau,amp))}"/><path class="limit" d="${path(p=>ce102Limit(p.f))}"/>`;
   let measured;
-  if(kind==="scan10") measured=p=>traditionalTrace(p.f,10,prf,envelope(p.f,tau,amp),p.i);
-  if(kind==="scan300") measured=p=>traditionalTrace(p.f,300,prf,envelope(p.f,tau,amp),p.i);
-  if(kind==="fft15") measured=p=>shortHit ? envelope(p.f,tau,amp)+.45*Math.sin(p.i*.22) : noiseAt(p.i,1.7);
-  if(kind==="fft1") measured=p=>envelope(p.f,tau,amp)+.35*Math.sin(p.i*.18);
+  if(kind==="scan") measured=p=>traditionalTrace(p.f,seconds,prf,envelope(p.f,tau,amp),p.i);
+  if(kind==="fft") measured=p=>captured ? envelope(p.f,tau,amp)+.45*Math.sin(p.i*.22) : noiseAt(p.i,1.7);
   out+=`<path class="trace" d="${path(measured)}"/>`;
   svg.innerHTML=out;
+}
+
+function formatDwell(ms){
+  return ms < 1000 ? `${ms} ms` : `${Number((ms/1000).toFixed(3))} s`;
+}
+
+function fftState(seconds, prf, selectedOutcome){
+  const probability=Math.min(1,seconds*prf);
+  return { probability, guaranteed:probability>=1, captured:probability>=1||selectedOutcome==="hit" };
 }
 
 function run(){
   const tau=Number($("tau").value)*1e-6, prf=Number($("prf").value), amp=Number($("amp").value);
   if(![tau,prf,amp].every(v=>Number.isFinite(v)&&v>0)) return;
-  const shortHit=$("shortOutcome").value==="hit";
-  const probability=Math.min(1,.015*prf)*100;
-  $("shortProbability").textContent=`${probability.toFixed(probability<10?1:0)}% intercept probability at ${Number(prf.toPrecision(4))} Hz`;
-  $("shortText").innerHTML=shortHit
-    ? "<strong>The pulse is captured in this acquisition.</strong> Because FFT observes the full block simultaneously, one intercepted pulse produces the continuous profile — but this remains an unlikely outcome at the reference PRF."
-    : "<strong>The pulse is missed in this acquisition.</strong> The receiver has frequency coverage, but not enough time coverage for this pulse repetition period.";
-  const appendix=Math.abs(tau-10e-6)<1e-12&&Math.abs(prf-1)<1e-12&&Math.abs(amp-.1)<1e-12;
+  const timing={A5:Number($("scanA5").value), A6:Number($("scanA6").value), A7:Number($("dwellA7").value), A8:Number($("dwellA8").value)};
+  ["A5","A6"].forEach(caseId=>{
+    const seconds=timing[caseId], control=$("scan"+caseId);
+    $("scan"+caseId+"Value").textContent=`${seconds} s`;
+    control.setAttribute("aria-valuetext",`${seconds} seconds`);
+    $("title"+caseId).textContent=`Traditional receiver — ${seconds} s scan`;
+    $("plot"+caseId).setAttribute("aria-label",`Traditional receiver with ${seconds} second scan time`);
+    const spacing=(FHI-FLO)/(seconds*prf);
+    $("text"+caseId).textContent=`Across the displayed 60–150 kHz span, successive pulses are sampled approximately ${Number((spacing/1000).toPrecision(3))} kHz apart. `+
+      (spacing>RBW*1.16 ? "The trace contains gaps between captured portions of the spectrum. Increasing scan time reduces these gaps." : "The modelled receiver responses overlap across the spectrum.");
+    drawPlot("plot"+caseId,"scan",seconds,tau,prf,amp,false);
+  });
+  ["A7","A8"].forEach(caseId=>{
+    const ms=timing[caseId], seconds=ms/1000, label=formatDwell(ms), control=$("dwell"+caseId);
+    const state=fftState(seconds,prf,$("shortOutcome").value);
+    $("dwell"+caseId+"Value").textContent=label;
+    control.setAttribute("aria-valuetext",`${ms} milliseconds`);
+    $("title"+caseId).textContent=`FFT receiver — ${label} dwell`;
+    $("plot"+caseId).setAttribute("aria-label",`FFT receiver with ${ms} millisecond dwell time; pulse ${state.captured?"captured":"missed"}`);
+    const percent=state.probability*100;
+    const probabilityLabel=state.guaranteed?"100%":percent<0.1?"<0.1%":percent>99.9?">99.9%":`${Number(percent.toFixed(1))}%`;
+    $("probability"+caseId).textContent=`${probabilityLabel} intercept probability at ${Number(prf.toPrecision(4))} Hz`;
+    $("text"+caseId).textContent=state.guaranteed
+      ? "The record covers at least one complete pulse period, so a pulse is captured regardless of acquisition start time. Additional dwell retains the same peak envelope."
+      : state.captured
+        ? "Illustrated outcome: pulse captured. One intercepted pulse produces the spectral envelope across the frequency block. Other acquisition start times can miss the pulse."
+        : "Illustrated outcome: pulse missed. Increasing dwell raises the probability of capture. Select a captured acquisition above to compare its spectrum.";
+    drawPlot("plot"+caseId,"fft",seconds,tau,prf,amp,state.captured);
+  });
+  $("shortOutcome").disabled=timing.A7/1000*prf>=1&&timing.A8/1000*prf>=1;
+  const appendix=Math.abs(tau-10e-6)<1e-12&&prf===1&&amp===.1&&timing.A5===10&&timing.A6===300&&timing.A7===15&&timing.A8===1000;
   $("caseBadge").textContent=appendix?"Appendix values":"Custom comparison";
-  drawPlot("plotA5","scan10",tau,prf,amp,shortHit);
-  drawPlot("plotA6","scan300",tau,prf,amp,shortHit);
-  drawPlot("plotA7","fft15",tau,prf,amp,shortHit);
-  drawPlot("plotA8","fft1",tau,prf,amp,shortHit);
 }
 
-["tau","prf","amp","shortOutcome"].forEach(id=>$(id).addEventListener("input",run));
-$("reset").addEventListener("click",()=>{$("tau").value=10;$("prf").value=1;$("amp").value=.1;$("shortOutcome").value="miss";run()});
+["tau","prf","amp","shortOutcome","scanA5","scanA6","dwellA7","dwellA8"].forEach(id=>$(id).addEventListener("input",run));
+$("reset").addEventListener("click",()=>{
+  const defaults={tau:10,prf:1,amp:.1,shortOutcome:"miss",scanA5:10,scanA6:300,dwellA7:15,dwellA8:1000};
+  Object.entries(defaults).forEach(([id,value])=>{$(id).value=value});
+  run();
+});
 run();
 </script>
 <script src="../assets/report-tools.js"></script>
