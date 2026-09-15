@@ -71,7 +71,7 @@
   <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="../emc.html">EMC</a><span>/</span>MIL-STD-461G FFT Examples</nav>
   <p class="kicker">EMC — Reference Tool</p>
   <h1>MIL-STD-461G receiver examples</h1>
-  <p class="intro">Four adjustable plots based on Appendix A, Figures A-5 through A-8. The default timings match the examples; use the sliders to compare other timings. The plots compare a traditional scanning receiver with an FFT receiver for the standard's example signal: one 10 µs, 0.1 V pulse every second.</p>
+  <p class="intro">Four adjustable plots based on Appendix A, Figures A-5 through A-8. A-6 through A-8 default to the timings stated in the appendix; A-5's scan-time range has been extended down to 15 ms so it can be compared directly against the FFT dwell examples. Use the sliders to compare other timings. The plots compare a traditional scanning receiver with an FFT receiver for the standard's example signal: one 10 µs, 0.1 V pulse every second.</p>
 
   <section class="section explain">
     <h2>What the four figures demonstrate</h2>
@@ -94,13 +94,13 @@
 
   <section class="plot-grid" aria-label="Four MIL-STD-461G Appendix examples">
     <article class="example">
-      <header><span class="fig-no">A-5</span><div><h2 id="titleA5">Traditional receiver — 10 s scan</h2><p class="sub">Based on Figure A-5 · adjustable scan time.</p></div></header>
+      <header><span class="fig-no">A-5</span><div><h2 id="titleA5">Traditional receiver — 15 ms scan</h2><p class="sub">Based on Figure A-5 · adjustable scan time.</p></div></header>
       <div class="timing-control">
-        <div class="timing-label"><label for="scanA5">Traditional scan time (s)</label><output id="scanA5Value" for="scanA5"></output></div>
-        <input id="scanA5" type="range" min="10" max="300" step="1" value="10">
-        <div class="timing-bounds" aria-hidden="true"><span>10 s</span><span>300 s</span></div>
+        <div class="timing-label"><label for="scanA5">Traditional scan time</label><output id="scanA5Value" for="scanA5"></output></div>
+        <input id="scanA5" type="range" min="15" max="5000" step="1" value="15">
+        <div class="timing-bounds" aria-hidden="true"><span>15 ms</span><span>5 s</span></div>
       </div>
-      <div class="plot-frame"><svg id="plotA5" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="Traditional receiver with 10 second scan time"></svg></div>
+      <div class="plot-frame"><svg id="plotA5" class="example-chart" viewBox="0 0 620 300" role="img" aria-label="Traditional receiver with 15 millisecond scan time"></svg></div>
       <div class="plot-key"><span class="measured"><i></i>Measured peak</span><span class="envelope"><i></i>Pulse envelope</span><span class="ce"><i></i>CE102 115 V limit</span></div>
       <p class="interpretation" id="textA5"></p>
     </article>
@@ -205,17 +205,28 @@ function run(){
   const tau=Number($("tau").value)*1e-6, prf=Number($("prf").value), amp=Number($("amp").value);
   if(![tau,prf,amp].every(v=>Number.isFinite(v)&&v>0)) return;
   const timing={A5:Number($("scanA5").value), A6:Number($("scanA6").value), A7:Number($("dwellA7").value), A8:Number($("dwellA8").value)};
-  ["A5","A6"].forEach(caseId=>{
-    const seconds=timing[caseId], control=$("scan"+caseId);
-    $("scan"+caseId+"Value").textContent=`${seconds} s`;
-    control.setAttribute("aria-valuetext",`${seconds} seconds`);
-    $("title"+caseId).textContent=`Traditional receiver — ${seconds} s scan`;
-    $("plot"+caseId).setAttribute("aria-label",`Traditional receiver with ${seconds} second scan time`);
+  {
+    const ms=timing.A5, seconds=ms/1000, label=formatDwell(ms), control=$("scanA5");
+    $("scanA5Value").textContent=label;
+    control.setAttribute("aria-valuetext",`${ms} milliseconds`);
+    $("titleA5").textContent=`Traditional receiver — ${label} scan`;
+    $("plotA5").setAttribute("aria-label",`Traditional receiver with ${label} scan time`);
     const spacing=(FHI-FLO)/(seconds*prf);
-    $("text"+caseId).textContent=`Across the displayed 60–150 kHz span, successive pulses are sampled approximately ${Number((spacing/1000).toPrecision(3))} kHz apart. `+
+    $("textA5").textContent=`Across the displayed 60–150 kHz span, successive pulses are sampled approximately ${Number((spacing/1000).toPrecision(3))} kHz apart. `+
       (spacing>RBW*1.16 ? "The trace contains gaps between captured portions of the spectrum. Increasing scan time reduces these gaps." : "The modelled receiver responses overlap across the spectrum.");
-    drawPlot("plot"+caseId,"scan",seconds,tau,prf,amp,false);
-  });
+    drawPlot("plotA5","scan",seconds,tau,prf,amp,false);
+  }
+  {
+    const seconds=timing.A6, control=$("scanA6");
+    $("scanA6Value").textContent=`${seconds} s`;
+    control.setAttribute("aria-valuetext",`${seconds} seconds`);
+    $("titleA6").textContent=`Traditional receiver — ${seconds} s scan`;
+    $("plotA6").setAttribute("aria-label",`Traditional receiver with ${seconds} second scan time`);
+    const spacing=(FHI-FLO)/(seconds*prf);
+    $("textA6").textContent=`Across the displayed 60–150 kHz span, successive pulses are sampled approximately ${Number((spacing/1000).toPrecision(3))} kHz apart. `+
+      (spacing>RBW*1.16 ? "The trace contains gaps between captured portions of the spectrum. Increasing scan time reduces these gaps." : "The modelled receiver responses overlap across the spectrum.");
+    drawPlot("plotA6","scan",seconds,tau,prf,amp,false);
+  }
   ["A7","A8"].forEach(caseId=>{
     const ms=timing[caseId], seconds=ms/1000, label=formatDwell(ms), control=$("dwell"+caseId);
     const state=fftState(seconds,prf,$("shortOutcome").value);
@@ -234,13 +245,13 @@ function run(){
     drawPlot("plot"+caseId,"fft",seconds,tau,prf,amp,state.captured);
   });
   $("shortOutcome").disabled=timing.A7/1000*prf>=1&&timing.A8/1000*prf>=1;
-  const appendix=Math.abs(tau-10e-6)<1e-12&&prf===1&&amp===.1&&timing.A5===10&&timing.A6===300&&timing.A7===15&&timing.A8===1000;
+  const appendix=Math.abs(tau-10e-6)<1e-12&&prf===1&&amp===.1&&timing.A5===15&&timing.A6===300&&timing.A7===15&&timing.A8===1000;
   $("caseBadge").textContent=appendix?"Appendix values":"Custom comparison";
 }
 
 ["tau","prf","amp","shortOutcome","scanA5","scanA6","dwellA7","dwellA8"].forEach(id=>$(id).addEventListener("input",run));
 $("reset").addEventListener("click",()=>{
-  const defaults={tau:10,prf:1,amp:.1,shortOutcome:"miss",scanA5:10,scanA6:300,dwellA7:15,dwellA8:1000};
+  const defaults={tau:10,prf:1,amp:.1,shortOutcome:"miss",scanA5:15,scanA6:300,dwellA7:15,dwellA8:1000};
   Object.entries(defaults).forEach(([id,value])=>{$(id).value=value});
   run();
 });
